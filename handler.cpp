@@ -47,8 +47,7 @@ std::string &str_replace(std::string &subject, std::string search, std::string r
     return subject;
 }
 
-std::string convertFile(std::string filepath) {
-
+std::string convertFile(const std::filesystem::path& filepath) {
 
     std::ifstream infile(filepath, std::ifstream::in);
 
@@ -292,7 +291,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     if (action.empty()) {
         if (f.extension() == ".srt") {
             if (exists(f)) {
-                res.set_content(convertFile(f.string()), "text/vtt");
+                res.set_content(convertFile(f), "text/vtt");
             }
             return;
         }
