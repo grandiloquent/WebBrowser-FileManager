@@ -5,7 +5,7 @@ function appendSubtitle(video) {
     var numTracks = tracks.length;
     for (var i = numTracks - 1; i >= 0; i--)
         video.textTracks[i].mode = "disabled";
-    track.src = substringBeforeLast(video.src, ".") + ".vtt&isDir=0";
+    track.src = substringBeforeLast(video.src, ".") + ".srt";
     track.default = true;
     video.appendChild(track);
 }
@@ -234,7 +234,12 @@ function toggleFullScreen() {
         }
     }
 }
-
+function getPath() {
+    return new URL(document.URL).searchParams.get('path');
+}
+function onFullscreen(evt) {
+    toggleFullScreen();
+}
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 https://developer.mozilla.org/zh-CN/docs/Web/API/Fullscreen_API

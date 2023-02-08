@@ -48,12 +48,12 @@
 
         <div bind="bottom" @click="onBottom" class="bottom">
             <div class="wrapper">
-                <div  class="time-display">
+                <div class="time-display">
                     <div bind="timeFirst" class="time-first">0:00</div>
                     <div style="opacity: .7;margin: 0 4px;">/</div>
                     <div bind="timeSecond" class="time-second">0:00</div>
                 </div>
-                <div bind="buttonFullscreen" class="button-fullscreen">
+                <div bind="buttonFullscreen" @click="onFullscreen" class="button-fullscreen">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                         <path
                                 d="M7,11H6V6h5v1H7V11z M18,6h-5v1h4v4h1V6z M18,13h-1v4h-4v1h5V13z M11,17H7v-4H6v5h5V17z">
@@ -66,7 +66,7 @@
                 <div bind="progressBarBackground" class="progress-bar-background"></div>
                 <div bind="progressBarLoaded" class="progress-bar-loaded"></div>
                 <div bind="progressBarPlayed" class="progress-bar-played"></div>
-                <div bind="progressBarPlayhead " class="progress-bar-playhead"></div>
+                <div bind="progressBarPlayhead" class="progress-bar-playhead"></div>
             </div>
         </div>
 
@@ -121,19 +121,12 @@
     layout.style.height = `${window.innerWidth * 0.5625}px`;
     let timer, items;
 
+
     video.preload = "auto"
-    video.src = `/api/file?path=${encodeURIComponent(new URL(document.URL).searchParams.get('path'))}&isDir=0`;
+    let path = getPath();
+    video.src = `/api/file?path=${encodeURIComponent(path)}&isDir=0`;
+    document.title = substringAfterLast(path, '\\')
     appendSubtitle(video);
-
-
-
-    buttonFullscreen.addEventListener('click', evt => {
-        toggleFullScreen();
-    });
-
-
-
-
 
 
     const width = progressBarBackground.getBoundingClientRect().width;

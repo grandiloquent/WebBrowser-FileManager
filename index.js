@@ -1,17 +1,48 @@
-bind();
-customElements.whenDefined('custom-bottom-sheet').then(() => {
-    customBottomSheet.data = [{
-        title: "删除",
-        id: 1
-    }]
-})
-
 async function loadData(path) {
     // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
-
     window.history.pushState(null, null, `?path=${encodeURIComponent(path)}`);
     const res = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
     return res.json();
+}
+
+function onCustomBottomSheetSubmit(evt) {
+    evt.stopPropagation();
+    customBottomSheet.style.display = 'none';
+    if (evt.detail.id === '1') {
+        dialogDelete.style.display = 'block';
+        const div = document.createElement('div');
+        div.textContent = decodeURIComponent(detail.path);
+        dialogDelete.appendChild(div);
+    }
+}
+
+async function onDialogDeleteSubmit() {
+    await fetch(`/api/file?path=${encodeURIComponent(detail.path)}&action=3`);
+    location.reload();
+}
+
+async function onDialogSubmit() {
+    const dst = input.value.trim();
+    if (!dst) return;
+    const path = new URL(window.location).searchParams.get("path");
+    const url = new URL(`${window.origin}/api/file`);
+    url.searchParams.set("path", path);
+    url.searchParams.set("action", this.dialog.dataset.action);
+    url.searchParams.set("dst", dst);
+    await fetch(url)
+    location.reload();
+}
+
+function onNewFile() {
+    this.dialog.style.display = 'block';
+    this.dialog.setAttribute('title', '新建文件');
+    this.dialog.dataset.action = "1";
+}
+
+function onNewFolder() {
+    this.dialog.style.display = 'block';
+    this.dialog.setAttribute('title', '新建文件');
+    this.dialog.dataset.action = "2";
 }
 
 async function render(path) {
@@ -30,37 +61,6 @@ async function render(path) {
     bind(this.wrapper);
 }
 
-render();
-
-function onNewFile() {
-    this.dialog.style.display = 'block';
-    this.dialog.setAttribute('title', '新建文件');
-    this.dialog.dataset.action = "1";
-}
-
-async function onDialogSubmit() {
-    const dst = input.value.trim();
-    if (!dst) return;
-    const path = new URL(window.location).searchParams.get("path");
-    const url = new URL(`${window.origin}/api/file`);
-    url.searchParams.set("path", path);
-    url.searchParams.set("action", this.dialog.dataset.action);
-    url.searchParams.set("dst", dst);
-    await fetch(url)
-    location.reload();
-}
-
-function onNewFolder() {
-    this.dialog.style.display = 'block';
-    this.dialog.setAttribute('title', '新建文件');
-    this.dialog.dataset.action = "2";
-}
-
-window.addEventListener("popstate", function (e) {
-    window.location.href = location.href;
-});
-let detail;
-
 function submit(evt) {
     if (evt.detail.id === '0') {
         if (evt.detail.isDirectory === "true") {
@@ -68,10 +68,9 @@ function submit(evt) {
         } else {
             if (/\.(?:mp4|m4a)$/.test(evt.detail.path)) {
                 window.location = `/video?path=${evt.detail.path}`
-            } else{
+            } else {
                 window.location = `/editor?path=${evt.detail.path}`
             }
-
         }
     } else {
         detail = evt.detail;
@@ -79,22 +78,36 @@ function submit(evt) {
     }
 }
 
-function onCustomBottomSheetSubmit(evt) {
-    evt.stopPropagation();
+function onFav() {
+    fav.style.display = "block";
+}
 
-    customBottomSheet.style.display = 'none';
-    if (evt.detail.id === '1') {
-        dialogDelete.style.display = 'block';
-        const div = document.createElement('div');
-        div.textContent = decodeURIComponent(detail.path);
-        dialogDelete.appendChild(div);
-        //console.log(`/api/file?path=${encodeURIComponent(detail.path)}&action=3`)
-        //    }
+function onFavSubmit(evt) {
+    switch (evt.detail.id) {
+        case `1`:
+            location = `?path=${encodeURIComponent("D:\\")}`;
+            break
     }
-
 }
 
-async function onDialogDeleteSubmit() {
-    await fetch(`/api/file?path=${encodeURIComponent(detail.path)}&action=3`);
-    location.reload();
-}
+///////////////////////////
+bind();
+customElements.whenDefined('custom-bottom-sheet').then(() => {
+    customBottomSheet.data = [{
+        title: "删除",
+        id: 1
+    }]
+    fav.data = [{
+        title: "D:\\",
+        id: 1
+    }]
+})
+
+
+render();
+
+
+window.addEventListener("popstate", function (e) {
+    window.location.href = location.href;
+});
+let detail;

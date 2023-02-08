@@ -4,6 +4,112 @@
 
 using namespace std;
 
+void rtrim(string &s, const char c) {
+    while (!s.empty() && s.back() == c) {
+        s.pop_back();
+    }
+}
+
+int timeStringToMs(const std::string &time) {
+    // Time format: hh:mm:ss,### (where # = ms)
+    int hours = stoi(time.substr(0, 2));
+    int minutes = stoi(time.substr(3, 2));
+    int seconds = stoi(time.substr(6, 2));
+    int milliseconds = stoi(time.substr(9));
+
+    return hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
+}
+
+
+std::string msToVttTimeString(int ms) {
+    int hours = ms / 3600000;
+    ms -= hours * 3600000;
+
+    int minutes = ms / 60000;
+    ms -= minutes * 60000;
+
+    int seconds = ms / 1000;
+    ms -= seconds * 1000;
+
+    return (hours < 10 ? "0" : "") + std::to_string(hours)
+           + ":" + (minutes < 10 ? "0" : "") + std::to_string(minutes)
+           + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds)
+           + "." + (ms < 100 ? "0" : "") + (ms < 10 ? "0" : "") + std::to_string(ms);
+}
+
+std::string &str_replace(std::string &subject, std::string search, std::string replace) {
+    for (;;) {
+        size_t index = subject.find_first_of(search);
+        if (index == std::string::npos) break;
+        subject.replace(index, search.length(), replace);
+    }
+
+    return subject;
+}
+
+std::string convertFile(std::string filepath) {
+
+
+    std::ifstream infile(filepath, std::ifstream::in);
+
+
+    std::stringstream outfile;
+//        if (!outfile.is_open()) {
+//            throw ios_base::failure("Could not open .vtt file.");
+//        }
+//        outfile.imbue(locale(outfile.getloc(), new codecvt_utf8<wchar_t>));
+
+    // Write mandatory starting for the WebVTT file
+    outfile << "WEBVTT" << std::endl << std::endl;
+
+    std::regex rgxDialogNumber("\\d+");
+    std::regex rgxTimeFrame(R"((\d\d:\d\d:\d\d,\d{1,3}) --> (\d\d:\d\d:\d\d,\d{1,3}))");
+
+    for (;;) {
+        std::string sLine;
+
+        if (!getline(infile, sLine)) break;
+
+        //LOGE("%s", sLine.c_str());
+        rtrim(sLine, '\r'); // Trim a possibly trailing CR character
+
+        // Ignore dialog number lines
+        if (regex_match(sLine, rgxDialogNumber))
+            continue;
+
+        std::smatch matchTimeFrame;
+        regex_match(sLine, matchTimeFrame, rgxTimeFrame);
+
+        if (!matchTimeFrame.empty()) {
+            // Handle invalid SRT files where the time frame's milliseconds are less than 3 digits long
+            bool msTooShort = matchTimeFrame[1].length() < 12 || matchTimeFrame[2].length() < 12;
+
+            if (msTooShort) {
+                // Extract the times in milliseconds from the time frame line
+                int msStartTime = timeStringToMs(matchTimeFrame[1]);
+                int msEndTime = timeStringToMs(matchTimeFrame[2]);
+
+                // Modify the time with the offset, making sure the time
+                // gets set to 0 if it is going to be negative
+//                msStartTime += _timeOffsetMs;
+//                msEndTime += _timeOffsetMs;
+                if (msStartTime < 0) msStartTime = 0;
+                if (msEndTime < 0) msEndTime = 0;
+
+                // Construct the new time frame line
+                sLine = msToVttTimeString(msStartTime) + " --> " + msToVttTimeString(msEndTime);
+            } else {
+                // Simply replace the commas in the time with a period
+                sLine = str_replace(sLine, ",", ".");
+            }
+        }
+
+        outfile << sLine << std::endl; // Output the line to the new file
+    }
+    return outfile.str();
+
+}
+
 string GbkToUtf8(const char *src_str) {
     int len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, NULL, 0);
     wchar_t *wstr = new wchar_t[len + 1];
@@ -33,19 +139,20 @@ string Utf8ToGbk(const char *src_str) {
     if (szGBK) delete[] szGBK;
     return strTemp;
 }
+
 // convert string to wstring
-inline std::wstring to_wide_string(const std::string& input)
-{
+inline std::wstring to_wide_string(const std::string &input) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.from_bytes(input);
 }
+
 // convert wstring to string
-inline std::string to_byte_string(const std::wstring& input)
-{
+inline std::string to_byte_string(const std::wstring &input) {
     //std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.to_bytes(input);
 }
+
 unsigned char ToHex(unsigned char x) {
     return x > 9 ? x + 55 : x + 48;
 }
@@ -144,11 +251,13 @@ void handler::handleEditor(const httplib::Request &req, httplib::Response &res) 
     f /= "editor.html";
     serveFile(f, "text/html", res);
 }
+
 void handler::handleVideo(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
     f /= "video.html";
     serveFile(f, "text/html", res);
 }
+
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
 
@@ -181,6 +290,12 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
     auto action = req.get_param_value("action");
     if (action.empty()) {
+        if (f.extension() == ".srt") {
+            if (exists(f)) {
+                res.set_content(convertFile(f.string()), "text/vtt");
+            }
+            return;
+        }
         serveFile(f, "text/plain", res);
         return;
     }
@@ -195,7 +310,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
         if (!std::filesystem::exists(f)) {
             std::filesystem::create_directory(f);
         }
-    }else if (action == "3") {
+    } else if (action == "3") {
         if (std::filesystem::exists(f)) {
             std::filesystem::remove_all(f);
         }
@@ -206,13 +321,14 @@ handler::handler(const std::string &dir) {
     mDir = std::string{dir};
 }
 
-void handler::handlePostFile(const httplib::Request &req, httplib::Response &res,const httplib::ContentReader &content_reader) {
+void handler::handlePostFile(const httplib::Request &req, httplib::Response &res,
+                             const httplib::ContentReader &content_reader) {
     std::string body;
     content_reader([&](const char *data, size_t data_length) {
         body.append(data, data_length);
         return true;
     });
-    std::filesystem::path f = to_wide_string( httplib::detail::decode_url(
+    std::filesystem::path f = to_wide_string(httplib::detail::decode_url(
             req.get_param_value("path"), true
     ));
     std::ofstream ofs;
