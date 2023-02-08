@@ -9,6 +9,7 @@ function appendSubtitle(video) {
     track.default = true;
     video.appendChild(track);
 }
+
 function bind(elememnt) {
     (elememnt || document).querySelectorAll('[bind]').forEach(element => {
         if (element.getAttribute('bind')) {
@@ -22,15 +23,18 @@ function bind(elememnt) {
         });
     })
 }
+
 function calculateLoadedPercent(video) {
     if (!video.buffered.length) {
         return '0';
     }
     return (video.buffered.end(0) / video.duration) * 100 + '%';
 }
+
 function calculateProgressPercent(video) {
     return ((video.currentTime / video.duration) * 100).toFixed(2) + '%';
 }
+
 function formatDuration(ms) {
     if (isNaN(ms)) return '0:00';
     if (ms < 0) ms = -ms;
@@ -44,15 +48,18 @@ function formatDuration(ms) {
         .map(val => (val[1] + '').padStart(2, '0'))
         .join(':');
 }
+
 function getCurrentVideoFileName() {
     let s = substringAfterLast(decodeURIComponent(video.src), '/');
     s = substringAfterLast(s, '\\')
     return substringBefore(s, "&");
 }
+
 function getIndexOfCurrentPlayback() {
     const name = getCurrentVideoFileName();
     return items.indexOf(items.filter(x => x.name === name)[0]);
 }
+
 async function loadData() {
     if (!items) {
         const path = substringBeforeLast(new URL(document.URL).searchParams.get('path'), '/');
@@ -63,6 +70,22 @@ async function loadData() {
         })
     }
 }
+
+function onBottom(evt) {
+    evt.stopPropagation();
+    if (evt.clientX > left || evt.clientX <= width + left) {
+        let precent = (evt.clientX - left) / width;
+        precent = Math.max(precent, 0);
+        precent = Math.min(precent, 1);
+        video.currentTime = video.duration * precent;
+    }
+}
+
+function onDownload(evt) {
+    evt.stopPropagation();
+    renderData();
+}
+
 function onDurationChange() {
     console.log(window.innerWidth, window.innerHeight)
     if (window.innerWidth < window.innerHeight) {
@@ -75,7 +98,36 @@ function onDurationChange() {
     progressBarPlayed.style.width = calculateProgressPercent(video);
     timeSecond.textContent = formatDuration(video.duration);
 }
+
+function onEnded() {
+    playIndexedVideo(true)
+}
+
+function onLayout(evt) {
+    middle.style.display = 'flex';
+    bottom.style.display = 'flex';
+    timer && clearTimeout(timer);
+    timer = setTimeout(() => {
+        middle.style.display = 'none';
+        bottom.style.display = 'none';
+    }, 5000)
+}
+
+function onNext(evt) {
+    evt.stopPropagation();
+    playIndexedVideo(true)
+}
+
+function onPause() {
+    buttonPlay.querySelector('path').setAttribute('d', 'M6,4l12,8L6,20V4z');
+}
+
 function onPlay(evt) {
+    evt.stopPropagation();
+    buttonPlay.querySelector('path').setAttribute('d', 'M9,19H7V5H9ZM17,5H15V19h2Z');
+}
+
+function onPlayButton(evt) {
     evt.stopPropagation();
     if (video.paused) {
         video.play();
@@ -88,15 +140,23 @@ function onPlay(evt) {
         video.pause();
     }
 }
-function onProgress(){
+
+function onPrevious(evt) {
+    evt.stopPropagation();
+    playIndexedVideo(false)
+}
+
+function onProgress() {
     progressBarLoaded.style.width = calculateLoadedPercent(video);
 }
+
 function onTimeupdate() {
     timeFirst.textContent = formatDuration(video.currentTime);
     const width = calculateProgressPercent(video);
     progressBarPlayed.style.width = width
     progressBarPlayhead.style.left = width
 }
+
 async function playIndexedVideo(next) {
     await loadData();
     let index = getIndexOfCurrentPlayback();
@@ -109,12 +169,14 @@ async function playIndexedVideo(next) {
         playVideoAtSpecifiedIndex(index)
     }
 }
+
 async function playVideoAtSpecifiedIndex(index) {
     const v = items[index];
     video.src = `/api/files?path=${encodeURIComponent(v.parent + "\\" + v.name)}&isDir=0`;
     appendSubtitle(video);
     await video.play();
 }
+
 async function renderData() {
     await loadData();
     const customBottomSheet = document.createElement('custom-bottom-sheet');
@@ -126,6 +188,7 @@ async function renderData() {
         });
     });
 }
+
 function substringAfterLast(string, delimiter, missingDelimiterValue) {
     const index = string.lastIndexOf(delimiter);
     if (index === -1) {
@@ -134,6 +197,7 @@ function substringAfterLast(string, delimiter, missingDelimiterValue) {
         return string.substring(index + delimiter.length);
     }
 }
+
 function substringBefore(string, delimiter, missingDelimiterValue) {
     const index = string.indexOf(delimiter);
     if (index === -1) {
@@ -142,6 +206,7 @@ function substringBefore(string, delimiter, missingDelimiterValue) {
         return string.substring(0, index);
     }
 }
+
 function substringBeforeLast(string, delimiter, missingDelimiterValue) {
     const index = string.lastIndexOf(delimiter);
     if (index === -1) {
@@ -150,6 +215,7 @@ function substringBeforeLast(string, delimiter, missingDelimiterValue) {
         return string.substring(0, index);
     }
 }
+
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
@@ -168,6 +234,7 @@ function toggleFullScreen() {
         }
     }
 }
+
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 https://developer.mozilla.org/zh-CN/docs/Web/API/Fullscreen_API

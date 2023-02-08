@@ -13,29 +13,32 @@
 </head>
 
 <body>
-<div class="layout">
+<div class="layout" bind="layout" @click="onLayout">
     <video bind="video"
            @timeupdate="onTimeupdate"
            @durationChange="onDurationChange"
            @progress="onProgress"
+           @pause="onPause"
+           @ended="onEnded"
+           @play="onPlay"
            class="video"></video>
     <div class="controller">
         <div style="
      flex-grow: 1;
      "></div>
-        <div class="middle">
-            <div class="button previous">
+        <div bind="middle" class="middle">
+            <div bind="previous" @click="onPrevious" class="button previous">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
                     <path d="M19,6L9,12l10,6V6L19,6z M7,6H5v12h2V6z"></path>
                 </svg>
             </div>
 
-            <div bind="buttonPlay" @click="onPlay" class="button-play">
+            <div bind="buttonPlay" @click="onPlayButton" class="button-play">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="56" height="56">
                     <path d="M6,4l12,8L6,20V4z"></path>
                 </svg>
             </div>
-            <div class="button next">
+            <div bind="next" @click="onNext" class="button next">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
                     <path d="M5,18l10-6L5,6V18L5,18z M19,6h-2v12h2V6z"></path>
                 </svg>
@@ -43,14 +46,14 @@
         </div>
 
 
-        <div class="bottom">
+        <div bind="bottom" @click="onBottom" class="bottom">
             <div class="wrapper">
-                <div class="time-display">
-                    <div class="time-first">0:00</div>
+                <div  class="time-display">
+                    <div bind="timeFirst" class="time-first">0:00</div>
                     <div style="opacity: .7;margin: 0 4px;">/</div>
-                    <div class="time-second">0:00</div>
+                    <div bind="timeSecond" class="time-second">0:00</div>
                 </div>
-                <div class="button-fullscreen">
+                <div bind="buttonFullscreen" class="button-fullscreen">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                         <path
                                 d="M7,11H6V6h5v1H7V11z M18,6h-5v1h4v4h1V6z M18,13h-1v4h-4v1h5V13z M11,17H7v-4H6v5h5V17z">
@@ -60,10 +63,10 @@
             </div>
 
             <div class="progress-bar">
-                <div class="progress-bar-background"></div>
-                <div class="progress-bar-loaded"></div>
-                <div class="progress-bar-played"></div>
-                <div class="progress-bar-playhead"></div>
+                <div bind="progressBarBackground" class="progress-bar-background"></div>
+                <div bind="progressBarLoaded" class="progress-bar-loaded"></div>
+                <div bind="progressBarPlayed" class="progress-bar-played"></div>
+                <div bind="progressBarPlayhead " class="progress-bar-playhead"></div>
             </div>
         </div>
 
@@ -90,7 +93,7 @@
 <div style="display: flex;
     padding: 0 12px 12px;
     ">
-    <div class="download">
+    <div class="download" @click="onDownload">
 
 
         <div
@@ -114,17 +117,6 @@
 <script>
     bind();
 
-    const bottom = document.querySelector('.bottom');
-    const buttonFullscreen = document.querySelector('.button-fullscreen');
-
-    const layout = document.querySelector('.layout');
-    const middle = document.querySelector('.middle');
-    const progressBarLoaded = document.querySelector('.progress-bar-loaded');
-    const progressBarPlayed = document.querySelector('.progress-bar-played');
-    const progressBarPlayhead = document.querySelector('.progress-bar-playhead');
-    const timeFirst = document.querySelector('.time-first');
-    const timeSecond = document.querySelector('.time-second');
-
 
     layout.style.height = `${window.innerWidth * 0.5625}px`;
     let timer, items;
@@ -133,69 +125,20 @@
     video.src = `/api/file?path=${encodeURIComponent(new URL(document.URL).searchParams.get('path'))}&isDir=0`;
     appendSubtitle(video);
 
-    const playEventHandler = evt => {
-        evt.stopPropagation();
-        buttonPlay.querySelector('path').setAttribute('d', 'M9,19H7V5H9ZM17,5H15V19h2Z');
-    };
 
 
-    const pauseEventHandler = evt => {
-        buttonPlay.querySelector('path').setAttribute('d', 'M6,4l12,8L6,20V4z');
-    }
-
-
-    const endedEventHandler = evt => {
-        playIndexedVideo(true)
-    }
-
-    layout.addEventListener('click', evt => {
-        middle.style.display = 'flex';
-        bottom.style.display = 'flex';
-        timer && clearTimeout(timer);
-        timer = setTimeout(() => {
-            middle.style.display = 'none';
-            bottom.style.display = 'none';
-        }, 5000)
-    });
     buttonFullscreen.addEventListener('click', evt => {
         toggleFullScreen();
     });
 
-    video.addEventListener('play', playEventHandler);
-    video.addEventListener('pause', pauseEventHandler);
-    video.addEventListener('ended', endedEventHandler);
 
 
-    const download = document.querySelector('.download');
-    download.addEventListener('click', async evt => {
-        evt.stopPropagation();
-        await renderData();
-    });
-    document.querySelector('.previous')
-        .addEventListener('click', async evt => {
-            playIndexedVideo(false)
-        });
-
-    document.querySelector('.next')
-        .addEventListener('click', async evt => {
-            evt.stopPropagation();
-            playIndexedVideo(true)
-        });
 
 
-    const progressBarBackground = document.querySelector('.progress-bar-background');
+
     const width = progressBarBackground.getBoundingClientRect().width;
     const left = parseInt(window.getComputedStyle(bottom, null).getPropertyValue('padding-left'));
 
-    bottom.addEventListener('click', evt => {
-        evt.stopPropagation();
-        if (evt.clientX > left || evt.clientX <= width + left) {
-            let precent = (evt.clientX - left) / width;
-            precent = Math.max(precent, 0);
-            precent = Math.min(precent, 1);
-            video.currentTime = video.duration * precent;
-        }
-    });
 
 </script>
 </body>
