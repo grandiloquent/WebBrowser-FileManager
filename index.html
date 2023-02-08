@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="shared.js"></script>
+
+</head>
+
+<body>
+    <div bind="wrapper" class="wrapper"></div>
+    <div style="height: 49px"></div>
+    <div class="bar-renderer">
+        <div bind @click="onNewFile" class="bar-item-renderer">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M12.984 9h5.531l-5.531-5.484v5.484zM6 2.016h8.016l6 6v12q0 0.797-0.609 1.383t-1.406 0.586h-12q-0.797 0-1.406-0.586t-0.609-1.383l0.047-16.031q0-0.797 0.586-1.383t1.383-0.586z">
+                </path>
+            </svg>
+            <div class="bar-item-title">
+                新建文件
+            </div>
+        </div>
+        <div bind @click="onNewFolder" class="bar-item-renderer">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M9.984 3.984l2.016 2.016h8.016q0.797 0 1.383 0.609t0.586 1.406v9.984q0 0.797-0.586 1.406t-1.383 0.609h-16.031q-0.797 0-1.383-0.609t-0.586-1.406v-12q0-0.797 0.586-1.406t1.383-0.609h6z">
+                </path>
+            </svg>
+            <div class="bar-item-title">
+                新建文件夹
+            </div>
+        </div>
+
+    </div>
+    <custom-dialog bind="dialog" @submit="onDialogSubmit" style="display: none">
+        <input bind="input" type="text">
+    </custom-dialog>
+    <custom-dialog bind="dialogDelete" @submit="onDialogDeleteSubmit" style="display: none">
+    </custom-dialog>
+    <custom-bottom-sheet bind="customBottomSheet" @submit="onCustomBottomSheetSubmit" style="display: none;"></custom-bottom-sheet>
+    <script src="custom-bottom-sheet.js"></script>
+    <script src="custom-item.js"></script>
+    <script src="custom-dialog.js"></script>
+    <script src="index.js"></script>
+</body>
+
+</html>
