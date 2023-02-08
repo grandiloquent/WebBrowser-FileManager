@@ -84,6 +84,9 @@ int main() {
     server.Get("/editor", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleEditor(req, res);
     });
+    server.Get("/video", [&h](const httplib::Request &req, httplib::Response &res) {
+        h.handleVideo(req, res);
+    });
     server.Get(R"(/([a-z-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });

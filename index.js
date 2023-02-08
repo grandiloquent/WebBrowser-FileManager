@@ -66,7 +66,12 @@ function submit(evt) {
         if (evt.detail.isDirectory === "true") {
             render(evt.detail.path);
         } else {
-            window.location = `/editor?path=${evt.detail.path}`
+            if (/\.(?:mp4|m4a)$/.test(evt.detail.path)) {
+                window.location = `/video?path=${evt.detail.path}`
+            } else{
+                window.location = `/editor?path=${evt.detail.path}`
+            }
+
         }
     } else {
         detail = evt.detail;

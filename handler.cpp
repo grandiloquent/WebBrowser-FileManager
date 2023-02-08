@@ -144,7 +144,11 @@ void handler::handleEditor(const httplib::Request &req, httplib::Response &res) 
     f /= "editor.html";
     serveFile(f, "text/html", res);
 }
-
+void handler::handleVideo(const httplib::Request &req, httplib::Response &res) {
+    std::filesystem::path f = mDir;
+    f /= "video.html";
+    serveFile(f, "text/html", res);
+}
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
 
