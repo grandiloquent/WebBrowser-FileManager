@@ -47,7 +47,7 @@ std::string &str_replace(std::string &subject, std::string search, std::string r
     return subject;
 }
 
-std::string convertFile(const std::filesystem::path& filepath) {
+std::string convertFile(const std::filesystem::path &filepath) {
 
     std::ifstream infile(filepath, std::ifstream::in);
 
@@ -312,6 +312,12 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     } else if (action == "3") {
         if (std::filesystem::exists(f)) {
             std::filesystem::remove_all(f);
+        }
+    } else if (action == "4") {
+        if (std::filesystem::exists(f)) {
+            std::filesystem::path dst = to_wide_string(UrlDecode(req.get_param_value("dst")));
+            dst /= f.filename();
+            std::filesystem::rename(f, dst);
         }
     }
 }

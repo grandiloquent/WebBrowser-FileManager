@@ -87,6 +87,9 @@ function onFavSubmit(evt) {
         case `1`:
             location = `?path=${encodeURIComponent("D:\\")}`;
             break
+        case `2`:
+            location = `?path=${encodeURIComponent("D:\\资源")}`;
+            break
     }
 }
 
@@ -96,11 +99,22 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
     customBottomSheet.data = [{
         title: "删除",
         id: 1
+    }, {
+        title: "移动",
+        id: 2
+    }, {
+        title: "粘贴",
+        id: 3
     }]
     fav.data = [{
         title: "D:\\",
         id: 1
-    }]
+    },
+        {
+            title: "D:\\资源",
+            id: 2
+        }
+    ]
 })
 
 

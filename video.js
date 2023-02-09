@@ -238,6 +238,7 @@ function getPath() {
     return new URL(document.URL).searchParams.get('path');
 }
 function onFullscreen(evt) {
+    evt.stopPropagation();
     toggleFullScreen();
 }
 /*
