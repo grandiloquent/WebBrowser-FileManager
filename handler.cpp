@@ -295,7 +295,8 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             }
             return;
         }
-        serveFile(f, "text/plain", res);
+        res.set_header("Content-Disposition", "attachment; filename=\"" + f.filename().string() + "\"");
+        serveFile(f, "application/octet-stream", res);
         return;
     }
     if (action == "1") {

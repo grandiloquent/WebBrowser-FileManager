@@ -67,8 +67,10 @@ function submit(evt) {
         } else {
             if (/\.(?:mp4|m4a)$/.test(evt.detail.path)) {
                 window.location = `/video?path=${evt.detail.path}`
-            } else {
+            } else if (/\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
                 window.location = `/editor?path=${evt.detail.path}`
+            } else {
+                window.location = `/api/file?path=${evt.detail.path}`
             }
         }
     } else {
@@ -92,7 +94,9 @@ function onFavSubmit(evt) {
         case `3`:
             location = `?path=${encodeURIComponent("C:\\Users\\Administrator\\Desktop")}`;
             break
-
+        case `4`:
+            location = `?path=${encodeURIComponent("C:\\Users\\Administrator\\Downloads")}`;
+            break
     }
 }
 
@@ -120,6 +124,8 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "D:\\资源", id: 2
     }, {
         title: "桌面", id: 3
+    },  {
+        title: "下载", id: 3
     }]
 })
 
