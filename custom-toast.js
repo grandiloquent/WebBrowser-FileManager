@@ -122,8 +122,8 @@ ${CustomToast.getStyle()}
 customElements.define('custom-toast', CustomToast);
 /*
 <!--
-<custom-toast id="toast"></custom-toast>
-<script src="toast.js"></script>
-document.getElementById('toast').setAttribute('message','');-
+<custom-toast bind="customToast"></custom-toast>
+<script src="custom-toast.js"></script>
+customToast.setAttribute('message','');-
 -->
 */

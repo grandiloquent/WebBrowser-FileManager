@@ -13,6 +13,9 @@ function onCustomBottomSheetSubmit(evt) {
         const div = document.createElement('div');
         div.textContent = decodeURIComponent(detail.path);
         dialogDelete.appendChild(div);
+    } else if (evt.detail.id === '2') {
+        localStorage.setItem('path', decodeURIComponent(detail.path));
+        customToast.setAttribute('message', '成功写入剪切板');
     }
 }
 
@@ -48,11 +51,7 @@ function onNewFolder() {
 async function render(path) {
     const res = await loadData(path || new URL(window.location).searchParams.get("path") || "C:\\Users\\Administrator\\Desktop");
     this.wrapper.innerHTML = res.sort((x, y) => {
-        if (x.isDirectory !== y.isDirectory)
-            if (x.isDirectory)
-                return -1
-            else
-                return 1;
+        if (x.isDirectory !== y.isDirectory) if (x.isDirectory) return -1; else return 1;
         return x.path.localeCompare(y.path)
     })
         .map(x => {
@@ -90,31 +89,38 @@ function onFavSubmit(evt) {
         case `2`:
             location = `?path=${encodeURIComponent("D:\\资源")}`;
             break
+        case `3`:
+            location = `?path=${encodeURIComponent("C:\\Users\\Administrator\\Desktop")}`;
+            break
+
     }
+}
+
+async function onPaste() {
+    const source = localStorage.getItem('path');
+    localStorage.setItem('path', '');
+    const path = new URL(window.location).searchParams.get("path");
+    await fetch(`/api/file?path=${encodeURIComponent(source)}&dst=${path}&action=4`);
+    //location.reload();
 }
 
 ///////////////////////////
 bind();
 customElements.whenDefined('custom-bottom-sheet').then(() => {
     customBottomSheet.data = [{
-        title: "删除",
-        id: 1
+        title: "删除", id: 1
     }, {
-        title: "移动",
-        id: 2
+        title: "移动", id: 2
     }, {
-        title: "粘贴",
-        id: 3
+        title: "粘贴", id: 3
     }]
     fav.data = [{
-        title: "D:\\",
-        id: 1
-    },
-        {
-            title: "D:\\资源",
-            id: 2
-        }
-    ]
+        title: "D:\\", id: 1
+    }, {
+        title: "D:\\资源", id: 2
+    }, {
+        title: "桌面", id: 3
+    }]
 })
 
 
