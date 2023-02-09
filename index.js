@@ -124,8 +124,8 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "D:\\资源", id: 2
     }, {
         title: "桌面", id: 3
-    },  {
-        title: "下载", id: 3
+    }, {
+        title: "下载", id: 4
     }]
 })
 
