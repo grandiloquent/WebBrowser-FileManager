@@ -93,7 +93,7 @@
 <div style="display: flex;
     padding: 0 12px 12px;
     ">
-    <div class="download" @click="onDownload">
+    <div bind class="download" @click="onDownload">
 
 
         <div
@@ -113,7 +113,8 @@
         </div>
     </div>
 </div>
-
+<custom-bottom-sheet bind="customBottomSheet" @submit="onCustomBottomSheetSubmit"
+                     style="display: none;"></custom-bottom-sheet>
 <script>
     bind();
 

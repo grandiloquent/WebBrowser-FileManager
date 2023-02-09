@@ -60,13 +60,17 @@ function getIndexOfCurrentPlayback() {
     return items.indexOf(items.filter(x => x.name === name)[0]);
 }
 
+function getPath() {
+    return new URL(document.URL).searchParams.get('path');
+}
+
 async function loadData() {
     if (!items) {
-        const path = substringBeforeLast(new URL(document.URL).searchParams.get('path'), '/');
-        const res = await fetch(`/api/files?path=${encodeURIComponent(path)}&idDir=1`);
+        const path = substringBeforeLast(new URL(document.URL).searchParams.get('path'), '\\');
+        const res = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
         items = await res.json();
         items = items.filter(x => {
-            return !x.isDir && x.name.endsWith('.mp4');
+            return !x.isDirectory && x.path.endsWith('.mp4');
         })
     }
 }
@@ -101,6 +105,11 @@ function onDurationChange() {
 
 function onEnded() {
     playIndexedVideo(true)
+}
+
+function onFullscreen(evt) {
+    evt.stopPropagation();
+    toggleFullScreen();
 }
 
 function onLayout(evt) {
@@ -172,21 +181,21 @@ async function playIndexedVideo(next) {
 
 async function playVideoAtSpecifiedIndex(index) {
     const v = items[index];
-    video.src = `/api/files?path=${encodeURIComponent(v.parent + "\\" + v.name)}&isDir=0`;
+    video.src = `/api/file?path=${encodeURIComponent(v.path)}`;
     appendSubtitle(video);
     await video.play();
 }
 
 async function renderData() {
     await loadData();
-    const customBottomSheet = document.createElement('custom-bottom-sheet');
-    document.body.appendChild(customBottomSheet);
-    items.forEach((x, j) => {
-        customBottomSheet.appendItem(x.name, evt => {
-            customBottomSheet.remove();
-            playVideoAtSpecifiedIndex(j);
-        });
+
+    customBottomSheet.data = items.map((x, i) => {
+        return {
+            id: i,
+            title: substringAfterLast(x.path, "\\")
+        }
     });
+    customBottomSheet.style.display = 'block';
 }
 
 function substringAfterLast(string, delimiter, missingDelimiterValue) {
@@ -234,13 +243,12 @@ function toggleFullScreen() {
         }
     }
 }
-function getPath() {
-    return new URL(document.URL).searchParams.get('path');
+
+function onCustomBottomSheetSubmit(evt) {
+    customBottomSheet.style.display = 'none';
+    playVideoAtSpecifiedIndex(parseInt(evt.detail.id))
 }
-function onFullscreen(evt) {
-    evt.stopPropagation();
-    toggleFullScreen();
-}
+
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 https://developer.mozilla.org/zh-CN/docs/Web/API/Fullscreen_API
