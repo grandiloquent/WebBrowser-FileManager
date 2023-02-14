@@ -57,7 +57,7 @@ function getCurrentVideoFileName() {
 
 function getIndexOfCurrentPlayback() {
     const name = getCurrentVideoFileName();
-    return items.indexOf(items.filter(x => x.name === name)[0]);
+    return items.indexOf(items.filter(x => x.path.endsWith(`\\${name}`))[0]);
 }
 
 function getPath() {
@@ -133,6 +133,7 @@ function onPause() {
 
 function onPlay(evt) {
     evt.stopPropagation();
+    scheduleHide();
     buttonPlay.querySelector('path').setAttribute('d', 'M9,19H7V5H9ZM17,5H15V19h2Z');
 }
 
@@ -140,14 +141,18 @@ function onPlayButton(evt) {
     evt.stopPropagation();
     if (video.paused) {
         video.play();
-        timer && clearTimeout(timer);
-        timer = setTimeout(() => {
-            middle.style.display = 'none';
-            bottom.style.display = 'none';
-        }, 5000)
+
     } else {
         video.pause();
     }
+}
+
+function scheduleHide() {
+    timer && clearTimeout(timer);
+    timer = setTimeout(() => {
+        middle.style.display = 'none';
+        bottom.style.display = 'none';
+    }, 5000)
 }
 
 function onPrevious(evt) {
@@ -169,6 +174,7 @@ function onTimeupdate() {
 async function playIndexedVideo(next) {
     await loadData();
     let index = getIndexOfCurrentPlayback();
+    console.log(index)
     if (next && index + 1 < items.length) {
         index++;
         playVideoAtSpecifiedIndex(index)
@@ -184,6 +190,7 @@ async function playVideoAtSpecifiedIndex(index) {
     video.src = `/api/file?path=${encodeURIComponent(v.path)}`;
     appendSubtitle(video);
     await video.play();
+    document.title = substringAfterLast(v.path, "\\")
 }
 
 async function renderData() {
