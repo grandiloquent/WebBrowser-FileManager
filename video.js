@@ -91,7 +91,8 @@ function onDownload(evt) {
 }
 
 function onDurationChange() {
-    console.log(window.innerWidth, window.innerHeight)
+    customTimePicker.min = video.currentTime;
+    customTimePicker.max = video.duration;
     if (window.innerWidth < window.innerHeight) {
         const ratio = video.videoWidth / window.innerWidth;
         layout.style.height = `${video.videoHeight / ratio}px`;
@@ -190,7 +191,8 @@ async function playVideoAtSpecifiedIndex(index) {
     video.src = `/api/file?path=${encodeURIComponent(v.path)}`;
     appendSubtitle(video);
     await video.play();
-    document.title = substringAfterLast(v.path, "\\")
+    document.title = substringAfterLast(v.path, "\\");
+    title.textContent = substringAfterLast(v.path, "\\");
 }
 
 async function renderData() {
@@ -255,6 +257,11 @@ function onCustomBottomSheetSubmit(evt) {
     customBottomSheet.style.display = 'none';
     playVideoAtSpecifiedIndex(parseInt(evt.detail.id))
 }
+
+function onCustomTimePickerSubmit(evt) {
+    video.currentTime = evt.detail;
+}
+
 
 /*
 https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
