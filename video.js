@@ -193,6 +193,7 @@ async function playVideoAtSpecifiedIndex(index) {
     await video.play();
     document.title = substringAfterLast(v.path, "\\");
     title.textContent = substringAfterLast(v.path, "\\");
+    toast.setAttribute('message', title.textContent);
 }
 
 async function renderData() {

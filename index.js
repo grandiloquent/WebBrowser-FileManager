@@ -67,7 +67,7 @@ function submit(evt) {
         } else {
             if (/\.(?:mp4|m4a)$/.test(evt.detail.path)) {
                 window.location = `/video?path=${evt.detail.path}`
-            } else if (/\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
+            } else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
                 window.location = `/editor?path=${evt.detail.path}`
             } else {
                 window.location = `/api/file?path=${evt.detail.path}`

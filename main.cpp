@@ -113,6 +113,28 @@ int main() {
         ss << out.rdbuf();
         response.set_content(ss.str(), "text/plain");
     });
+    server.Get(R"(/api/(.+\.(js|css|html|png|svg|jpg)))", [&h](const httplib::Request &req, httplib::Response &res) {
+        auto refer = req.get_header_value("Referer");
+        auto index = refer.find("path=");
+        if (index != std::string::npos) {
+            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+            std::filesystem::path f = converter.from_bytes(refer.substr(index + 5));
+            f = f.parent_path();
+            f /= req.matches[1].str();
+            std::ifstream infile(f, std::ios_base::binary);
+            std::vector<char> buffer((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+
+            std::string s(buffer.begin(), buffer.end());
+            auto mimetype = "text/css";
+            if (f.extension() == ".html") {
+                mimetype = "text/html";
+            }else{
+                mimetype = "image/*";
+            }
+            res.set_content(s, mimetype);
+        }
+
+    });
     server.listen(szLocalIP, 8080);
     return 0;
 }
