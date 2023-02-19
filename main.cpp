@@ -113,7 +113,7 @@ int main() {
         ss << out.rdbuf();
         response.set_content(ss.str(), "text/plain");
     });
-    server.Get(R"(/api/(.+\.(js|css|html|png|svg|jpg)))", [&h](const httplib::Request &req, httplib::Response &res) {
+    server.Get(R"(/api/(.+\.(js|css|html|png|svg|jpg|gif)))", [&h](const httplib::Request &req, httplib::Response &res) {
         auto refer = req.get_header_value("Referer");
         auto index = refer.find("path=");
         if (index != std::string::npos) {
@@ -128,7 +128,9 @@ int main() {
             auto mimetype = "text/css";
             if (f.extension() == ".html") {
                 mimetype = "text/html";
-            }else{
+            } else if (f.extension() == ".css") {
+                mimetype = "text/css";
+            } else {
                 mimetype = "image/*";
             }
             res.set_content(s, mimetype);
