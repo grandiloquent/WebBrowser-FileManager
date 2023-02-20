@@ -199,7 +199,12 @@ function onInsert() {
 }
 
 async function onSave() {
-    const res = await fetch(`/api/file?path=${new URL(window.location).searchParams.get("path")}`, {
+    const path = new URL(window.location).searchParams.get("path");
+    if (path.endsWith(".srt")) {
+        textarea.value = textarea.value.replace(/WEBVTT\s+/,"").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
+        return;
+    }
+    const res = await fetch(`/api/file?path=${path}`, {
         method: 'POST', body: textarea.value
     });
     toast.setAttribute('message', '成功');
@@ -479,10 +484,10 @@ function writeText(message) {
 function openLink() {
     let start = textarea.selectionStart;
     let end = textarea.selectionEnd;
-    while (start > -1 && textarea.value[start] !== ' ' && textarea.value[start] !== '('&& textarea.value[start] !== '\n') {
+    while (start > -1 && textarea.value[start] !== ' ' && textarea.value[start] !== '(' && textarea.value[start] !== '\n') {
         start--;
     }
-    while (end < textarea.value.length && textarea.value[end] !== ' ' && textarea.value[end] !== ')'&& textarea.value[end] !== '\n') {
+    while (end < textarea.value.length && textarea.value[end] !== ' ' && textarea.value[end] !== ')' && textarea.value[end] !== '\n') {
         end++;
     }
 
@@ -493,7 +498,8 @@ function openLink() {
     }
 
 }
-function onCopy(){
+
+function onCopy() {
     const pv = findCodeBlock(textarea);
     writeText(textarea.value.substring(pv[0], pv[1]));
 }
