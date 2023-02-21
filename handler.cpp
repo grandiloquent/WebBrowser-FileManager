@@ -256,7 +256,11 @@ void handler::handleVideo(const httplib::Request &req, httplib::Response &res) {
     f /= "video.html";
     serveFile(f, "text/html", res);
 }
-
+void handler::handleMarkdown(const httplib::Request &req, httplib::Response &res) {
+    std::filesystem::path f = mDir;
+    f /= "markdown.html";
+    serveFile(f, "text/html", res);
+}
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
 

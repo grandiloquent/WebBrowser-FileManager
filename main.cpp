@@ -87,6 +87,9 @@ int main() {
     server.Get("/video", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleVideo(req, res);
     });
+    server.Get("/markdown", [&h](const httplib::Request &req, httplib::Response &res) {
+        h.handleMarkdown(req, res);
+    });
     server.Get(R"(/([a-z-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });

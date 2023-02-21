@@ -15,6 +15,7 @@ public:
     void handleIndex( const httplib::Request &req, httplib::Response &res);
     void handleEditor( const httplib::Request &req, httplib::Response &res);
     void handleVideo( const httplib::Request &req, httplib::Response &res);
+    void handleMarkdown( const httplib::Request &req, httplib::Response &res);
     void handleStaticFiles( const httplib::Request &req, httplib::Response &res);
     void handleFiles( const httplib::Request &req, httplib::Response &res);
     void handleFile( const httplib::Request &req, httplib::Response &res);
