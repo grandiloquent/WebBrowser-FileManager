@@ -213,13 +213,13 @@ async function onSave() {
 async function onTranslateChinese() {
     let array1 = getLine();
     textarea.setRangeText(`\n\n${await translate(array1[0], 'zh')}
-          `, array1[1], array1[2], 'end');
+          `, array1[2], array1[2], 'end');
 }
 
 async function onTranslateEnglish() {
     let array1 = getLine();
     textarea.setRangeText(`\n\n${await translate(array1[0], 'en')}
-          `, array1[1], array1[2], 'end');
+          `, array1[2], array1[2], 'end');
 }
 
 async function pasteCode() {
