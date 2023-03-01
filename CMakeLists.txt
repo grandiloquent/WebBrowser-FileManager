@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.23.2)
 project(Manager)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexec-charset=GBK")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexec-charset=GBK -std=c++2a")
 
 add_library(httplib SHARED httplib.cc)
 

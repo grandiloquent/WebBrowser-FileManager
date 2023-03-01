@@ -191,7 +191,7 @@ std::string UrlDecode(const std::string &str) {
     std::string strTemp = "";
     size_t length = str.length();
     for (size_t i = 0; i < length; i++) {
-        if (str[i] == '+') strTemp += ' ';
+        if (str[i] == '+') strTemp += '+';
         else if (str[i] == '%') {
             assert(i + 2 < length);
             unsigned char high = FromHex((unsigned char) str[++i]);
@@ -256,16 +256,26 @@ void handler::handleVideo(const httplib::Request &req, httplib::Response &res) {
     f /= "video.html";
     serveFile(f, "text/html", res);
 }
+
 void handler::handleMarkdown(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
     f /= "markdown.html";
     serveFile(f, "text/html", res);
 }
+
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
 
     f /= req.matches[1].str();
     serveFile(f, req.matches[2].str() == "css" ? "text/css" : "application/javascript", res);
+}
+
+std::string to_string(std::filesystem::file_time_type const &ftime) {
+    std::time_t cftime = std::chrono::system_clock::to_time_t(
+            std::chrono::file_clock::to_sys(ftime));
+    std::string str = std::asctime(std::localtime(&cftime));
+    str.pop_back();  // rm the trailing '\n' put by `asctime`
+    return str;
 }
 
 void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
@@ -275,13 +285,26 @@ void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
 
     nlohmann::json doc = nlohmann::json::array();
     for (auto dir: std::filesystem::directory_iterator(p)) {
+
+/*
+  auto lstTime = dir.last_write_time();
+        auto elapse = std::chrono::duration_cast<std::chrono::seconds>(
+                std::filesystem::file_time_type::clock::now().time_since_epoch() -
+                std::chrono::system_clock::now().time_since_epoch()).count();
+        auto systemTime = std::chrono::duration_cast<std::chrono::seconds>(lstTime.time_since_epoch()).count() - elapse;
+        tm *lsystemTime = localtime(&systemTime);
+        std::cout << mktime(lsystemTime) << std::endl;
+ */
         nlohmann::json j = {
 
                 {"path",          dir.path().string()},
                 {"filename",      dir.path().filename().string()},
                 {"isDirectory",   dir.is_directory()},
-                {"lastWriteTime", (std::chrono::duration_cast<std::chrono::seconds>(
-                        dir.last_write_time().time_since_epoch()).count())
+                {"lastWriteTime", std::chrono::duration_cast<std::chrono::seconds>(
+                        dir.last_write_time().time_since_epoch()).count()
+                },
+                {
+                 "length",        dir.is_directory() ? 0 : dir.file_size()
                 }
         };
         doc.push_back(j);

@@ -66,7 +66,8 @@ function getPath() {
 
 async function loadData() {
     if (!items) {
-        const path = substringBeforeLast(new URL(document.URL).searchParams.get('path'), '\\');
+        const path = substringBeforeLast(decodeURIComponent(new URL(document.URL).searchParams.get('path')), '\\');
+       console.log(path)
         const res = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
         items = await res.json();
         items = items.filter(x => {

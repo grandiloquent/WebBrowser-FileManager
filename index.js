@@ -1,6 +1,8 @@
 async function loadData(path) {
     // https://developer.mozilla.org/en-US/docs/Web/API/History/replaceState
-    window.history.pushState(null, null, `?path=${encodeURIComponent(path)}`);
+    //window.history.pushState(null, null, `?path=${encodeURIComponent(path)}`);
+
+
     const res = await fetch(`/api/files?path=${encodeURIComponent(path)}`);
     return res.json();
 }
@@ -61,18 +63,23 @@ async function render(path) {
 }
 
 function submit(evt) {
+    const encodedPath = encodeURIComponent(evt.detail.path);
     if (evt.detail.id === '0') {
         if (evt.detail.isDirectory === "true") {
+
+            const url = new URL(window.location);
+            //url.searchParams.set('path', path);
+            window.history.pushState({}, '', `?path=${encodedPath}`);
             render(evt.detail.path);
         } else {
             if (/\.(?:mp4|m4a)$/.test(evt.detail.path)) {
-                window.location = `/video?path=${evt.detail.path}`
+                window.location = `/video?path=${encodedPath}`
             } else if (evt.detail.path.endsWith(".srt")) {
-                window.location = `/markdown?path=${evt.detail.path}`
+                window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             } else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
-                window.location = `/editor?path=${evt.detail.path}`
+                window.location = `/editor?path=${encodedPath}`
             } else {
-                window.location = `/api/file?path=${evt.detail.path}`
+                window.location = `/api/file?path=${encodedPath}`
             }
         }
     } else {
@@ -86,20 +93,26 @@ function onFav() {
 }
 
 function onFavSubmit(evt) {
+
+    let path;
     switch (evt.detail.id) {
         case `1`:
-            location = `?path=${encodeURIComponent("D:\\")}`;
+            path = "D:\\";
             break
         case `2`:
-            location = `?path=${encodeURIComponent("D:\\资源")}`;
+            path = "D:\\资源";
             break
         case `3`:
-            location = `?path=${encodeURIComponent("C:\\Users\\Administrator\\Desktop")}`;
+            path = "C:\\Users\\Administrator\\Desktop";
             break
         case `4`:
-            location = `?path=${encodeURIComponent("C:\\Users\\Administrator\\Downloads")}`;
+            path = "C:\\Users\\Administrator\\Downloads";
             break
     }
+    const url = new URL(window.location);
+    url.searchParams.set('path', path);
+    window.history.pushState({}, '', url);
+    window.location = url;
 }
 
 async function onPaste() {
@@ -136,6 +149,12 @@ render();
 
 
 window.addEventListener("popstate", function (e) {
-    window.location.href = location.href;
+
+    let path = new URL(location).searchParams.get('path');
+    // if (path)
+    //     location = `?path=${path}`;
+    window.location = location;
+    console.log(decodeURIComponent(path))
+    //location.reload();
 });
 let detail;
