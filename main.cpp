@@ -121,7 +121,7 @@ int main() {
         auto index = refer.find("path=");
         if (index != std::string::npos) {
             std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            std::filesystem::path f = converter.from_bytes(refer.substr(index + 5));
+            std::filesystem::path f = converter.from_bytes(httplib::detail::decode_url(refer.substr(index + 5), true));
             f = f.parent_path();
             f /= req.matches[1].str();
             std::ifstream infile(f, std::ios_base::binary);

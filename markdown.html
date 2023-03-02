@@ -112,7 +112,7 @@
 
 
     async function initialize() {
-        files = await loadFiles(substringBeforeLast(path, "\\"));
+        files = await loadFiles(substringBeforeLast(decodeURIComponent(path), "\\"));
         index = findIndex(files, filename);
         document.getElementById('previous')
             .addEventListener('click', ev => {
