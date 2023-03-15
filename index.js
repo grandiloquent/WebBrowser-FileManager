@@ -158,3 +158,11 @@ window.addEventListener("popstate", function (e) {
     //location.reload();
 });
 let detail;
+
+document.addEventListener('keydown', evt => {
+    console.log(evt.key)
+    if (evt.key === 'Enter') {
+        evt.preventDefault();
+        fetch(`/api/cmd?q=explorer ${new URL(location).searchParams.get('path')}`)
+    }
+})

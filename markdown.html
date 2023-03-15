@@ -68,10 +68,22 @@
 <script>
     async function loadData(path) {
         const res = await fetch(`/api/file?path=${path}`)
-        let strings = await res.text();
-        strings = strings.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
-        strings = strings.replaceAll(/\./g, ".<br><br>");
-        document.querySelector('div').innerHTML = strings;
+        let s = await res.text();
+        s = s.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
+        //strings = strings.replaceAll(/\./g, ".<br><br>");
+        let strings = [];
+        const buf = s.split('.');
+        let line = "";
+        for (let i = 0; i < buf.length; i++) {
+            if (line.length + buf[i].length > 2000) {
+                strings.push(line);
+                line = "";
+            }
+            line += buf[i] + ".";
+        }
+        if (line.length > 0)
+            strings.push(line);
+        document.querySelector('div').innerHTML = strings.join("<br><br>");
     }
 
     function substringBeforeLast(string, delimiter, missingDelimiterValue) {
@@ -117,13 +129,13 @@
         document.getElementById('previous')
             .addEventListener('click', ev => {
                 if (index - 1 > -1) index--;
-                document.getElementById('toast').setAttribute('message',substringAfterLast(files[index].path, "\\"));
+                document.getElementById('toast').setAttribute('message', substringAfterLast(files[index].path, "\\"));
                 loadData(files[index].path);
             })
         document.getElementById('next')
             .addEventListener('click', ev => {
                 if (index + 1 < files.length) index++;
-                document.getElementById('toast').setAttribute('message',substringAfterLast(files[index].path, "\\"));
+                document.getElementById('toast').setAttribute('message', substringAfterLast(files[index].path, "\\"));
                 loadData(files[index].path);
             })
     }

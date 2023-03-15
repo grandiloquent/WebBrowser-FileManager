@@ -107,39 +107,46 @@ int main() {
     server.Get("/api/cmd", [](const httplib::Request &request,
                               httplib::Response &response) {
         response.set_header("Access-Control-Allow-Origin", "*");
-        auto cmd = httplib::detail::decode_url(request.get_param_value("q"), true);
+        //auto cmd = httplib::detail::decode_url(request.get_param_value("q"), true);
         std::stringbuf buff;
         std::ostream out{&buff};
-
-        RunCommand(cmd, &out, nullptr);
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+        auto cmd   = converter.from_bytes(
+                httplib::detail::decode_url(request.get_param_value("q"), true));
+        //ShellExecute(NULL, "explore", reinterpret_cast<LPCSTR>(cmd.c_str()), NULL, NULL, SW_SHOWNORMAL);
+        _wsystem(cmd.c_str());
+        //RunCommand(cmd, &out, nullptr);
         std::ostringstream ss;
         ss << out.rdbuf();
         response.set_content(ss.str(), "text/plain");
     });
-    server.Get(R"(/api/(.+\.(js|css|html|png|svg|jpg|gif)))", [&h](const httplib::Request &req, httplib::Response &res) {
-        auto refer = req.get_header_value("Referer");
-        auto index = refer.find("path=");
-        if (index != std::string::npos) {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-            std::filesystem::path f = converter.from_bytes(httplib::detail::decode_url(refer.substr(index + 5), true));
-            f = f.parent_path();
-            f /= req.matches[1].str();
-            std::ifstream infile(f, std::ios_base::binary);
-            std::vector<char> buffer((std::istreambuf_iterator<char>(infile)), std::istreambuf_iterator<char>());
+    server.Get(R"(/api/(.+\.(js|css|html|png|svg|jpg|gif)))",
+               [&h](const httplib::Request &req, httplib::Response &res) {
+                   auto refer = req.get_header_value("Referer");
+                   auto index = refer.find("path=");
+                   if (index != std::string::npos) {
+                       std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+                       std::filesystem::path f = converter.from_bytes(
+                               httplib::detail::decode_url(refer.substr(index + 5), true));
+                       f = f.parent_path();
+                       f /= req.matches[1].str();
+                       std::ifstream infile(f, std::ios_base::binary);
+                       std::vector<char> buffer((std::istreambuf_iterator<char>(infile)),
+                                                std::istreambuf_iterator<char>());
 
-            std::string s(buffer.begin(), buffer.end());
-            auto mimetype = "text/css";
-            if (f.extension() == ".html") {
-                mimetype = "text/html";
-            } else if (f.extension() == ".css") {
-                mimetype = "text/css";
-            } else {
-                mimetype = "image/*";
-            }
-            res.set_content(s, mimetype);
-        }
+                       std::string s(buffer.begin(), buffer.end());
+                       auto mimetype = "text/css";
+                       if (f.extension() == ".html") {
+                           mimetype = "text/html";
+                       } else if (f.extension() == ".css") {
+                           mimetype = "text/css";
+                       } else {
+                           mimetype = "image/*";
+                       }
+                       res.set_content(s, mimetype);
+                   }
 
-    });
+               });
     server.listen(szLocalIP, 8080);
     return 0;
 }
