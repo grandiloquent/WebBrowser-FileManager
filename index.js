@@ -18,8 +18,8 @@ function onCustomBottomSheetSubmit(evt) {
     } else if (evt.detail.id === '2') {
         localStorage.setItem('path', decodeURIComponent(detail.path));
         customToast.setAttribute('message', '成功写入剪切板');
-    } else if (evt.detail.id === '3') {
-        fetch(`/api/zip?path?=${detail.path}`)
+    } else if (evt.detail.id === '4') {
+        fetch(`/api/zip?path=${detail.path}`)
     }
 }
 

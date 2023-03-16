@@ -10,7 +10,39 @@
 #include <exception>
 #include <fstream>
 #include <stdexcept>
+#include <iostream>
+#include <windows.h>
 
+
+std::string GbkToUtf8(const char *src_str) {
+    int len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, NULL, 0);
+    wchar_t *wstr = new wchar_t[len + 1];
+    memset(wstr, 0, len + 1);
+    MultiByteToWideChar(CP_ACP, 0, src_str, -1, wstr, len);
+    len = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+    char *str = new char[len + 1];
+    memset(str, 0, len + 1);
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, str, len, NULL, NULL);
+   std:: string strTemp = str;
+    if (wstr) delete[] wstr;
+    if (str) delete[] str;
+    return strTemp;
+}
+
+std:: string Utf8ToGbk(const char *src_str) {
+    int len = MultiByteToWideChar(CP_UTF8, 0, src_str, -1, NULL, 0);
+    wchar_t *wszGBK = new wchar_t[len + 1];
+    memset(wszGBK, 0, len * 2 + 2);
+    MultiByteToWideChar(CP_UTF8, 0, src_str, -1, wszGBK, len);
+    len = WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, NULL, 0, NULL, NULL);
+    char *szGBK = new char[len + 1];
+    memset(szGBK, 0, len + 1);
+    WideCharToMultiByte(CP_ACP, 0, wszGBK, -1, szGBK, len, NULL, NULL);
+    std::  string strTemp(szGBK);
+    if (wszGBK) delete[] wszGBK;
+    if (szGBK) delete[] szGBK;
+    return strTemp;
+}
 namespace zipper {
 
 struct Unzipper::Impl
@@ -40,8 +72,7 @@ private:
         int err = unzGetCurrentFileInfo64(m_zf, &file_info, filename_inzip, sizeof(filename_inzip), NULL, 0, NULL, 0);
         if (UNZ_OK != err)
             throw EXCEPTION_CLASS("Error, couln't get the current entry info");
-
-        return ZipEntry(std::string(filename_inzip), file_info.compressed_size, file_info.uncompressed_size,
+        return ZipEntry(std::string(filename_inzip).c_str(), file_info.compressed_size, file_info.uncompressed_size,
                         file_info.tmu_date.tm_year, file_info.tmu_date.tm_mon, file_info.tmu_date.tm_mday,
                         file_info.tmu_date.tm_hour, file_info.tmu_date.tm_min, file_info.tmu_date.tm_sec, file_info.dosDate);
     }
@@ -134,7 +165,7 @@ public:
         }
         else
         {
-            err = extractToFile(fileName, entryinfo);
+            err = extractToFile(Utf8ToGbk(fileName.c_str()), entryinfo);
             if (UNZ_OK == err)
             {
                 err = unzCloseCurrentFile(m_zf);
@@ -430,12 +461,11 @@ public:
     {
         std::vector<ZipEntry> entries;
         getEntries(entries);
-        std::vector<ZipEntry>::iterator it = entries.begin();
+        auto it = entries.begin();
         for (; it != entries.end(); ++it)
         {
             if (!locateEntry(it->name))
                 continue;
-
             std::string alternativeName = destination.empty() ? "" : destination + CDirEntry::Separator;
 
             if (alternativeNames.find(it->name) != alternativeNames.end())

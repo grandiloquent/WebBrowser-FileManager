@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <sys/types.h>
 #include <fstream>
+#include <iostream>
 
 using namespace zipper;
 
@@ -141,25 +142,30 @@ std::string CDirEntry::dirName(const std::string& path)
 {
     if (path == "")
         return path;
-
-#if defined(USE_WINDOWS) // WIN32 also understands '/' as the separator.
-    std::string::size_type end = path.find_last_of(Separator + "/");
-#else
-    std::string::size_type end = path.find_last_of(Separator);
-#endif
+//#if defined(USE_WINDOWS) // WIN32 also understands '/' as the separator.
+////    std::string::size_type end = path.find_last_of(Separator + "/");
+//    std::string::size_type end = path.find_last_of("\\");
+//
+//#else
+//    std::string::size_type end = path.find_last_of(Separator);
+//#endif
+    std::string::size_type end = std::max(path.find_last_of('\\'),
+                                          path.find_last_of('/'));
 
     if (end == path.length() - 1)
     {
-#if defined(USE_WINDOWS) // WIN32 also understands '/' as the separator.
-        end = path.find_last_of(Separator + "/", end - 1);
-#else
-        end = path.find_last_of(Separator, end - 1);
-#endif
+//#if defined(USE_WINDOWS) // WIN32 also understands '/' as the separator.
+//        //end = path.find_last_of(Separator + "/", end - 1);
+//                end = path.find_last_of("\\", end - 1);
+//
+//#else
+//        end = path.find_last_of(Separator, end - 1);
+//#endif
+        end = path.find_last_of("/", end - 1);
     }
 
     if (end == std::string::npos)
         return {};
-
     return path.substr(0, end);
 }
 

@@ -62,13 +62,13 @@ static bool RunCommand(const std::string &cmd, std::ostream *os, const char *pre
 
 int main() {
 
-    std::filesystem::path vd("D:\\Books");
-    for (const auto &entry: std::filesystem::directory_iterator(vd)) {
-        if (entry.is_directory()) {
-            std::cout << entry.path() << std::endl;
-            std::filesystem::remove_all(entry.path());
-        }
-    }
+//    std::filesystem::path vd("D:\\Books");
+//    for (const auto &entry: std::filesystem::directory_iterator(vd)) {
+//        if (entry.is_directory()) {
+//            std::cout << entry.path() << std::endl;
+//            std::filesystem::remove_all(entry.path());
+//        }
+//    }
 
     WSADATA wsa_Data;
     int wsa_ReturnCode = WSAStartup(0x101, &wsa_Data);
