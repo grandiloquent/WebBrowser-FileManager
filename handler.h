@@ -7,6 +7,8 @@
 
 #include <nlohmann/json.hpp>
 #include "httplib.h"
+#include <zipper/unzipper.h>
+#include <zipper/zipper.h>
 
 class handler {
 public:
@@ -20,6 +22,7 @@ public:
     void handleFiles( const httplib::Request &req, httplib::Response &res);
     void handleFile( const httplib::Request &req, httplib::Response &res);
     void handlePostFile( const httplib::Request &req, httplib::Response &res,const httplib::ContentReader &content_reader);
+    void handleZipFile( const httplib::Request &req, httplib::Response &res);
 
 private:
     std::string mDir;

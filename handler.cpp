@@ -354,6 +354,16 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     }
 }
 
+void handler::handleZipFile(const httplib::Request &req, httplib::Response &res) {
+    std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
+    auto action = req.get_param_value("action");
+    if (action.empty()) {
+        zipper::Unzipper unzipper(f.string());
+        unzipper.extract(f.parent_path().string());
+        unzipper.close();
+    }
+}
+
 handler::handler(const std::string &dir) {
     mDir = std::string{dir};
 }

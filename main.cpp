@@ -2,7 +2,6 @@
 #include <filesystem>
 #include "httplib.h"
 #include "handler.h"
-#include <Windns.h>
 
 static inline void WritePrefix(std::ostream *os, const char *prefix, bool odd) {
     if (prefix != nullptr) {
@@ -63,6 +62,14 @@ static bool RunCommand(const std::string &cmd, std::ostream *os, const char *pre
 
 int main() {
 
+    std::filesystem::path vd("D:\\Books");
+    for (const auto &entry: std::filesystem::directory_iterator(vd)) {
+        if (entry.is_directory()) {
+            std::cout << entry.path() << std::endl;
+            std::filesystem::remove_all(entry.path());
+        }
+    }
+
     WSADATA wsa_Data;
     int wsa_ReturnCode = WSAStartup(0x101, &wsa_Data);
 
@@ -104,6 +111,11 @@ int main() {
                                   const httplib::ContentReader &content_reader) {
         h.handlePostFile(req, res, content_reader);
     });
+    server.Get("/api/zip", [&h](const httplib::Request &req, httplib::Response &res) {
+        h.handleZipFile(req, res);
+    });
+
+
     server.Get("/api/cmd", [](const httplib::Request &request,
                               httplib::Response &response) {
         response.set_header("Access-Control-Allow-Origin", "*");
@@ -111,7 +123,7 @@ int main() {
         std::stringbuf buff;
         std::ostream out{&buff};
         std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        auto cmd   = converter.from_bytes(
+        auto cmd = converter.from_bytes(
                 httplib::detail::decode_url(request.get_param_value("q"), true));
         //ShellExecute(NULL, "explore", reinterpret_cast<LPCSTR>(cmd.c_str()), NULL, NULL, SW_SHOWNORMAL);
         _wsystem(cmd.c_str());

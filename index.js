@@ -18,6 +18,8 @@ function onCustomBottomSheetSubmit(evt) {
     } else if (evt.detail.id === '2') {
         localStorage.setItem('path', decodeURIComponent(detail.path));
         customToast.setAttribute('message', '成功写入剪切板');
+    } else if (evt.detail.id === '3') {
+        fetch(`/api/zip?path?=${detail.path}`)
     }
 }
 
@@ -49,9 +51,19 @@ function onNewFolder() {
     this.dialog.setAttribute('title', '新建文件');
     this.dialog.dataset.action = "2";
 }
+function substringAfterLast(string, delimiter, missingDelimiterValue) {
+    const index = string.lastIndexOf(delimiter);
+    if (index === -1) {
+        return missingDelimiterValue || string;
+    } else {
+        return string.substring(index + delimiter.length);
+    }
+}
 
 async function render(path) {
-    const res = await loadData(path || new URL(window.location).searchParams.get("path") || "C:\\Users\\Administrator\\Desktop");
+    path = path || new URL(window.location).searchParams.get("path") || "C:\\Users\\Administrator\\Desktop";
+    document.title=substringAfterLast(decodeURIComponent(path),"\\")
+    const res = await loadData(path);
     this.wrapper.innerHTML = res.sort((x, y) => {
         if (x.isDirectory !== y.isDirectory) if (x.isDirectory) return -1; else return 1;
         return x.path.localeCompare(y.path)
@@ -132,6 +144,8 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "移动", id: 2
     }, {
         title: "粘贴", id: 3
+    }, {
+        title: "解压", id: 4
     }]
     fav.data = [{
         title: "D:\\", id: 1
