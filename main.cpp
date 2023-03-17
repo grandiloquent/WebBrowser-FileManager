@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "httplib.h"
 #include "handler.h"
 #include "helper.h"

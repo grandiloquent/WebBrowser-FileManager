@@ -204,11 +204,11 @@ std::string UrlEncode(const std::string &str) {
 }
 
 std::string GetTitle() {
-    httplib::Client c("https://lucidu.cn");
+    httplib::SSLClient c("lucidu.cn",443);
     httplib::Headers headers = {
-            {"Accept-Encoding", "gzip, deflate"}
+
     };
-    if (auto res = c.Get("/", headers)) {
+    if (auto res = c.Get("/")) {
         return res->body;
     } else {
         std::cout << httplib::to_string(res.error()) << std::endl;
