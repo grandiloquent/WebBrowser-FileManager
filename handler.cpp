@@ -84,68 +84,6 @@ std::string convertFile(const std::filesystem::path &filepath) {
 //}
 
 
-// convert string to wstring
-inline std::wstring to_wide_string(const std::string &input) {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.from_bytes(input);
-}
-
-// convert wstring to string
-inline std::string to_byte_string(const std::wstring &input) {
-    //std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-    return converter.to_bytes(input);
-}
-
-unsigned char ToHex(unsigned char x) {
-    return x > 9 ? x + 55 : x + 48;
-}
-
-unsigned char FromHex(unsigned char x) {
-    unsigned char y;
-    if (x >= 'A' && x <= 'Z') y = x - 'A' + 10;
-    else if (x >= 'a' && x <= 'z') y = x - 'a' + 10;
-    else if (x >= '0' && x <= '9') y = x - '0';
-    else
-        assert(0);
-    return y;
-}
-
-std::string UrlEncode(const std::string &str) {
-    std::string strTemp = "";
-    size_t length = str.length();
-    for (size_t i = 0; i < length; i++) {
-        if (isalnum((unsigned char) str[i]) ||
-            (str[i] == '-') ||
-            (str[i] == '_') ||
-            (str[i] == '.') ||
-            (str[i] == '~'))
-            strTemp += str[i];
-        else if (str[i] == ' ')
-            strTemp += "+";
-        else {
-            strTemp += '%';
-            strTemp += ToHex((unsigned char) str[i] >> 4);
-            strTemp += ToHex((unsigned char) str[i] % 16);
-        }
-    }
-    return strTemp;
-}
-
-std::string UrlDecode(const std::string &str) {
-    std::string strTemp = "";
-    size_t length = str.length();
-    for (size_t i = 0; i < length; i++) {
-        if (str[i] == '+') strTemp += '+';
-        else if (str[i] == '%') {
-            assert(i + 2 < length);
-            unsigned char high = FromHex((unsigned char) str[++i]);
-            unsigned char low = FromHex((unsigned char) str[++i]);
-            strTemp += high * 16 + low;
-        } else strTemp += str[i];
-    }
-    return strTemp;
-}
 
 static void serveFile(const std::filesystem::path &f, const char *contentType, httplib::Response &res) {
     std::shared_ptr<std::ifstream> fs = std::make_shared<std::ifstream>();
@@ -327,7 +265,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             }
         }
     } else if (action == "8") {
-        CreateDirectory();
+        CreateDesktopDirectory();
     }
 }
 
