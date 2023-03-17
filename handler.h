@@ -23,6 +23,7 @@ public:
     void handleFile( const httplib::Request &req, httplib::Response &res);
     void handlePostFile( const httplib::Request &req, httplib::Response &res,const httplib::ContentReader &content_reader);
     void handleZipFile( const httplib::Request &req, httplib::Response &res);
+    void handleSrt( const httplib::Request &req, httplib::Response &res);
 
 private:
     std::string mDir;

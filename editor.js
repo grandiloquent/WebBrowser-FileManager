@@ -732,7 +732,8 @@ function onShow() {
 }
 
 function onPreview() {
-    location.href = `/markdown?id=${id}`
+    const path = new URL(window.location).searchParams.get("path");
+    location.href = `/markdown?path=${path}`
 }
 
 function onCode() {

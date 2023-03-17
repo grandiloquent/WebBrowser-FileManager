@@ -97,6 +97,10 @@ int main() {
     server.Get("/markdown", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleMarkdown(req, res);
     });
+    server.Get("/srt", [&h](const httplib::Request &req, httplib::Response &res) {
+        h.handleSrt(req, res);
+    });
+
     server.Get(R"(/([a-z-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });
