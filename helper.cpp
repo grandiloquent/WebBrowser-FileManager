@@ -203,15 +203,29 @@ std::string UrlEncode(const std::string &str) {
     return strTemp;
 }
 
-std::string GetTitle() {
-    httplib::SSLClient c("lucidu.cn",443);
+std::string GetTitle(const std::string &host, const std::string &path) {
+    httplib::SSLClient c(host, 443);
     httplib::Headers headers = {
-
+            {
+                    "User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+            },
+            {
+                    "Accept", "*/*"
+            },{
+                "Accept-Language","zh-CN,zh;q=0.9,en;q=0.8"
+            }
     };
-    if (auto res = c.Get("/")) {
-        return res->body;
+
+    if (auto res = c.Get(path,headers)) {
+        auto start = res->body.find("<title>");
+        if (start == std::string::npos)return {};
+        auto end = res->body.find("</title>", start + 7);
+        if (end == std::string::npos)return {};
+        return res->body.substr(start + 7, end - start - 7);
     } else {
-        std::cout << httplib::to_string(res.error()) << std::endl;
+        //std::cout << httplib::to_string(res.error()) << std::endl;
         return {};
     }
+
 }

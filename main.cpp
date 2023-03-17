@@ -1,6 +1,8 @@
 #include <iostream>
 #include <filesystem>
+
 #define CPPHTTPLIB_OPENSSL_SUPPORT
+
 #include "httplib.h"
 #include "handler.h"
 #include "helper.h"
@@ -122,7 +124,10 @@ int main() {
     });
 
     server.Get("/api/title", [&h](const httplib::Request &req, httplib::Response &res) {
-      res.set_content(GetTitle(),"text/plain");
+        res.set_content(GetTitle(
+                req.get_param_value("host"),
+                req.get_param_value("path")
+        ), "text/plain");
     });
     server.Get("/api/cmd", [](const httplib::Request &request,
                               httplib::Response &response) {
