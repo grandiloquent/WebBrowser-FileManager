@@ -298,6 +298,31 @@ void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
     res.set_content(doc.dump(), "application/json");
 }
 
+
+static void CreateDirectory() {
+    std::filesystem::path desktop(R"(C:\Users\Administrator\Desktop)");
+//    std::time_t tt = std::time(nullptr);
+//    std::tm *tm = std::localtime(&tt);
+//
+//    desktop /= fmt::format("%Y%m%d", *tm);
+    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    std::string s(9, '\0');
+    std::strftime(&s[0], s.size(), "%Y%m%d", std::localtime(&now));
+    desktop /= s;
+    if (!std::filesystem::is_directory(desktop)) {
+        std::filesystem::create_directory(desktop);
+    }
+    for (auto i = 0; i < 3; i++) {
+        auto n = std::to_string(i + 1);
+        n.insert(0, 3 - n.length(), '0');
+        std::cout << desktop / n << std::endl;
+        if (!std::filesystem::is_directory(desktop / n)) {
+            std::filesystem::create_directory(desktop / n);
+        }
+    }
+}
+
 void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
     auto action = req.get_param_value("action");
@@ -365,6 +390,8 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
                 }
             }
         }
+    } else if (action == "8") {
+        CreateDirectory();
     }
 }
 
