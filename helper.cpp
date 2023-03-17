@@ -10,6 +10,7 @@ std::string &str_replace(std::string &subject, std::string search, std::string r
     }
     return subject;
 }
+
 std::string convertFile(const std::filesystem::path &filepath) {
     std::ifstream infile(filepath, std::ifstream::in);
     std::stringstream outfile;
@@ -55,6 +56,7 @@ std::string convertFile(const std::filesystem::path &filepath) {
     }
     return outfile.str();
 }
+
 void CreateDesktopDirectory() {
     std::filesystem::path desktop(R"(C:\Users\Administrator\Desktop)");
 //    std::time_t tt = std::time(nullptr);
@@ -77,6 +79,7 @@ void CreateDesktopDirectory() {
         }
     }
 }
+
 unsigned char FromHex(unsigned char x) {
     unsigned char y;
     if (x >= 'A' && x <= 'Z') y = x - 'A' + 10;
@@ -86,6 +89,7 @@ unsigned char FromHex(unsigned char x) {
         assert(0);
     return y;
 }
+
 std::string msToVttTimeString(int ms) {
     int hours = ms / 3600000;
     ms -= hours * 3600000;
@@ -98,14 +102,37 @@ std::string msToVttTimeString(int ms) {
            + ":" + (seconds < 10 ? "0" : "") + std::to_string(seconds)
            + "." + (ms < 100 ? "0" : "") + (ms < 10 ? "0" : "") + std::to_string(ms);
 }
+
 void rtrim(std::string &s, const char c) {
     while (!s.empty() && s.back() == c) {
         s.pop_back();
     }
 }
+
 void TidyDirectory(const std::string &dir) {
     std::filesystem::path p(dir.empty() ? R"(C:\Users\Administrator\Desktop)" : dir);
+    auto d=p / "Recycled";
+    if (!std::filesystem::is_directory(p))
+        std::filesystem::create_directory(p);
+    for (const auto &entry: std::filesystem::directory_iterator(p)) {
+        if (!entry.is_directory()) {
+            auto ext = entry.path().extension().string();
+            if (ext.empty()) {
+                ext = ".UNKNOWN";
+            } else {
+                for (char &iter: ext) {
+                    iter = (char) toupper(iter);
+                }
+            }
+            auto n = d/ ext;
+            if (!std::filesystem::exists(n))
+                std::filesystem::create_directory(n);
+            std::filesystem::rename(entry.path(), n / entry.path().filename());
+        }
+    }
+
 }
+
 int timeStringToMs(const std::string &time) {
     // Time format: hh:mm:ss,### (where # = ms)
     int hours = stoi(time.substr(0, 2));
@@ -114,12 +141,14 @@ int timeStringToMs(const std::string &time) {
     int milliseconds = stoi(time.substr(9));
     return hours * 3600000 + minutes * 60000 + seconds * 1000 + milliseconds;
 }
+
 // convert wstring to string
 std::string to_byte_string(const std::wstring &input) {
     //std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.to_bytes(input);
 }
+
 std::string to_string(std::filesystem::file_time_type const &ftime) {
     std::time_t cftime = std::chrono::system_clock::to_time_t(
             std::chrono::file_clock::to_sys(ftime));
@@ -127,14 +156,17 @@ std::string to_string(std::filesystem::file_time_type const &ftime) {
     str.pop_back();  // rm the trailing '\n' put by `asctime`
     return str;
 }
+
 // convert string to wstring
 std::wstring to_wide_string(const std::string &input) {
     std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
     return converter.from_bytes(input);
 }
+
 unsigned char ToHex(unsigned char x) {
     return x > 9 ? x + 55 : x + 48;
 }
+
 std::string UrlDecode(const std::string &str) {
     std::string strTemp = "";
     size_t length = str.length();
@@ -149,6 +181,7 @@ std::string UrlDecode(const std::string &str) {
     }
     return strTemp;
 }
+
 std::string UrlEncode(const std::string &str) {
     std::string strTemp = "";
     size_t length = str.length();
