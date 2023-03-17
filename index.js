@@ -40,7 +40,7 @@ async function onDialogSubmit() {
     const path = this.dialog.dataset.path || new URL(window.location).searchParams.get("path");
     this.dialog.dataset.path = '';
     const url = new URL(`${window.origin}/api/file`);
-    url.searchParams.set("path", path);
+    url.searchParams.set("path", path|| "C:\\Users\\Administrator\\Desktop");
     url.searchParams.set("action", this.dialog.dataset.action);
     url.searchParams.set("dst", dst);
     await fetch(url)
