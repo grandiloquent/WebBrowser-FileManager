@@ -337,6 +337,12 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             dst /= f.filename();
             std::filesystem::rename(f, dst);
         }
+    } else if (action == "5") {
+        if (std::filesystem::exists(f)) {
+            std::filesystem::path dst = f.parent_path();
+            dst /= req.get_param_value("dst");
+            std::filesystem::rename(f, dst);
+        }
     }
 }
 
@@ -345,8 +351,8 @@ void handler::handleZipFile(const httplib::Request &req, httplib::Response &res)
     auto action = req.get_param_value("action");
     if (action.empty()) {
         zipper::Unzipper unzipper(f.string());
-        auto n=f.filename().string();
-        auto d = f.parent_path() / n.substr(0,n.find_last_of("."));
+        auto n = f.filename().string();
+        auto d = f.parent_path() / n.substr(0, n.find_last_of("."));
         unzipper.extract(d.string());
         unzipper.close();
     }

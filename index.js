@@ -20,6 +20,12 @@ function onCustomBottomSheetSubmit(evt) {
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '4') {
         fetch(`/api/zip?path=${detail.path}`)
+    } else if (evt.detail.id === '5') {
+        input.value = substringAfterLast(decodeURIComponent(detail.path), '\\');
+        this.dialog.dataset.path = detail.path;
+        this.dialog.style.display = 'block';
+        this.dialog.setAttribute('title', '重命名');
+        this.dialog.dataset.action = "5";
     }
 }
 
@@ -31,7 +37,8 @@ async function onDialogDeleteSubmit() {
 async function onDialogSubmit() {
     const dst = input.value.trim();
     if (!dst) return;
-    const path = new URL(window.location).searchParams.get("path");
+    const path = this.dialog.dataset.path || new URL(window.location).searchParams.get("path");
+    this.dialog.dataset.path = '';
     const url = new URL(`${window.origin}/api/file`);
     url.searchParams.set("path", path);
     url.searchParams.set("action", this.dialog.dataset.action);
@@ -51,6 +58,7 @@ function onNewFolder() {
     this.dialog.setAttribute('title', '新建文件');
     this.dialog.dataset.action = "2";
 }
+
 function substringAfterLast(string, delimiter, missingDelimiterValue) {
     const index = string.lastIndexOf(delimiter);
     if (index === -1) {
@@ -62,7 +70,7 @@ function substringAfterLast(string, delimiter, missingDelimiterValue) {
 
 async function render(path) {
     path = path || new URL(window.location).searchParams.get("path") || "C:\\Users\\Administrator\\Desktop";
-    document.title=substringAfterLast(decodeURIComponent(path),"\\")
+    document.title = substringAfterLast(decodeURIComponent(path), "\\")
     const res = await loadData(path);
     this.wrapper.innerHTML = res.sort((x, y) => {
         if (x.isDirectory !== y.isDirectory) if (x.isDirectory) return -1; else return 1;
@@ -146,6 +154,8 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "粘贴", id: 3
     }, {
         title: "解压", id: 4
+    }, {
+        title: "重命名", id: 5
     }]
     fav.data = [{
         title: "D:\\", id: 1
