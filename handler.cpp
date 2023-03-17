@@ -343,6 +343,28 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             dst /= req.get_param_value("dst");
             std::filesystem::rename(f, dst);
         }
+    } else if (action == "6") {
+        if (std::filesystem::is_directory(f)) {
+            auto q = UrlDecode(req.get_param_value("q"));
+            std::regex r(q);
+            std::filesystem::path dst = to_wide_string(UrlDecode(req.get_param_value("dst")));
+            if (dst.empty())return;
+            for (const auto &entry: std::filesystem::directory_iterator(f)) {
+                if (regex_search(entry.path().filename().string(), r)) {
+                    std::cout << entry.path() << std::endl;
+                    std::filesystem::rename(entry.path(), dst / entry.path().filename());
+                }
+            }
+        }
+    } else if (action == "7") {
+        if (std::filesystem::is_directory(f)) {
+            for (const auto &entry: std::filesystem::directory_iterator(f)) {
+                if (entry.is_directory()) {
+                    std::cout << entry.path() << std::endl;
+                    std::filesystem::remove_all(entry.path());
+                }
+            }
+        }
     }
 }
 

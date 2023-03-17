@@ -117,7 +117,7 @@ function onFavSubmit(evt) {
     let path;
     switch (evt.detail.id) {
         case `1`:
-            path = "D:\\";
+            path = "D:\\Books";
             break
         case `2`:
             path = "D:\\资源";
@@ -128,6 +128,9 @@ function onFavSubmit(evt) {
         case `4`:
             path = "C:\\Users\\Administrator\\Downloads";
             break
+        case '5':
+            path = "D:\\Resources\\Videos"
+            break;
     }
     const url = new URL(window.location);
     url.searchParams.set('path', path);
@@ -158,13 +161,15 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "重命名", id: 5
     }]
     fav.data = [{
-        title: "D:\\", id: 1
+        title: "D:\\Books", id: 1
     }, {
         title: "D:\\资源", id: 2
     }, {
         title: "桌面", id: 3
     }, {
         title: "下载", id: 4
+    }, {
+        title: "视频", id: 5
     }]
 })
 
