@@ -2,6 +2,7 @@
 #include <filesystem>
 #include "httplib.h"
 #include "handler.h"
+#include "helper.h"
 
 static inline void WritePrefix(std::ostream *os, const char *prefix, bool odd) {
     if (prefix != nullptr) {
@@ -119,7 +120,9 @@ int main() {
         h.handleZipFile(req, res);
     });
 
-
+    server.Get("/api/title", [&h](const httplib::Request &req, httplib::Response &res) {
+      res.set_content(GetTitle(),"text/plain");
+    });
     server.Get("/api/cmd", [](const httplib::Request &request,
                               httplib::Response &response) {
         response.set_header("Access-Control-Allow-Origin", "*");
@@ -163,6 +166,7 @@ int main() {
                    }
 
                });
+
     server.listen(szLocalIP, 8080);
     return 0;
 }

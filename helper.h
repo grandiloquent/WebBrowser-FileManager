@@ -8,6 +8,7 @@
 
 #include <regex>
 #include <fstream>
+#include "httplib.h"
 
 std::string &str_replace(std::string &subject, std::string search, std::string replace);
 std::string convertFile(const std::filesystem::path &filepath);
@@ -25,5 +26,6 @@ std::wstring to_wide_string(const std::string &input);
 unsigned char ToHex(unsigned char x);
 std::string UrlDecode(const std::string &str);
 std::string UrlEncode(const std::string &str);
+std::string GetTitle();
 
 #endif

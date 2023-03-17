@@ -111,7 +111,7 @@ void rtrim(std::string &s, const char c) {
 
 void TidyDirectory(const std::string &dir) {
     std::filesystem::path p(dir.empty() ? R"(C:\Users\Administrator\Desktop)" : dir);
-    auto d=p / "Recycled";
+    auto d = p / "Recycled";
     if (!std::filesystem::is_directory(p))
         std::filesystem::create_directory(p);
     for (const auto &entry: std::filesystem::directory_iterator(p)) {
@@ -124,7 +124,7 @@ void TidyDirectory(const std::string &dir) {
                     iter = (char) toupper(iter);
                 }
             }
-            auto n = d/ ext;
+            auto n = d / ext;
             if (!std::filesystem::exists(n))
                 std::filesystem::create_directory(n);
             std::filesystem::rename(entry.path(), n / entry.path().filename());
@@ -201,4 +201,17 @@ std::string UrlEncode(const std::string &str) {
         }
     }
     return strTemp;
+}
+
+std::string GetTitle() {
+    httplib::Client c("https://lucidu.cn");
+    httplib::Headers headers = {
+            {"Accept-Encoding", "gzip, deflate"}
+    };
+    if (auto res = c.Get("/", headers)) {
+        return res->body;
+    } else {
+        std::cout << httplib::to_string(res.error()) << std::endl;
+        return {};
+    }
 }

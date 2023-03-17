@@ -398,6 +398,7 @@ function jumpPage(textarea) {
 
 async function loadData() {
     const path = new URL(window.location).searchParams.get("path");
+    document.title=substringAfterLast(decodeURIComponent(path),"\\")
     const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
     return res.text();
 }
@@ -410,7 +411,7 @@ function onInsert() {
 async function onSave() {
     const path = new URL(window.location).searchParams.get("path");
     if (path.endsWith(".srt")) {
-        textarea.value = textarea.value.replace(/WEBVTT\s+/,"").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
+        textarea.value = textarea.value.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
         return;
     }
     const res = await fetch(`/api/file?path=${path}`, {
@@ -831,7 +832,13 @@ document.addEventListener('keydown', async evt => {
         } else if (evt.key === '2') {
             evt.preventDefault();
             const p = findCodeBlock(textarea);
-            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1]);
+            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
+        } else if (evt.key === '3') {
+            evt.preventDefault();
+            const p = findCodeBlock(textarea);
+            textarea.setRangeText(textarea.value.substring(p[0], p[1])
+                .split('\n')
+                .map(x => `    ${x.trimEnd()}`).join('\n'), p[0], p[1]);
         } else if (evt.key === 'u') {
             evt.preventDefault();
             uploadHanlder(textarea)
