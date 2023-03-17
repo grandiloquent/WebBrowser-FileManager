@@ -1,72 +1,9 @@
 
-#include <filesystem>
 #include "handler.h"
 #include "helper.h"
 
 using namespace std;
 
-
-std::string convertFile(const std::filesystem::path &filepath) {
-
-    std::ifstream infile(filepath, std::ifstream::in);
-
-
-    std::stringstream outfile;
-//        if (!outfile.is_open()) {
-//            throw ios_base::failure("Could not open .vtt file.");
-//        }
-//        outfile.imbue(locale(outfile.getloc(), new codecvt_utf8<wchar_t>));
-
-    // Write mandatory starting for the WebVTT file
-    outfile << "WEBVTT" << std::endl << std::endl;
-
-    std::regex rgxDialogNumber("\\d+");
-    std::regex rgxTimeFrame(R"((\d\d:\d\d:\d\d,\d{1,3}) --> (\d\d:\d\d:\d\d,\d{1,3}))");
-
-    for (;;) {
-        std::string sLine;
-
-        if (!getline(infile, sLine)) break;
-
-        //LOGE("%s", sLine.c_str());
-        rtrim(sLine, '\r'); // Trim a possibly trailing CR character
-
-        // Ignore dialog number lines
-        if (regex_match(sLine, rgxDialogNumber))
-            continue;
-
-        std::smatch matchTimeFrame;
-        regex_match(sLine, matchTimeFrame, rgxTimeFrame);
-
-        if (!matchTimeFrame.empty()) {
-            // Handle invalid SRT files where the time frame's milliseconds are less than 3 digits long
-            bool msTooShort = matchTimeFrame[1].length() < 12 || matchTimeFrame[2].length() < 12;
-
-            if (msTooShort) {
-                // Extract the times in milliseconds from the time frame line
-                int msStartTime = timeStringToMs(matchTimeFrame[1]);
-                int msEndTime = timeStringToMs(matchTimeFrame[2]);
-
-                // Modify the time with the offset, making sure the time
-                // gets set to 0 if it is going to be negative
-//                msStartTime += _timeOffsetMs;
-//                msEndTime += _timeOffsetMs;
-                if (msStartTime < 0) msStartTime = 0;
-                if (msEndTime < 0) msEndTime = 0;
-
-                // Construct the new time frame line
-                sLine = msToVttTimeString(msStartTime) + " --> " + msToVttTimeString(msEndTime);
-            } else {
-                // Simply replace the commas in the time with a period
-                sLine = str_replace(sLine, ",", ".");
-            }
-        }
-
-        outfile << sLine << std::endl; // Output the line to the new file
-    }
-    return outfile.str();
-
-}
 //
 //string GbkToUtf8(const char *src_str) {
 //    int len = MultiByteToWideChar(CP_ACP, 0, src_str, -1, NULL, 0);
@@ -153,13 +90,6 @@ void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &
     serveFile(f, req.matches[2].str() == "css" ? "text/css" : "application/javascript", res);
 }
 
-std::string to_string(std::filesystem::file_time_type const &ftime) {
-    std::time_t cftime = std::chrono::system_clock::to_time_t(
-            std::chrono::file_clock::to_sys(ftime));
-    std::string str = std::asctime(std::localtime(&cftime));
-    str.pop_back();  // rm the trailing '\n' put by `asctime`
-    return str;
-}
 
 void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
     auto path = req.get_param_value("path");
