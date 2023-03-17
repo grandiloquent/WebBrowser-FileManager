@@ -12,7 +12,7 @@ add_subdirectory(nlohmann_json)
 #link_libraries(httplib
 #        nlohmann_json::nlohmann_json)
 
-add_executable(Manager main.cpp handler.cpp handler.h)
+add_executable(Manager main.cpp handler.cpp helper.cpp)
 target_link_libraries(
         Manager
         PUBLIC
