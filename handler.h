@@ -14,16 +14,20 @@ class handler {
 public:
     explicit handler(const std::string &dir);
 
-    void handleIndex( const httplib::Request &req, httplib::Response &res);
-    void handleEditor( const httplib::Request &req, httplib::Response &res);
-    void handleVideo( const httplib::Request &req, httplib::Response &res);
-    void handleMarkdown( const httplib::Request &req, httplib::Response &res);
-    void handleStaticFiles( const httplib::Request &req, httplib::Response &res);
-    void handleFiles( const httplib::Request &req, httplib::Response &res);
-    void handleFile( const httplib::Request &req, httplib::Response &res);
-    void handlePostFile( const httplib::Request &req, httplib::Response &res,const httplib::ContentReader &content_reader);
-    void handleZipFile( const httplib::Request &req, httplib::Response &res);
-    void handleSrt( const httplib::Request &req, httplib::Response &res);
+
+    void handleStaticFiles(const httplib::Request &req, httplib::Response &res);
+
+    void handleFiles(const httplib::Request &req, httplib::Response &res);
+
+    void handleFile(const httplib::Request &req, httplib::Response &res);
+
+    void
+    handlePostFile(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
+
+    void handleZipFile(const httplib::Request &req, httplib::Response &res);
+
+
+    void handlePage(const std::string &fileName, const httplib::Request &req, httplib::Response &res);
 
 private:
     std::string mDir;

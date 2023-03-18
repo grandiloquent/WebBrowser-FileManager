@@ -59,41 +59,12 @@ static void serveFile(const std::filesystem::path &f, const char *contentType, h
                              });
 }
 
-void handler::handleIndex(const httplib::Request &req, httplib::Response &res) {
-    std::filesystem::path f = mDir;
-    f /= "index.html";
-    serveFile(f, "text/html", res);
-}
-
-void handler::handleEditor(const httplib::Request &req, httplib::Response &res) {
-    std::filesystem::path f = mDir;
-    f /= "editor.html";
-    serveFile(f, "text/html", res);
-}
-
-void handler::handleVideo(const httplib::Request &req, httplib::Response &res) {
-    std::filesystem::path f = mDir;
-    f /= "video.html";
-    serveFile(f, "text/html", res);
-}
-void handler::handleSrt(const httplib::Request &req, httplib::Response &res) {
-    std::filesystem::path f = mDir;
-    f /= "srt.html";
-    serveFile(f, "text/html", res);
-}
-void handler::handleMarkdown(const httplib::Request &req, httplib::Response &res) {
-    std::filesystem::path f = mDir;
-    f /= "markdown.html";
-    serveFile(f, "text/html", res);
-}
-
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = mDir;
 
     f /= req.matches[1].str();
     serveFile(f, req.matches[2].str() == "css" ? "text/css" : "application/javascript", res);
 }
-
 
 void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
     auto path = req.get_param_value("path");
@@ -128,8 +99,6 @@ void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
     }
     res.set_content(doc.dump(), "application/json");
 }
-
-
 
 void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
@@ -200,7 +169,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
         }
     } else if (action == "8") {
         CreateDesktopDirectory();
-    } else if(action=="9"){
+    } else if (action == "9") {
         std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
         TidyDirectory(f.string());
     }
@@ -236,4 +205,10 @@ void handler::handlePostFile(const httplib::Request &req, httplib::Response &res
     ofs.open(f, std::ofstream::out);
     ofs << body;
     ofs.close();
+}
+
+void handler::handlePage(const string &fileName, const httplib::Request &req, httplib::Response &res) {
+    std::filesystem::path f = mDir;
+    f /= fileName;
+    serveFile(f, "text/html", res);
 }

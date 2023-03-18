@@ -90,19 +90,19 @@ int main() {
     handler h{dir};
     httplib::Server server;
     server.Get("/", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handleIndex(req, res);
+        h.handlePage("index.html", req, res);
     });
     server.Get("/editor", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handleEditor(req, res);
+        h.handlePage("editor.html", req, res);
     });
     server.Get("/video", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handleVideo(req, res);
+        h.handlePage("video.html", req, res);
     });
     server.Get("/markdown", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handleMarkdown(req, res);
+        h.handlePage("markdown.html", req, res);
     });
     server.Get("/srt", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handleSrt(req, res);
+        h.handlePage("srt.html", req, res);
     });
 
     server.Get(R"(/([a-z-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
