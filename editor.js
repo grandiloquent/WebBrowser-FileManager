@@ -398,7 +398,7 @@ function jumpPage(textarea) {
 
 async function loadData() {
     const path = new URL(window.location).searchParams.get("path");
-    document.title=substringAfterLast(decodeURIComponent(path),"\\")
+    document.title = substringAfterLast(decodeURIComponent(path), "\\")
     const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
     return res.text();
 }
@@ -849,7 +849,13 @@ document.addEventListener('keydown', async evt => {
 
 async function insertLink() {
     const strings = await readText();
-    const name = substringAfterLast(strings, '#');
+    let name = '';
+    try {
+        const url = new URL(strings);
+        name = await (await fetch(`/api/title?host=${url.host}&path=${url.pathname}${url.search}`)).text()
+    } catch (e) {
+
+    }
     textarea.setRangeText(
         `- [${name}](${strings})`,
         textarea.selectionStart,
