@@ -686,6 +686,8 @@ async function pasteCode() {
         strings = await navigator.clipboard.readText()
     }
     textarea.setRangeText(`
+## 
+
 \`\`\`javascript
 ${strings}
 \`\`\`
@@ -1014,6 +1016,9 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
     }, {
         id: 8,
         title: "插入链接"
+    }, {
+        id: 9,
+        title: "代码"
     }]
 })
 
@@ -1043,6 +1048,9 @@ function onCustomBottomSheet(evt) {
             break;
         case "8":
             insertLink()
+            break;
+        case "9":
+            onCode();
             break;
     }
 }

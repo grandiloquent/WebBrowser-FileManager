@@ -47,8 +47,20 @@ async function render() {
     wrapper.innerHTML = md.render(obj);
 }
 
+function substringBetweenLast(string, start, end) {
+    const startIndex = string.lastIndexOf(start);
+    if (startIndex === -1) {
+        return string;
+    }
+    const endIndex = string.indexOf(end, startIndex + start.length);
+
+    return string.substring(startIndex+ start.length, endIndex);
+
+}
+
 async function loadData() {
     const path = new URL(window.location).searchParams.get("path");
+    document.title = substringBetweenLast(path, "\\", ".");
     const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
     return res.text();
 }
