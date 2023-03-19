@@ -1,4 +1,3 @@
-
 document.querySelectorAll('[bind]').forEach(element => {
     if (element.getAttribute('bind')) {
         window[element.getAttribute('bind')] = element;
@@ -32,7 +31,17 @@ async function render() {
     //     }
     const obj = await loadData();
     const md = new markdownit({
-        linkify: true
+        linkify: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(str, {language: lang}).value;
+                } catch (__) {
+                }
+            }
+
+            return ''; // use external default escaping
+        }
     });
 
     wrapper.innerHTML = md.render(obj);

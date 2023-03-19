@@ -105,7 +105,7 @@ int main() {
         h.handlePage("srt.html", req, res);
     });
 
-    server.Get(R"(/([a-z-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
+    server.Get(R"(/([a-z.-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });
     server.Get("/api/files", [&h](const httplib::Request &req, httplib::Response &res) {

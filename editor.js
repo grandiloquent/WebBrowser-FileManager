@@ -734,7 +734,7 @@ function onShow() {
 
 function onPreview() {
     const path = new URL(window.location).searchParams.get("path");
-    location.href = `/markdown?path=${path}`
+    window.open(`/markdown?path=${path}`, '_blank')
 }
 
 function onCode() {
@@ -852,7 +852,7 @@ async function insertLink() {
     let name = '';
     try {
         const url = new URL(strings);
-        name = await (await fetch(`/api/title?host=${url.host}&path=${url.pathname}${url.search}`)).text()
+        name = await (await fetch(`/api/title?host=${url.host}&path=${encodeURIComponent(`${url.pathname}${url.search}`)}`)).text()
     } catch (e) {
 
     }

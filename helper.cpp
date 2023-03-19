@@ -208,16 +208,18 @@ std::string GetTitle(const std::string &host, const std::string &path) {
     httplib::Headers headers = {
             {
                     "User-Agent",
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+                                       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
             },
             {
-                    "Accept", "*/*"
-            },{
-                "Accept-Language","zh-CN,zh;q=0.9,en;q=0.8"
+                    "Accept",          "*/*"
+            },
+            {
+                    "Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8"
             }
     };
 
-    if (auto res = c.Get(path,headers)) {
+    std::cout<<host<<" " << UrlDecode(path) << std::endl;
+    if (auto res = c.Get(UrlDecode(path), headers)) {
         auto start = res->body.find("<title>");
         if (start == std::string::npos)return {};
         auto end = res->body.find("</title>", start + 7);
