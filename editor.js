@@ -989,6 +989,51 @@ function onCode() {
     pasteCode();
 }
 
+function formatHead(editor, count) {
+    // console.log("formatHead, ");
+    // let start = editor.selectionStart;
+    // const string = editor.value;
+    // while (start - 1 > -1 && string.charAt(start - 1) !== '\n') {
+    //     start--;
+    // }
+    // editor.setRangeText('#'.repeat(count || 2) + " ", start, start);
+
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const string = editor.value;
+
+
+    let offsetStart = start;
+    while (offsetStart > 0) {
+        if (string[offsetStart - 1] !== '\n')
+            offsetStart--;
+        else {
+            while (offsetStart > 0) {
+                if (/\s/.test(string[offsetStart - 1]))
+                    offsetStart--;
+                else break;
+            }
+            break;
+        }
+    }
+    let offsetEnd = end;
+    while (offsetEnd < string.length) {
+        if (string[offsetEnd + 1] !== '\n')
+            offsetEnd++;
+        else {
+            while (offsetEnd < string.length) {
+                if (/\s/.test(string[offsetEnd + 1]))
+                    offsetEnd++;
+                else break;
+            }
+            break;
+        }
+    }
+
+    editor.setRangeText(`\n\n${'#'.repeat(count)} ${string.substring(offsetStart, offsetEnd).trim()}\n`, offsetStart,
+        offsetEnd, 'end');
+}
+
 ///////////////////
 bind();
 customElements.whenDefined('custom-bottom-sheet').then(() => {
@@ -1102,6 +1147,9 @@ document.addEventListener('keydown', async evt => {
         } else if (evt.key === 'u') {
             evt.preventDefault();
             uploadHanlder(textarea)
+        } else if (evt.key === 'h') {
+            evt.preventDefault();
+            formatHead(textarea, 3);
         }
 
     }
