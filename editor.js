@@ -217,6 +217,20 @@ textarea {
     });
     customDialog.content = localStorage.getItem('snippet');
     customDialog.style.display = 'none';
+    insertTranslateDialog();
+
+    function insertTranslateDialog() {
+        const customDialog = document.createElement('custom-dialog');
+        document.body.appendChild(customDialog);
+        customDialog.title = "翻译"
+        window.translator = customDialog;
+        customDialog.addEventListener('submit', async evt => {
+            textarea.setRangeText(`\n\n${await translate(evt.detail.replaceAll(/[\r\n]+/g, ''), 'zh')}
+          `, textarea.selectionStart, textarea.selectionEnd, 'end');
+            customDialog.content = '';
+        });
+        customDialog.style.display = 'none';
+    }
 })();
 
 (() => {
@@ -1064,6 +1078,9 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
     }, {
         id: 9,
         title: "代码"
+    }, {
+        id: 10,
+        title: "翻译"
     }]
 })
 
@@ -1097,6 +1114,9 @@ function onCustomBottomSheet(evt) {
         case "9":
             onCode();
             break;
+        case "10":
+            window.translator.style.display = 'block';
+            break
     }
 }
 
@@ -1152,6 +1172,9 @@ document.addEventListener('keydown', async evt => {
             formatHead(textarea, 3);
         }
 
+    } else if (evt.key === 'F3') {
+        evt.preventDefault();
+        onTranslateChinese();
     }
 });
 
