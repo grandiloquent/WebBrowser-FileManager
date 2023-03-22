@@ -111,7 +111,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             return;
         }
         if (f.extension() == ".html" || f.extension() == ".xhtml") {
-            serveFile(f, "text/html", res);
+            serveFile(f, "text/html;charset=UTF-8", res);
             return;
         }
         res.set_header("Content-Disposition", "attachment; filename=\"" + f.filename().string() + "\"");
