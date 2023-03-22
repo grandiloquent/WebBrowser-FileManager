@@ -172,6 +172,9 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     } else if (action == "9") {
         std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
         TidyDirectory(f.string());
+    }else if (action == "10") {
+        std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
+        MoveFile(f);
     }
 }
 

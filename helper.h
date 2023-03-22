@@ -10,6 +10,8 @@
 #include <fstream>
 #include "httplib.h"
 
+namespace fs = std::filesystem;
+
 std::string &str_replace(std::string &subject, std::string search, std::string replace);
 
 std::string convertFile(const std::filesystem::path &filepath);
@@ -41,5 +43,7 @@ std::string UrlDecode(const std::string &str);
 std::string UrlEncode(const std::string &str);
 
 std::string GetTitle(const std::string &host, const std::string &path);
+
+bool MoveFile(const fs::path &path);
 
 #endif

@@ -218,7 +218,7 @@ std::string GetTitle(const std::string &host, const std::string &path) {
             }
     };
 
-    std::cout<<host<<" " << UrlDecode(path) << std::endl;
+    std::cout << host << " " << UrlDecode(path) << std::endl;
     if (auto res = c.Get(UrlDecode(path), headers)) {
         auto start = res->body.find("<title>");
         if (start == std::string::npos)return {};
@@ -230,4 +230,26 @@ std::string GetTitle(const std::string &host, const std::string &path) {
         return {};
     }
 
+}
+
+bool MoveFile(const fs::path &path) {
+    auto parent = path.parent_path();
+    parent /= "Recycled";
+    if (!fs::exists(parent)) {
+        fs::create_directory(parent);
+    }
+    auto p = path.filename().string();
+    auto last = p.find_last_of('.');
+    if (last != std::string::npos) {
+        p = p.substr(0,last);
+    }
+    for (const auto &entry: std::filesystem::directory_iterator(path.parent_path())) {
+        auto filename = entry.path().filename().string();
+
+        if (!filename.starts_with(p))continue;
+        auto d = parent / entry.path().filename();
+        if (!fs::exists(d)) {
+            fs::rename(entry.path(), d);
+        }
+    }
 }

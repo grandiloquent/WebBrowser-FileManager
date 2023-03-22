@@ -26,6 +26,8 @@ function onCustomBottomSheetSubmit(evt) {
         this.dialog.style.display = 'block';
         this.dialog.setAttribute('title', '重命名');
         this.dialog.dataset.action = "5";
+    } else if (evt.detail.id === '6') {
+        fetch(`/api/file?action=10&path=${detail.path}`);
     }
 }
 
@@ -40,7 +42,7 @@ async function onDialogSubmit() {
     const path = this.dialog.dataset.path || new URL(window.location).searchParams.get("path");
     this.dialog.dataset.path = '';
     const url = new URL(`${window.origin}/api/file`);
-    url.searchParams.set("path", path|| "C:\\Users\\Administrator\\Desktop");
+    url.searchParams.set("path", path || "C:\\Users\\Administrator\\Desktop");
     url.searchParams.set("action", this.dialog.dataset.action);
     url.searchParams.set("dst", dst);
     await fetch(url)
@@ -97,8 +99,8 @@ function submit(evt) {
             } else if (evt.detail.path.endsWith(".srt")) {
                 window.location = `/srt?path=${encodeURIComponent(evt.detail.path)}`
             }
-            // else if (evt.detail.path.endsWith(".md")) {
-            //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
+                // else if (evt.detail.path.endsWith(".md")) {
+                //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
             else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
                 window.location = `/editor?path=${encodedPath}`
@@ -163,6 +165,8 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "解压", id: 4
     }, {
         title: "重命名", id: 5
+    }, {
+        title: "整理", id: 6
     }]
     fav.data = [{
         title: "D:\\Books", id: 1
