@@ -110,7 +110,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
             }
             return;
         }
-        if (f.extension() == ".html") {
+        if (f.extension() == ".html" || f.extension() == ".xhtml") {
             serveFile(f, "text/html", res);
             return;
         }
