@@ -142,7 +142,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     } else if (action == "5") {
         if (std::filesystem::exists(f)) {
             std::filesystem::path dst = f.parent_path();
-            dst /= req.get_param_value("dst");
+            dst /= to_wide_string(UrlDecode(req.get_param_value("dst")));
             std::filesystem::rename(f, dst);
         }
     } else if (action == "6") {

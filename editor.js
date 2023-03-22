@@ -1048,136 +1048,6 @@ function formatHead(editor, count) {
         offsetEnd, 'end');
 }
 
-///////////////////
-bind();
-customElements.whenDefined('custom-bottom-sheet').then(() => {
-    customBottomSheet.data = [{
-        id: 4,
-        title: "翻译英文"
-    }, {
-        id: 3,
-        title: "评论"
-    }, {
-        id: 5,
-        title: "粘贴代码"
-    }, {
-        id: 1,
-        title: "复制代码块"
-    }, {
-        id: 7,
-        title: "设置代码块"
-    }, {
-        id: 2,
-        title: "预览"
-    }, {
-        id: 6,
-        title: "执行代码"
-    }, {
-        id: 8,
-        title: "插入链接"
-    }, {
-        id: 9,
-        title: "代码"
-    }, {
-        id: 10,
-        title: "翻译"
-    }]
-})
-
-function onCustomBottomSheet(evt) {
-    customBottomSheet.style.display = 'none';
-    switch (evt.detail.id) {
-        case "1":
-            onCopy();
-            break;
-        case "2":
-            onPreview();
-            break;
-        case "3":
-            onInsert();
-            break;
-        case "4":
-            onTranslateEnglish();
-            break;
-        case "5":
-            onCode();
-            break;
-        case "6":
-            onEval();
-            break;
-        case "7":
-            customDialog.style.display = 'block';
-            break;
-        case "8":
-            insertLink()
-            break;
-        case "9":
-            onCode();
-            break;
-        case "10":
-            window.translator.style.display = 'block';
-            break
-    }
-}
-
-document.addEventListener('visibilitychange', () => {
-    localStorage.setItem('contents', textarea.value);
-})
-textarea.value = localStorage.getItem('contents') || '';
-const id = new URL(window.location).searchParams.get("id");
-let baseUri = window.location.host === '127.0.0.1:5500' ? 'http://192.168.8.55:10808' : '';
-render();
-document.addEventListener('keydown', async evt => {
-    if (evt.ctrlKey) {
-        if (evt.key === 's') {
-            evt.preventDefault();
-            await onSave();
-        } else if (evt.key === 'j') {
-            evt.preventDefault();
-            openLink();
-        } else if (evt.key === 'o') {
-            evt.preventDefault();
-            sortLines();
-        } else if (evt.key === 'p') {
-            evt.preventDefault();
-            onPreview();
-        } else if (evt.key === 'k') {
-            evt.preventDefault();
-            insertLink();
-        } else if (evt.key === 'e') {
-            evt.preventDefault();
-            onEval();
-        } else if (evt.key === 'l') {
-            evt.preventDefault();
-            onCode()
-        } else if (evt.key === '1') {
-            evt.preventDefault();
-            const pv = findCodeBlock(textarea);
-            navigator.clipboard.writeText(textarea.value.substring(pv[0], pv[1]));
-        } else if (evt.key === '2') {
-            evt.preventDefault();
-            const p = findCodeBlock(textarea);
-            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
-        } else if (evt.key === '3') {
-            evt.preventDefault();
-            const p = findCodeBlockExtend(textarea);
-            textarea.setRangeText(textarea.value.substring(p[0], p[1])
-                .split('\n')
-                .map(x => `    ${x.trimEnd()}`).join('\n'), p[0], p[1]);
-        } else if (evt.key === 'u') {
-            evt.preventDefault();
-            uploadHanlder(textarea)
-        } else if (evt.key === 'h') {
-            evt.preventDefault();
-            formatHead(textarea, 3);
-        }
-
-    } else if (evt.key === 'F3') {
-        evt.preventDefault();
-        onTranslateChinese();
-    }
-});
-
 async function insertLink() {
     const strings = await readText();
     let name = '';
@@ -1262,3 +1132,137 @@ async function onSnippet() {
         'end'
     )
 }
+
+function onShowTranslator() {
+    window.translator.style.display = 'block';
+}
+
+///////////////////
+bind();
+customElements.whenDefined('custom-bottom-sheet').then(() => {
+    customBottomSheet.data = [{
+        id: 4,
+        title: "翻译英文"
+    }, {
+        id: 3,
+        title: "评论"
+    }, {
+        id: 5,
+        title: "粘贴代码"
+    }, {
+        id: 1,
+        title: "复制代码块"
+    }, {
+        id: 7,
+        title: "设置代码块"
+    }, {
+        id: 2,
+        title: "预览"
+    }, {
+        id: 6,
+        title: "执行代码"
+    }, {
+        id: 8,
+        title: "插入链接"
+    }, {
+        id: 9,
+        title: "代码"
+    }, {
+        id: 10,
+        title: "翻译"
+    }]
+})
+
+function onCustomBottomSheet(evt) {
+    customBottomSheet.style.display = 'none';
+    switch (evt.detail.id) {
+        case "1":
+            onCopy();
+            break;
+        case "2":
+            onPreview();
+            break;
+        case "3":
+            onInsert();
+            break;
+        case "4":
+            onTranslateEnglish();
+            break;
+        case "5":
+            onCode();
+            break;
+        case "6":
+            onEval();
+            break;
+        case "7":
+            customDialog.style.display = 'block';
+            break;
+        case "8":
+            insertLink()
+            break;
+        case "9":
+            onCode();
+            break;
+        case "10":
+            onShowTranslator()
+            break
+    }
+}
+
+document.addEventListener('visibilitychange', () => {
+    localStorage.setItem('contents', textarea.value);
+})
+textarea.value = localStorage.getItem('contents') || '';
+const id = new URL(window.location).searchParams.get("id");
+let baseUri = window.location.host === '127.0.0.1:5500' ? 'http://192.168.8.55:10808' : '';
+render();
+document.addEventListener('keydown', async evt => {
+    if (evt.ctrlKey) {
+        if (evt.key === 's') {
+            evt.preventDefault();
+            await onSave();
+        } else if (evt.key === 'j') {
+            evt.preventDefault();
+            openLink();
+        } else if (evt.key === 'o') {
+            evt.preventDefault();
+            sortLines();
+        } else if (evt.key === 'p') {
+            evt.preventDefault();
+            onPreview();
+        } else if (evt.key === 'k') {
+            evt.preventDefault();
+            insertLink();
+        } else if (evt.key === 'e') {
+            evt.preventDefault();
+            onEval();
+        } else if (evt.key === 'l') {
+            evt.preventDefault();
+            onCode()
+        } else if (evt.key === '1') {
+            evt.preventDefault();
+            const pv = findCodeBlock(textarea);
+            navigator.clipboard.writeText(textarea.value.substring(pv[0], pv[1]));
+        } else if (evt.key === '2') {
+            evt.preventDefault();
+            const p = findCodeBlock(textarea);
+            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
+        } else if (evt.key === '3') {
+            evt.preventDefault();
+            const p = findCodeBlockExtend(textarea);
+            textarea.setRangeText(textarea.value.substring(p[0], p[1])
+                .split('\n')
+                .map(x => `    ${x.trimEnd()}`).join('\n'), p[0], p[1]);
+        } else if (evt.key === 'u') {
+            evt.preventDefault();
+            uploadHanlder(textarea)
+        } else if (evt.key === 'h') {
+            evt.preventDefault();
+            formatHead(textarea, 3);
+        }
+
+    } else if (evt.key === 'F3') {
+        evt.preventDefault();
+        onTranslateChinese();
+    }
+});
