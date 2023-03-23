@@ -254,4 +254,5 @@ bool MoveFile(const fs::path &path) {
             fs::rename(entry.path(), d);
         }
     }
+    return true;
 }
