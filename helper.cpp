@@ -110,10 +110,12 @@ void rtrim(std::string &s, const char c) {
 }
 
 void TidyDirectory(const std::string &dir) {
+//    std::cout << dir << std::endl;
     std::filesystem::path p(dir.empty() ? R"(C:\Users\Administrator\Desktop)" : dir);
     auto d = p / "Recycled";
-    if (!std::filesystem::is_directory(p))
-        std::filesystem::create_directory(p);
+    std::cout << d << std::endl;
+    if (!std::filesystem::is_directory(d))
+        std::filesystem::create_directory(d);
     for (const auto &entry: std::filesystem::directory_iterator(p)) {
         if (!entry.is_directory()) {
             auto ext = entry.path().extension().string();
@@ -241,7 +243,7 @@ bool MoveFile(const fs::path &path) {
     auto p = path.filename().string();
     auto last = p.find_last_of('.');
     if (last != std::string::npos) {
-        p = p.substr(0,last);
+        p = p.substr(0, last);
     }
     for (const auto &entry: std::filesystem::directory_iterator(path.parent_path())) {
         auto filename = entry.path().filename().string();
