@@ -70,7 +70,13 @@ void CreateDesktopDirectory() {
     if (!std::filesystem::is_directory(desktop)) {
         std::filesystem::create_directory(desktop);
     }
-    std::cout << desktop << "1" << std::endl;
+    std::ofstream autoit(desktop / "autoit.au3");
+    autoit.close();
+    std::ofstream md(desktop / "文档.md");
+    md.close();
+    std::ofstream js(desktop/"javascript.js");
+    js.close();
+    //std::cout << desktop << "1" << std::endl;
     for (auto i = 0; i < 3; i++) {
         auto n = std::to_string(i + 1);
         n.insert(0, 2 - n.length(), '0');
