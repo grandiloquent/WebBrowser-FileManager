@@ -72,7 +72,7 @@ void CreateDesktopDirectory() {
     }
     std::ofstream autoit(desktop / "autoit.au3");
     autoit.close();
-    std::ofstream md(desktop / "文档.md");
+    std::ofstream md(desktop / L"文档.md");
     md.close();
     std::ofstream js(desktop/"javascript.js");
     js.close();
