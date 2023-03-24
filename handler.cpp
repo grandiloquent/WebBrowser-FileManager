@@ -190,12 +190,29 @@ void handler::handleZipFile(const httplib::Request &req, httplib::Response &res)
     }
 }
 
+
 handler::handler(const std::string &dir) {
     mDir = std::string{dir};
     static const char table[] = R"(CREATE TABLE IF NOT EXISTS notes(_id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,content TEXT,create_at INTEGER NOT NULL,update_at  INTEGER NOT NULL))";
     db::QueryResult fetch_row = db::query<table>();
-    std::cout << fetch_row.resultCode() << std::endl;
 
+    std::filesystem::path doc(L"C:\\Users\\Administrator\\Desktop\\文档");
+    if (std::filesystem::exists(doc)) {
+        static const char query[]
+                = R"(INSERT INTO notes (title,content,create_at,update_at) VALUES(?1,?2,?3,?4))";
+
+        for (const auto &entry: std::filesystem::recursive_directory_iterator(doc)) {
+            if (!entry.is_regular_file() || entry.path().extension() != ".md")continue;
+            auto title = entry.path().filename().stem().string();
+            auto content = ReadFile(entry.path());
+            db::QueryResult
+                    fetch_row = db::query<query>(title,
+                                                 title + "\n" + content,
+                                                 GetTimeStamp(),
+                                                 GetTimeStamp()
+            );
+        }
+    }
 }
 
 void handler::handlePostFile(const httplib::Request &req, httplib::Response &res,

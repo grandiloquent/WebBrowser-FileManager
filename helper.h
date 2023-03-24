@@ -47,5 +47,6 @@ std::string GetTitle(const std::string &host, const std::string &path);
 bool MoveFile(const fs::path &path);
 
 int GetTimeStamp();
-
+std::string ReadFile(fs::path path);
+std::string slurp(std::ifstream& in);
 #endif
