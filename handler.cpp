@@ -268,19 +268,18 @@ handler::insertNote(const httplib::Request &req, httplib::Response &res, const h
 void handler::getNote(const httplib::Request &req, httplib::Response &res) {
     auto id = req.get_param_value("id");
     static const char query[]
-            = R"(select title,content,update_at from notes where id=?1)";
+            = R"(select title,content,update_at from notes where _id=?1)";
     db::QueryResult fetch_row = db::query<query>(id);
     std::string_view title, content, update_at;
 
-    nlohmann::json doc = nlohmann::json::array();
-    while (fetch_row(title, content, update_at)) {
+    if (fetch_row(title, content, update_at)) {
         nlohmann::json j = {
                 {"title",     title},
                 {"content",   content},
                 {"update_at", update_at},
 
         };
-        doc.push_back(j);
+        res.set_content(j.dump(), "application/json");
     }
-    res.set_content(doc.dump(), "application/json");
+
 }
