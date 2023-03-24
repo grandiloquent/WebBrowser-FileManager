@@ -23,7 +23,7 @@ add_subdirectory(nlohmann_json)
 #link_libraries(httplib
 #        nlohmann_json::nlohmann_json)
 
-
+add_library(sqlite3 SHARED sqlite3.c)
 
 add_executable(Manager main.cpp handler.cpp helper.cpp)
 
@@ -33,4 +33,5 @@ target_link_libraries(
         staticZipper
         httplib
         nlohmann_json::nlohmann_json
+        sqlite3
 )

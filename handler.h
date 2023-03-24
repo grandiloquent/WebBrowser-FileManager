@@ -9,6 +9,10 @@
 #include "httplib.h"
 #include <zipper/unzipper.h>
 #include <zipper/zipper.h>
+#include "SQLiteWrapper.h"
+
+static const char db_name[] = "notes.db";
+using db = sqlite::Database<db_name>;
 
 class handler {
 public:
