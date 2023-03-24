@@ -185,6 +185,8 @@ int main() {
             h.listNotes(req, res);
         } else if (action == "1") {
             h.getNote(req, res);
+        }else if (action == "2") {
+            h.searchNotes(req, res);
         }
     });
     server.listen(szLocalIP, 8080);

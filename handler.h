@@ -37,6 +37,7 @@ public:
 
     void insertNote(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
     void getNote(const httplib::Request &req, httplib::Response &res);
+    void searchNotes(const httplib::Request &req, httplib::Response &res);
 
 
 private:

@@ -239,7 +239,7 @@ void handler::handlePage(const string &fileName, const httplib::Request &req, ht
 
 void handler::listNotes(const httplib::Request &req, httplib::Response &res) {
     static const char query[]
-            = R"(select _id,title,update_at from notes ORDER by update_at DESC)";
+            = R"(select _id,title,update_at from notes ORDER by update_at DESC LIMIT 10)";
     db::QueryResult fetch_row = db::query<query>();
     std::string_view id, title, update_at;
 
@@ -308,4 +308,24 @@ void handler::getNote(const httplib::Request &req, httplib::Response &res) {
         res.set_content(j.dump(), "application/json");
     }
 
+}
+
+void handler::searchNotes(const httplib::Request &req, httplib::Response &res) {
+    static const char query[]
+            = R"(select _id,title,update_at from notes ORDER by update_at DESC LIMIT 10)";
+    db::QueryResult fetch_row = db::query<query>();
+    std::string_view id, title, update_at;
+
+    nlohmann::json doc = nlohmann::json::array();
+    while (fetch_row(id, title, update_at)) {
+        nlohmann::json j = {
+
+                {"id",        id},
+                {"title",     title},
+                {"update_at", update_at},
+
+        };
+        doc.push_back(j);
+    }
+    res.set_content(doc.dump(), "application/json");
 }
