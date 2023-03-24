@@ -311,21 +311,26 @@ void handler::getNote(const httplib::Request &req, httplib::Response &res) {
 }
 
 void handler::searchNotes(const httplib::Request &req, httplib::Response &res) {
+    auto q = UrlDecode(req.get_param_value("q"));
     static const char query[]
-            = R"(select _id,title,update_at from notes ORDER by update_at DESC LIMIT 10)";
+            = R"(select _id,title,content,update_at from notes ORDER by update_at DESC)";
     db::QueryResult fetch_row = db::query<query>();
-    std::string_view id, title, update_at;
+    std::string_view id, title, content, update_at;
 
     nlohmann::json doc = nlohmann::json::array();
-    while (fetch_row(id, title, update_at)) {
-        nlohmann::json j = {
+    std::regex qr(q);
+    while (fetch_row(id, title, content, update_at)) {
+        if (std::regex_search((std::string) title, qr)) {
+            nlohmann::json j = {
 
-                {"id",        id},
-                {"title",     title},
-                {"update_at", update_at},
+                    {"id",        id},
+                    {"title",     title},
+                    {"update_at", update_at},
 
-        };
-        doc.push_back(j);
+            };
+            doc.push_back(j);
+        }
+
     }
     res.set_content(doc.dump(), "application/json");
 }
