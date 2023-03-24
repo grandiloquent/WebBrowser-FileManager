@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<script>
+    async function loadData() {
+        const res = await fetch(`/api/note`);
+        return res.json();
+    }
+
+    async function render() {
+        const res =await loadData()
+        console.log(res)
+    }
+    render();
+</script>
+</body>
+</html>

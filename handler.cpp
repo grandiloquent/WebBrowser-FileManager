@@ -251,7 +251,16 @@ handler::insertNote(const httplib::Request &req, httplib::Response &res, const h
     std::string title = doc["title"];
     std::string content = doc["content"];
     if (doc.contains("id")) {
-
+        int id = doc["id"];
+        static const char query[]
+                = R"(UPDATE notes SET title=?1,content=?2,update_at=?3 where _id =?4)";
+        db::QueryResult fetch_row = db::query<query>(title,
+                                                     content,
+                                                     GetTimeStamp(),
+                                                     id
+        );
+        res.set_content(to_string(fetch_row.resultCode()),
+                        "text/plain; charset=UTF-8");
     } else {
         static const char query[]
                 = R"(INSERT INTO notes (title,content,create_at,update_at) VALUES(?1,?2,?3,?4))";

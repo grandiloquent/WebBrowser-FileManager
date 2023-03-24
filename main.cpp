@@ -104,6 +104,9 @@ int main() {
     server.Get("/srt", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handlePage("srt.html", req, res);
     });
+    server.Get("/notes", [&h](const httplib::Request &req, httplib::Response &res) {
+        h.handlePage("notes.html", req, res);
+    });
 
     server.Get(R"(/([a-z.-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
