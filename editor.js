@@ -450,7 +450,7 @@ button {
   -->
   */
 })();
-
+////////////////////////////////////////////////////////////
 /*
 绑定元素和事件
 例如：<div bind="div" @click="click"></div>
@@ -475,6 +475,41 @@ function camel(string) {
     return string.replaceAll(/[ _-]([a-zA-Z])/g, m => m[1].toUpperCase());
 }
 
+function copyLine(editor, count) {
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const string = editor.value;
+    let offsetStart = start;
+    while (offsetStart > 0) {
+        if (string[offsetStart - 1] !== '\n' && string[offsetStart - 1] !== '|')
+            offsetStart--;
+        else {
+            // while (offsetStart > 0) {
+            //     if (/\s/.test(string[offsetStart - 1]))
+            //         offsetStart--;
+            //     else break;
+            // }
+            break;
+        }
+    }
+    let offsetEnd = end;
+    while (offsetEnd < string.length) {
+        if (string[offsetEnd + 1] !== '\n' && string[offsetEnd + 1] !== '|')
+            offsetEnd++;
+        else {
+            /* while (offsetEnd < string.length) {
+                 if (/\s/.test(string[offsetEnd + 1]))
+                     offsetEnd++;
+                 else break;
+             }*/
+            offsetEnd++;
+            break;
+        }
+    }
+    const str = string.substring(offsetStart, offsetEnd).trim();
+    writeText(str);
+    editor.focus()
+}
 
 function findBlock(textarea) {
     let start = textarea.selectionStart;
@@ -558,9 +593,7 @@ function findCodeBlockExtend(textarea) {
             start -= 2;
             while (start - 1 > 0 && value[start - 1] !== '\n') {
                 start--;
-
             }
-
             break;
         }
         start--;
@@ -574,7 +607,6 @@ function findCodeBlockExtend(textarea) {
     }
     return [start, end];
 }
-
 
 function findExtendPosition(editor) {
     const start = editor.selectionStart;
@@ -618,6 +650,47 @@ function findExtendPosition(editor) {
     return [offsetStart, offsetEnd];
 }
 
+function formatHead(editor, count) {
+    // console.log("formatHead, ");
+    // let start = editor.selectionStart;
+    // const string = editor.value;
+    // while (start - 1 > -1 && string.charAt(start - 1) !== '\n') {
+    //     start--;
+    // }
+    // editor.setRangeText('#'.repeat(count || 2) + " ", start, start);
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+    const string = editor.value;
+    let offsetStart = start;
+    while (offsetStart > 0) {
+        if (string[offsetStart - 1] !== '\n')
+            offsetStart--;
+        else {
+            while (offsetStart > 0) {
+                if (/\s/.test(string[offsetStart - 1]))
+                    offsetStart--;
+                else break;
+            }
+            break;
+        }
+    }
+    let offsetEnd = end;
+    while (offsetEnd < string.length) {
+        if (string[offsetEnd + 1] !== '\n')
+            offsetEnd++;
+        else {
+            while (offsetEnd < string.length) {
+                if (/\s/.test(string[offsetEnd + 1]))
+                    offsetEnd++;
+                else break;
+            }
+            break;
+        }
+    }
+    editor.setRangeText(`\n\n${'#'.repeat(count)} ${string.substring(offsetStart, offsetEnd).trim()}\n`, offsetStart,
+        offsetEnd, 'end');
+}
+
 function getLine() {
     let start = textarea.selectionStart;
     const strings = textarea.value;
@@ -644,6 +717,22 @@ function humanFileSize(size) {
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
 }
 
+async function insertLink() {
+    const strings = await readText();
+    let name = '';
+    try {
+        const url = new URL(strings);
+        name = await (await fetch(`/api/title?host=${url.host}&path=${encodeURIComponent(`${url.pathname}${url.search}`)}`)).text()
+    } catch (e) {
+    }
+    textarea.setRangeText(
+        `- [${name}](${strings})`,
+        textarea.selectionStart,
+        textarea.selectionEnd,
+        'end'
+    )
+}
+
 function jumpPage(textarea) {
     const line = getLine(textarea);
     const value = /(?<=(href|src)=")[^"]+(?=")/.exec(line);
@@ -656,11 +745,75 @@ function jumpPage(textarea) {
     window.open(src, '_blank');
 }
 
-async function loadData() {
-    const path = new URL(window.location).searchParams.get("path");
+async function loadFile(path) {
     document.title = substringAfterLast(decodeURIComponent(path), "\\")
     const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
     return res.text();
+}
+
+async function loadData(id) {
+    const res = await fetch(`/api/note?action=1&id=${id}`, {cache: "no-cache"});
+    return res.json();
+}
+
+function onCode() {
+    pasteCode();
+}
+
+function onCopy() {
+    const pv = findCodeBlock(textarea);
+    writeText(textarea.value.substring(pv[0], pv[1]));
+}
+
+function onCopyLine() {
+    copyLine(textarea);
+}
+
+function onCustomBottomSheet(evt) {
+    customBottomSheet.style.display = 'none';
+    switch (evt.detail.id) {
+        case "1":
+            onCopy();
+            break;
+        case "2":
+            onPreview();
+            break;
+        case "3":
+            onInsert();
+            break;
+        case "4":
+            onTranslateEnglish();
+            break;
+        case "5":
+            onCode();
+            break;
+        case "6":
+            onEval();
+            break;
+        case "7":
+            customDialog.style.display = 'block';
+            break;
+        case "8":
+            insertLink()
+            break;
+        case "9":
+            onCode();
+            break;
+        case "10":
+            onShowTranslator()
+            break
+    }
+}
+
+async function onEval() {
+    const p = findBlock(textarea);
+    const s = textarea.value.substring(p[0], p[1]);
+    textarea.setRangeText(
+        ` = ${eval(s)}`,
+        p[1],
+        p[1],
+        'end'
+    )
 }
 
 function onInsert() {
@@ -668,16 +821,63 @@ function onInsert() {
   */`, this.textarea.selectionStart, this.textarea.selectionEnd)
 }
 
-async function onSave() {
+function onPreview() {
     const path = new URL(window.location).searchParams.get("path");
-    if (path.endsWith(".srt")) {
-        textarea.value = textarea.value.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
-        return;
+    window.open(`/markdown?path=${path}`, '_blank')
+}
+
+async function onSave() {
+    const searchParams = new URL(window.location).searchParams;
+    if (searchParams.has("path")) {
+        const path = searchParams.get("path");
+        if (path.endsWith(".srt")) {
+            textarea.value = textarea.value.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
+            return;
+        }
+        const res = await fetch(`/api/file?path=${path}`, {
+            method: 'POST', body: textarea.value
+        });
+        toast.setAttribute('message', '成功');
+    } else {
+        const content = textarea.value
+        if (content.trim().length === 0) return;
+        const id = searchParams.has("id") ? parseInt(searchParams.get("id")) : 0;
+        const title = substringBefore(content.trim(), '\n').trim();
+        const obj = {
+            title, content
+        }
+        if (id) {
+            obj.id = id;
+        }
+        const res = await fetch(`/api/note`, {
+            method: 'POST', body: JSON.stringify(obj)
+        });
+        toast.setAttribute('message', '成功');
     }
-    const res = await fetch(`/api/file?path=${path}`, {
-        method: 'POST', body: textarea.value
-    });
-    toast.setAttribute('message', '成功');
+}
+
+function onShow() {
+    customBottomSheet.style.display = 'block'
+}
+
+function onShowTranslator() {
+    window.translator.style.display = 'block';
+}
+
+async function onSnippet() {
+    const strings = await readText();
+    const selected = textarea.value.substring(
+        textarea.selectionStart,
+        textarea.selectionEnd
+    )
+    const snippet = localStorage.getItem('snippet');
+    textarea.setRangeText(
+        snippet.replaceAll('$1', strings)
+            .replaceAll('$2', selected),
+        textarea.selectionEnd,
+        textarea.selectionEnd,
+        'end'
+    )
 }
 
 async function onTranslateChinese() {
@@ -692,6 +892,22 @@ async function onTranslateEnglish() {
           `, array1[2], array1[2], 'end');
 }
 
+function openLink() {
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    while (start > -1 && textarea.value[start] !== ' ' && textarea.value[start] !== '(' && textarea.value[start] !== '\n') {
+        start--;
+    }
+    while (end < textarea.value.length && textarea.value[end] !== ' ' && textarea.value[end] !== ')' && textarea.value[end] !== '\n') {
+        end++;
+    }
+    if (textarea.selectionStart === textarea.selectionEnd) {
+        window.open(textarea.value.substring(start + 1, end));
+    } else {
+        textarea.setRangeText(` [](${textarea.value.substring(start, end).trim()})`, start, end, 'end');
+    }
+}
+
 async function pasteCode() {
     let strings;
     if (typeof NativeAndroid !== 'undefined') {
@@ -701,7 +917,6 @@ async function pasteCode() {
     }
     textarea.setRangeText(`
 ## 
-
 \`\`\`javascript
 ${strings}
 \`\`\`
@@ -717,7 +932,6 @@ async function readText() {
     // textarea.select();
     // document.execCommand('paste');
     // return textarea.value;
-
     let strings;
     if (typeof NativeAndroid !== 'undefined') {
         strings = NativeAndroid.readText()
@@ -754,13 +968,27 @@ async function removeLines() {
 
 async function render() {
     textarea.value = localStorage.getItem("content");
-    try {
-        const obj = await loadData();
-        //document.title = obj.title;
-        textarea.value = obj;
-    } catch (error) {
-        console.log(error)
+
+    const searchParams = new URL(window.location).searchParams;
+    if (searchParams.has("path")) {
+        const path = searchParams.get("path");
+        try {
+            textarea.value = await loadFile(path);
+        } catch (error) {
+            console.log(error)
+        }
+    } else {
+        const id = searchParams.get("id");
+        try {
+            const obj = await loadData(id)
+            document.title = obj.title;
+            textarea.value = obj.content;
+        } catch (error) {
+            console.log(error)
+        }
     }
+
+
 }
 
 function snake(string) {
@@ -967,176 +1195,6 @@ function writeText(message) {
     textarea.remove();
 }
 
-function openLink() {
-    let start = textarea.selectionStart;
-    let end = textarea.selectionEnd;
-    while (start > -1 && textarea.value[start] !== ' ' && textarea.value[start] !== '(' && textarea.value[start] !== '\n') {
-        start--;
-    }
-    while (end < textarea.value.length && textarea.value[end] !== ' ' && textarea.value[end] !== ')' && textarea.value[end] !== '\n') {
-        end++;
-    }
-
-    if (textarea.selectionStart === textarea.selectionEnd) {
-        window.open(textarea.value.substring(start + 1, end));
-    } else {
-        textarea.setRangeText(` [](${textarea.value.substring(start, end).trim()})`, start, end, 'end');
-    }
-
-}
-
-function onCopy() {
-    const pv = findCodeBlock(textarea);
-    writeText(textarea.value.substring(pv[0], pv[1]));
-}
-
-function onShow() {
-    customBottomSheet.style.display = 'block'
-}
-
-function onPreview() {
-    const path = new URL(window.location).searchParams.get("path");
-    window.open(`/markdown?path=${path}`, '_blank')
-}
-
-function onCode() {
-    pasteCode();
-}
-
-function formatHead(editor, count) {
-    // console.log("formatHead, ");
-    // let start = editor.selectionStart;
-    // const string = editor.value;
-    // while (start - 1 > -1 && string.charAt(start - 1) !== '\n') {
-    //     start--;
-    // }
-    // editor.setRangeText('#'.repeat(count || 2) + " ", start, start);
-
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const string = editor.value;
-
-
-    let offsetStart = start;
-    while (offsetStart > 0) {
-        if (string[offsetStart - 1] !== '\n')
-            offsetStart--;
-        else {
-            while (offsetStart > 0) {
-                if (/\s/.test(string[offsetStart - 1]))
-                    offsetStart--;
-                else break;
-            }
-            break;
-        }
-    }
-    let offsetEnd = end;
-    while (offsetEnd < string.length) {
-        if (string[offsetEnd + 1] !== '\n')
-            offsetEnd++;
-        else {
-            while (offsetEnd < string.length) {
-                if (/\s/.test(string[offsetEnd + 1]))
-                    offsetEnd++;
-                else break;
-            }
-            break;
-        }
-    }
-
-    editor.setRangeText(`\n\n${'#'.repeat(count)} ${string.substring(offsetStart, offsetEnd).trim()}\n`, offsetStart,
-        offsetEnd, 'end');
-}
-
-async function insertLink() {
-    const strings = await readText();
-    let name = '';
-    try {
-        const url = new URL(strings);
-        name = await (await fetch(`/api/title?host=${url.host}&path=${encodeURIComponent(`${url.pathname}${url.search}`)}`)).text()
-    } catch (e) {
-
-    }
-    textarea.setRangeText(
-        `- [${name}](${strings})`,
-        textarea.selectionStart,
-        textarea.selectionEnd,
-        'end'
-    )
-}
-
-async function onEval() {
-    const p = findBlock(textarea);
-    const s = textarea.value.substring(p[0], p[1]);
-
-    textarea.setRangeText(
-        ` = ${eval(s)}`,
-        p[1],
-        p[1],
-        'end'
-    )
-}
-
-function copyLine(editor, count) {
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    const string = editor.value;
-    let offsetStart = start;
-    while (offsetStart > 0) {
-        if (string[offsetStart - 1] !== '\n' && string[offsetStart - 1] !== '|')
-            offsetStart--;
-        else {
-            // while (offsetStart > 0) {
-            //     if (/\s/.test(string[offsetStart - 1]))
-            //         offsetStart--;
-            //     else break;
-            // }
-            break;
-        }
-    }
-    let offsetEnd = end;
-    while (offsetEnd < string.length) {
-        if (string[offsetEnd + 1] !== '\n' && string[offsetEnd + 1] !== '|')
-            offsetEnd++;
-        else {
-            /* while (offsetEnd < string.length) {
-                 if (/\s/.test(string[offsetEnd + 1]))
-                     offsetEnd++;
-                 else break;
-             }*/
-            offsetEnd++;
-            break;
-        }
-    }
-    const str = string.substring(offsetStart, offsetEnd).trim();
-    writeText(str);
-    editor.focus()
-}
-
-function onCopyLine() {
-    copyLine(textarea);
-}
-
-async function onSnippet() {
-    const strings = await readText();
-    const selected = textarea.value.substring(
-        textarea.selectionStart,
-        textarea.selectionEnd
-    )
-    const snippet = localStorage.getItem('snippet');
-    textarea.setRangeText(
-        snippet.replaceAll('$1', strings)
-            .replaceAll('$2', selected),
-        textarea.selectionEnd,
-        textarea.selectionEnd,
-        'end'
-    )
-}
-
-function onShowTranslator() {
-    window.translator.style.display = 'block';
-}
-
 ///////////////////
 bind();
 customElements.whenDefined('custom-bottom-sheet').then(() => {
@@ -1172,42 +1230,6 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "翻译"
     }]
 })
-
-function onCustomBottomSheet(evt) {
-    customBottomSheet.style.display = 'none';
-    switch (evt.detail.id) {
-        case "1":
-            onCopy();
-            break;
-        case "2":
-            onPreview();
-            break;
-        case "3":
-            onInsert();
-            break;
-        case "4":
-            onTranslateEnglish();
-            break;
-        case "5":
-            onCode();
-            break;
-        case "6":
-            onEval();
-            break;
-        case "7":
-            customDialog.style.display = 'block';
-            break;
-        case "8":
-            insertLink()
-            break;
-        case "9":
-            onCode();
-            break;
-        case "10":
-            onShowTranslator()
-            break
-    }
-}
 
 document.addEventListener('visibilitychange', () => {
     localStorage.setItem('contents', textarea.value);

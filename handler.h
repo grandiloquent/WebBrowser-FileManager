@@ -35,6 +35,10 @@ public:
 
     void listNotes(const httplib::Request &req, httplib::Response &res);
 
+    void insertNote(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
+    void getNote(const httplib::Request &req, httplib::Response &res);
+
+
 private:
     std::string mDir;
 };

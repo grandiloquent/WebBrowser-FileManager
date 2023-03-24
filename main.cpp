@@ -172,7 +172,18 @@ int main() {
                    }
 
                });
-
+    server.Post("/api/note", [&h](const httplib::Request &req, httplib::Response &res,
+                                  const httplib::ContentReader &content_reader) {
+        h.insertNote(req, res, content_reader);
+    });
+    server.Get("/api/note", [&h](const httplib::Request &req, httplib::Response &res) {
+        auto action = req.get_param_value("action");
+        if (action.empty()) {
+            h.listNotes(req, res);
+        } else if (action == "1") {
+            h.getNote(req, res);
+        }
+    });
     server.listen(szLocalIP, 8080);
     return 0;
 }

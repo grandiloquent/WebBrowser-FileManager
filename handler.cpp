@@ -225,14 +225,58 @@ void handler::listNotes(const httplib::Request &req, httplib::Response &res) {
             = R"(select _id,title,update_at from notes ORDER by update_at DESC)";
     db::QueryResult fetch_row = db::query<query>();
     std::string_view id, title, update_at;
-    int age;
-    std::optional<std::string_view> website;
+
     nlohmann::json doc = nlohmann::json::array();
     while (fetch_row(id, title, update_at)) {
         nlohmann::json j = {
 
                 {"id",        id},
                 {"title",     title},
+                {"update_at", update_at},
+
+        };
+        doc.push_back(j);
+    }
+    res.set_content(doc.dump(), "application/json");
+}
+
+void
+handler::insertNote(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader) {
+    std::string body;
+    content_reader([&](const char *data, size_t data_length) {
+        body.append(data, data_length);
+        return true;
+    });
+    nlohmann::json doc = nlohmann::json::parse(body);
+    std::string title = doc["title"];
+    std::string content = doc["content"];
+    if (doc.contains("id")) {
+
+    } else {
+        static const char query[]
+                = R"(INSERT INTO notes (title,content,create_at,update_at) VALUES(?1,?2,?3,?4))";
+        db::QueryResult fetch_row = db::query<query>(title,
+                                                     content,
+                                                     GetTimeStamp(),
+                                                     GetTimeStamp()
+        );
+        res.set_content(to_string(fetch_row.resultCode()),
+                        "text/plain; charset=UTF-8");
+    }
+}
+
+void handler::getNote(const httplib::Request &req, httplib::Response &res) {
+    auto id = req.get_param_value("id");
+    static const char query[]
+            = R"(select title,content,update_at from notes where id=?1)";
+    db::QueryResult fetch_row = db::query<query>(id);
+    std::string_view title, content, update_at;
+
+    nlohmann::json doc = nlohmann::json::array();
+    while (fetch_row(title, content, update_at)) {
+        nlohmann::json j = {
+                {"title",     title},
+                {"content",   content},
                 {"update_at", update_at},
 
         };
