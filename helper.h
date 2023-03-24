@@ -46,4 +46,6 @@ std::string GetTitle(const std::string &host, const std::string &path);
 
 bool MoveFile(const fs::path &path);
 
+int GetTimeStamp();
+
 #endif

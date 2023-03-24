@@ -172,7 +172,7 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     } else if (action == "9") {
         std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
         TidyDirectory(f.string());
-    }else if (action == "10") {
+    } else if (action == "10") {
         std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
         MoveFile(f);
     }
@@ -192,6 +192,10 @@ void handler::handleZipFile(const httplib::Request &req, httplib::Response &res)
 
 handler::handler(const std::string &dir) {
     mDir = std::string{dir};
+    static const char table[] = R"(CREATE TABLE IF NOT EXISTS notes(_id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,content TEXT,create_at INTEGER NOT NULL,update_at  INTEGER NOT NULL))";
+    db::QueryResult fetch_row = db::query<table>();
+    std::cout << fetch_row.resultCode() << std::endl;
+
 }
 
 void handler::handlePostFile(const httplib::Request &req, httplib::Response &res,
@@ -214,4 +218,25 @@ void handler::handlePage(const string &fileName, const httplib::Request &req, ht
     std::filesystem::path f = mDir;
     f /= fileName;
     serveFile(f, "text/html", res);
+}
+
+void handler::listNotes(const httplib::Request &req, httplib::Response &res) {
+    static const char query[]
+            = R"(select _id,title,update_at from notes ORDER by update_at DESC)";
+    db::QueryResult fetch_row = db::query<query>();
+    std::string_view id, title, update_at;
+    int age;
+    std::optional<std::string_view> website;
+    nlohmann::json doc = nlohmann::json::array();
+    while (fetch_row(id, title, update_at)) {
+        nlohmann::json j = {
+
+                {"id",        id},
+                {"title",     title},
+                {"update_at", update_at},
+
+        };
+        doc.push_back(j);
+    }
+    res.set_content(doc.dump(), "application/json");
 }

@@ -33,6 +33,8 @@ public:
 
     void handlePage(const std::string &fileName, const httplib::Request &req, httplib::Response &res);
 
+    void listNotes(const httplib::Request &req, httplib::Response &res);
+
 private:
     std::string mDir;
 };

@@ -262,3 +262,8 @@ bool MoveFile(const fs::path &path) {
     }
     return true;
 }
+
+int GetTimeStamp(){
+ return std::chrono::duration_cast<std::chrono::seconds>(
+         std::chrono::system_clock::now().time_since_epoch()).count();
+}
