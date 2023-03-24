@@ -822,8 +822,13 @@ function onInsert() {
 }
 
 function onPreview() {
-    const path = new URL(window.location).searchParams.get("path");
-    window.open(`/markdown?path=${path}`, '_blank')
+    const searchParams = new URL(window.location).searchParams;
+    if (searchParams.has("path")) {
+        const path = searchParams.get("path");
+        window.open(`/markdown?path=${path}`, '_blank')
+    } else {
+        window.open(`/markdown?id=${searchParams.get("id")}`, '_blank')
+    }
 }
 
 async function onSave() {
@@ -917,6 +922,7 @@ async function pasteCode() {
     }
     textarea.setRangeText(`
 ## 
+
 \`\`\`javascript
 ${strings}
 \`\`\`

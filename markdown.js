@@ -44,7 +44,7 @@ async function render() {
         }
     });
 
-    wrapper.innerHTML = md.render(obj);
+    wrapper.innerHTML = md.render(obj.content || obj);
 }
 
 function substringBetweenLast(string, start, end) {
@@ -54,15 +54,22 @@ function substringBetweenLast(string, start, end) {
     }
     const endIndex = string.indexOf(end, startIndex + start.length);
 
-    return string.substring(startIndex+ start.length, endIndex);
+    return string.substring(startIndex + start.length, endIndex);
 
 }
 
 async function loadData() {
-    const path = new URL(window.location).searchParams.get("path");
-    document.title = substringBetweenLast(path, "\\", ".");
-    const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
-    return res.text();
+    const searchParams = new URL(window.location).searchParams;
+    if (searchParams.has("path")) {
+        const path = searchParams.get("path");
+        document.title = substringBetweenLast(path, "\\", ".");
+        const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
+        return res.text();
+    } else {
+        const id = searchParams.get("id");
+        const res = await fetch(`/api/note?action=1&id=${id}`, {cache: "no-cache"});
+        return res.json();
+    }
 }
 
 for (const iterator of Object.keys(window)) {
