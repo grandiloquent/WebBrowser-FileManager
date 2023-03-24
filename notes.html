@@ -2,9 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+    <title>文档列表</title>
+    <style>
+        html {
+            height: 100%;
+            overflow: hidden
+        }
+
+        body {
+            height: 100%;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            color: rgba(0, 0, 0, .87);
+            font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+            margin: 0;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%
+        }
+
+        textarea {
+            font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif
+        }
+
+        a {
+            text-decoration: none;
+            color: #2962ff
+        }
+
+        img {
+            border: none
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent
+        }
+
+        html {
+            overflow: visible
+        }
+
+        body {
+            overflow: visible;
+            overflow-y: scroll
+        }
+
+        body {
+            bottom: auto;
+            height: 100%;
+            right: auto;
+            width: auto
+        }
+
+        #container {
+            box-sizing: border-box;
+            border: 8px solid #f1f3f4;
+            border-left: none;
+            border-right: none;
+            border-radius: 0;
+            padding: 0 16px;
+        }
+
+        #container > div {
+            border-top: 1px solid #dadce0;
+            padding: 8px 0;
+            min-height: 43px;
+            box-sizing: border-box;
+            display: flex;
+            -webkit-box-pack: justify;
+            justify-content: space-between;
+            -webkit-box-align: center;
+            align-items: center;
+        }
+
+        div > span {
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            letter-spacing: .07272727em;
+            font-family: Roboto, Arial, sans-serif;
+            font-size: .6875rem;
+            font-weight: 500;
+            color: #5f6368;
+            line-height: .6875rem;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        div > span + span {
+            letter-spacing: .01785714em;
+            font-family: "Google Sans", Roboto, Arial, sans-serif;
+            font-size: .875rem;
+            font-weight: 500;
+            line-height: 1.25rem;
+            color: #202124;
+            text-overflow: ellipsis;
+            text-align: right;
+            overflow: hidden;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+        }
+    </style>
+
+    <script src="timeago.min.js"></script>
 </head>
 <body>
+<div id="container">
+
+</div>
 <script>
     async function loadData() {
         const res = await fetch(`/api/note`);
@@ -12,9 +119,18 @@
     }
 
     async function render() {
-        const res =await loadData()
-        console.log(res)
+        const res = await loadData()
+        const container = document.getElementById("container");
+        for (const note of res) {
+            const div = document.createElement("div");
+            div.innerHTML = `<span>${note.title}</span><span>${timeago.format(parseInt(note.update_at) * 1000, 'zh_CN')}</span>`
+            container.appendChild(div);
+            div.addEventListener('click', evt => {
+                location.href = `/editor?id=${note.id}`;
+            })
+        }
     }
+
     render();
 </script>
 </body>
