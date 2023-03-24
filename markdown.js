@@ -68,7 +68,9 @@ async function loadData() {
     } else {
         const id = searchParams.get("id");
         const res = await fetch(`/api/note?action=1&id=${id}`, {cache: "no-cache"});
-        return res.json();
+        const obj = await res.json();
+        document.title = obj.title;
+        return obj;
     }
 }
 
