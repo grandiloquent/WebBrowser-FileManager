@@ -238,9 +238,13 @@ void handler::handlePage(const string &fileName, const httplib::Request &req, ht
 }
 
 void handler::listNotes(const httplib::Request &req, httplib::Response &res) {
+    auto limit = req.get_param_value("limit");
+    if (limit.empty()) {
+        limit = "50";
+    }
     static const char query[]
-            = R"(select _id,title,update_at from notes ORDER by update_at DESC LIMIT 10)";
-    db::QueryResult fetch_row = db::query<query>();
+            = R"(select _id,title,update_at from notes ORDER by update_at DESC LIMIT ?1)";
+    db::QueryResult fetch_row = db::query<query>(limit);
     std::string_view id, title, update_at;
 
     nlohmann::json doc = nlohmann::json::array();
@@ -312,6 +316,11 @@ void handler::getNote(const httplib::Request &req, httplib::Response &res) {
 
 void handler::searchNotes(const httplib::Request &req, httplib::Response &res) {
     auto q = UrlDecode(req.get_param_value("q"));
+    bool found = false;
+    if (q.starts_with("*")) {
+        q = q.substr(1);
+        found = true;
+    }
     static const char query[]
             = R"(select _id,title,content,update_at from notes ORDER by update_at DESC)";
     db::QueryResult fetch_row = db::query<query>();
@@ -320,7 +329,9 @@ void handler::searchNotes(const httplib::Request &req, httplib::Response &res) {
     nlohmann::json doc = nlohmann::json::array();
     std::regex qr(q);
     while (fetch_row(id, title, content, update_at)) {
-        if (std::regex_search((std::string) title, qr)) {
+        if (std::regex_search((std::string) title, qr) || (
+                found && std::regex_search((std::string) content, qr)
+        )) {
             nlohmann::json j = {
 
                     {"id",        id},
