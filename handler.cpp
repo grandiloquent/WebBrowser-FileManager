@@ -195,6 +195,17 @@ handler::handler(const std::string &dir) {
     mDir = std::string{dir};
     static const char table[] = R"(CREATE TABLE IF NOT EXISTS notes(_id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,content TEXT,create_at INTEGER NOT NULL,update_at  INTEGER NOT NULL))";
     db::QueryResult fetch_row = db::query<table>();
+    static const char query[]
+            = R"(select _id,title,content,create_at,update_at from notes ORDER by update_at DESC)";
+    db1::QueryResult fetch = db1::query<query>();
+    std::string id, title, content, create_at, update_at;
+    static const char in[]
+            = R"(INSERT INTO notes (title,content,create_at,update_at) VALUES (?1,?2,?3,?4))";
+
+    while (fetch(id, title, content, create_at, update_at)) {
+        db::QueryResult insert_row = db::query<in>(  title, content,create_at.substr(0, 10), update_at.substr(0, 10));
+        std::cout << insert_row.resultCode() << std::endl;
+    }
 
     std::filesystem::path doc(L"C:\\Users\\Administrator\\Desktop\\文档");
     if (std::filesystem::exists(doc)) {
