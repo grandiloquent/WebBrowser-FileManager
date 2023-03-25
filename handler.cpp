@@ -195,6 +195,7 @@ handler::handler(const std::string &dir) {
     mDir = std::string{dir};
     static const char table[] = R"(CREATE TABLE IF NOT EXISTS notes(_id INTEGER PRIMARY KEY AUTOINCREMENT,title TEXT,content TEXT,create_at INTEGER NOT NULL,update_at  INTEGER NOT NULL))";
     db::QueryResult fetch_row = db::query<table>();
+    /*
     static const char query[]
             = R"(select _id,title,content,create_at,update_at from notes ORDER by update_at DESC)";
     db1::QueryResult fetch = db1::query<query>();
@@ -223,7 +224,7 @@ handler::handler(const std::string &dir) {
                                                  GetTimeStamp()
             );
         }
-    }
+    }*/
 }
 
 void handler::handlePostFile(const httplib::Request &req, httplib::Response &res,
