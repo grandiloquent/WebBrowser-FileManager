@@ -102,7 +102,7 @@ function submit(evt) {
                 // else if (evt.detail.path.endsWith(".md")) {
                 //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
-            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:md|js|c|cpp|h|cs|css|html|java|txt|srt|vtt|cc|sql)$/.test(evt.detail.path)) {
+            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt)$/.test(evt.detail.path)) {
                 window.location = `/editor?path=${encodedPath}`
             } else {
                 window.location = `/api/file?path=${encodedPath}`
@@ -203,3 +203,11 @@ document.addEventListener('keydown', evt => {
         fetch(`/api/cmd?q=explorer ${new URL(location).searchParams.get('path')}`)
     }
 })
+
+/*
+(() => {
+    const extensions =
+        [...new Set(['c', 'cc', 'cpp', 'cs', 'css', 'h', 'html', 'java', 'js', 'md', 'sql', 'srt', 'txt', 'vtt',
+            'rs', 'gradle', 'json', 'java', 'toml', 'conf', 'service', 'jsx', 'cmd', 'gitignore', 'bat', 'properties'])].sort();
+    console.log(extensions.join("|"))
+})();*/
