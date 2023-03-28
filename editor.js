@@ -769,7 +769,7 @@ function onCopyLine() {
     copyLine(textarea);
 }
 
-function onCustomBottomSheet(evt) {
+async function onCustomBottomSheet(evt) {
     customBottomSheet.style.display = 'none';
     switch (evt.detail.id) {
         case "1":
@@ -779,13 +779,15 @@ function onCustomBottomSheet(evt) {
             onPreview();
             break;
         case "3":
-            onInsert();
+            onTranslateChinese();
             break;
         case "4":
             onTranslateEnglish();
             break;
         case "5":
-            onCode();
+            evt.preventDefault();
+            const p = findCodeBlock(textarea);
+            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
             break;
         case "6":
             onEval();
@@ -801,6 +803,12 @@ function onCustomBottomSheet(evt) {
             break;
         case "10":
             onShowTranslator()
+            break
+        case "11":
+            evt.preventDefault();
+            const pv = findCodeBlock(textarea);
+            writeText(textarea.value.substring(pv[0], pv[1]));
+            textarea.setRangeText('', pv[0], pv[1], "end");
             break
     }
 }
@@ -866,7 +874,7 @@ function onShow() {
 }
 
 function onShowTranslator() {
-    window.translator.style.display = 'block';
+    onInsert();
 }
 
 async function onSnippet() {
@@ -896,7 +904,12 @@ async function onTranslateEnglish() {
     textarea.setRangeText(`\n\n${await translate(array1[0], 'en')}
           `, array1[2], array1[2], 'end');
 }
-
+async function onTranslateFn() {
+    let array1 = getLine();
+    textarea.setRangeText(`\n\nfn ${snake(await translate(array1[0], 'en'))}(){
+    }
+          `, array1[2], array1[2], 'end');
+}
 function openLink() {
     let start = textarea.selectionStart;
     let end = textarea.selectionEnd;
@@ -1209,7 +1222,7 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
         title: "翻译英文"
     }, {
         id: 3,
-        title: "评论"
+        title: "翻译中文"
     }, {
         id: 5,
         title: "粘贴代码"
@@ -1234,7 +1247,10 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
     }, {
         id: 10,
         title: "翻译"
-    }]
+    }, {
+        id: 11,
+        title: "剪切代码段"
+    }, ]
 })
 
 document.addEventListener('visibilitychange', () => {

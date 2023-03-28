@@ -102,7 +102,7 @@ function submit(evt) {
                 // else if (evt.detail.path.endsWith(".md")) {
                 //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
-            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt)$/.test(evt.detail.path)) {
+            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml)$/.test(evt.detail.path)) {
                 window.location = `/editor?path=${encodedPath}`
             } else {
                 window.location = `/api/file?path=${encodedPath}`
@@ -208,6 +208,6 @@ document.addEventListener('keydown', evt => {
 (() => {
     const extensions =
         [...new Set(['c', 'cc', 'cpp', 'cs', 'css', 'h', 'html', 'java', 'js', 'md', 'sql', 'srt', 'txt', 'vtt',
-            'rs', 'gradle', 'json', 'java', 'toml', 'conf', 'service', 'jsx', 'cmd', 'gitignore', 'bat', 'properties'])].sort();
+            'rs', 'gradle', 'json', 'java', 'toml', 'conf', 'service', 'jsx', 'cmd', 'gitignore', 'bat', 'properties','xml'])].sort();
     console.log(extensions.join("|"))
 })();*/
