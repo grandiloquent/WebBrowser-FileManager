@@ -10,8 +10,41 @@ async function loadData(path) {
 function onCustomBottomSheetSubmit(evt) {
     evt.stopPropagation();
     customBottomSheet.style.display = 'none';
-    if (evt.detail.id === '1' || evt.detail.id === '2') {
+    if (evt.detail.id === '1') {
         insertPathLocalStorage(detail.path)
+        customToast.setAttribute('message', '成功写入剪切板');
+    } else if (evt.detail.id === '2') {
+
+        const items = [...document.querySelectorAll('custom-item')];
+        const item = items.filter(x => {
+            return x.getAttribute('path') === detail.path;
+        })[0];
+        if (item.getAttribute('isdirectory') === 'true') {
+            items.filter(x => {
+                return x.getAttribute('isdirectory') === 'true'
+            }).forEach(x => {
+                insertPathLocalStorage(x.getAttribute('path'))
+            })
+        } else {
+            const path = decodeURIComponent(item.getAttribute('path'));
+            if (substringAfterLast(path, "\\").lastIndexOf(".") !== -1) {
+                const extension = "."+substringAfterLast(path, ".");
+                items.filter(x => {
+                    return x.getAttribute('isdirectory') === 'false' &&
+                        substringAfterLast(x.getAttribute('path')).endsWith(extension);
+                }).forEach(x => {
+                    insertPathLocalStorage(x.getAttribute('path'))
+                })
+            }else {
+                items.filter(x => {
+                    return x.getAttribute('isdirectory') === 'false' &&
+                        substringAfterLast( decodeURIComponent(x.getAttribute('path')), "\\").lastIndexOf(".") === -1;
+                }).forEach(x => {
+                    insertPathLocalStorage(x.getAttribute('path'))
+                })
+            }
+
+        }
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '4') {
         fetch(`/api/zip?path=${detail.path}`)
@@ -138,16 +171,18 @@ function onFavSubmit(evt) {
 async function onMove() {
     launchMoveDialog();
 }
+
 async function onDelete() {
     launchDeleteDialog();
 }
+
 ///////////////////////////
 bind();
 customElements.whenDefined('custom-bottom-sheet').then(() => {
     customBottomSheet.data = [{
-        title: "删除", id: 1
+        title: "选定", id: 1
     }, {
-        title: "移动", id: 2
+        title: "选定同类文件", id: 2
     }, {
         title: "粘贴", id: 3
     }, {
