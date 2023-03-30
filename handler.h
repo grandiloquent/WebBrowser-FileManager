@@ -32,7 +32,8 @@ public:
 
     void
     handleMoveFiles(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
-
+    void
+    handleDeleteFiles(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
 
     void handleZipFile(const httplib::Request &req, httplib::Response &res);
 

@@ -384,3 +384,19 @@ void handler::handleMoveFiles(const httplib::Request &req, httplib::Response &re
     nlohmann::json d = {"Result", "OK"};
     res.set_content(d.dump(), "application/json");
 }
+
+void handler::handleDeleteFiles(const httplib::Request &req, httplib::Response &res,
+                                const httplib::ContentReader &content_reader) {
+    std::string body;
+    content_reader([&](const char *data, size_t data_length) {
+        body.append(data, data_length);
+        return true;
+    });
+    nlohmann::json j = nlohmann::json::parse(body);
+    for (auto &element: j) {
+        std::filesystem::path f(element);
+        std::filesystem::remove_all(f);
+    }
+    nlohmann::json d = {"Result", "OK"};
+    res.set_content(d.dump(), "application/json");
+}

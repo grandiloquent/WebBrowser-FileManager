@@ -10,12 +10,7 @@ async function loadData(path) {
 function onCustomBottomSheetSubmit(evt) {
     evt.stopPropagation();
     customBottomSheet.style.display = 'none';
-    if (evt.detail.id === '1') {
-        dialogDelete.style.display = 'block';
-        const div = document.createElement('div');
-        div.textContent = decodeURIComponent(detail.path);
-        dialogDelete.appendChild(div);
-    } else if (evt.detail.id === '2') {
+    if (evt.detail.id === '1' || evt.detail.id === '2') {
         insertPathLocalStorage(detail.path)
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '4') {
@@ -31,10 +26,6 @@ function onCustomBottomSheetSubmit(evt) {
     }
 }
 
-async function onDialogDeleteSubmit() {
-    await fetch(`/api/file?path=${encodeURIComponent(detail.path)}&action=3`);
-    location.reload();
-}
 
 async function onDialogSubmit() {
     const dst = input.value.trim();
@@ -144,10 +135,12 @@ function onFavSubmit(evt) {
     window.location = url;
 }
 
-async function onPaste() {
-    launchPasteDialog();
+async function onMove() {
+    launchMoveDialog();
 }
-
+async function onDelete() {
+    launchDeleteDialog();
+}
 ///////////////////////////
 bind();
 customElements.whenDefined('custom-bottom-sheet').then(() => {

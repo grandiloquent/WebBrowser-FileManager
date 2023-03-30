@@ -183,7 +183,10 @@ int main() {
         h.handleMoveFiles(req, res, content_reader);
     });
 
-
+    server.Post("/api/files/delete", [&h](const httplib::Request &req, httplib::Response &res,
+                                          const httplib::ContentReader &content_reader) {
+        h.handleDeleteFiles(req, res, content_reader);
+    });
     server.Get("/api/note", [&h](const httplib::Request &req, httplib::Response &res) {
         auto action = req.get_param_value("action");
         if (action.empty()) {

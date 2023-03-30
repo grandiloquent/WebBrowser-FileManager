@@ -1,9 +1,6 @@
-
-
-async function requestMoveFiles() {
+async function requestDeleteFiles() {
     const paths = getPaths();
-    const path = new URL(window.location).searchParams.get("path");
-    const response = await fetch(`/api/files/move?dst=${path}`, {
+    const response = await fetch(`/api/files/delete`, {
         method: "POST",
         body: JSON.stringify(paths)
     });
@@ -11,13 +8,13 @@ async function requestMoveFiles() {
     return response.json();
 }
 
-function launchMoveDialog() {
+function launchDeleteDialog() {
     const customPathsBottomSheet = document.createElement('custom-paths-bottom-sheet');
     document.body.appendChild(customPathsBottomSheet);
     const paths = getPaths();
     customPathsBottomSheet.data = paths;
-    customPathsBottomSheet.addEventListener('submit',async evt=>{
-        await requestMoveFiles();
+    customPathsBottomSheet.addEventListener('submit', async evt => {
+        await requestDeleteFiles();
     })
 
 }

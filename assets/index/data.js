@@ -145,7 +145,7 @@ button
             value && this.contentWrapper.insertAdjacentHTML('afterbegin', value.map(element => {
                 const html = `<div bind @click="click" data-path="${element}" class="menu-item">
       <button style="display: flex; align-items: center;">
-        <div style="flex-grow: 1;">
+        <div style="flex-grow: 1;text-overflow: ellipsis;overflow: hidden;">
           ${element}
         </div>
         <div class="icon">
@@ -228,3 +228,32 @@ button
 
     customElements.define('custom-paths-bottom-sheet', CustomPathsBottomSheet);
 })();
+
+function insertPathLocalStorage(newPath) {
+    const pathData = localStorage.getItem('paths');
+    let path = (pathData && JSON.parse(pathData)) || [];
+    path.push(decodeURIComponent(newPath));
+    // 移除数组中的重复项
+    path = [...new Set(path)];
+    localStorage.setItem('paths', JSON.stringify(path));
+}
+
+function removePathLocalStorage(newPath) {
+    const pathData = localStorage.getItem('paths');
+    let path = (pathData && JSON.parse(pathData)) || [];
+    let index = path.indexOf(newPath);
+    if (index !== -1)
+        path.splice(index, 1);
+    // 移除数组中的重复项
+    path = [...new Set(path)];
+    localStorage.setItem('paths', JSON.stringify(path));
+}
+
+function getPaths() {
+    const pathData = localStorage.getItem('paths');
+    if (!pathData) {
+        return null;
+    }
+
+    return JSON.parse(pathData);
+}
