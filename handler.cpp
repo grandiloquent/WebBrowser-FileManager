@@ -256,6 +256,7 @@ void handler::handlePage(const string &fileName, const httplib::Request &req, ht
 }
 
 void handler::listNotes(const httplib::Request &req, httplib::Response &res) {
+    std::cout << "Listing notes..." << std::endl;
     auto limit = req.get_param_value("limit");
     if (limit.empty()) {
         limit = "50";

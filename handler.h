@@ -11,7 +11,7 @@
 #include <zipper/zipper.h>
 #include "SQLiteWrapper.h"
 
-static const char db_name[] = "notes.db";
+static const char db_name[] = "C:\\Users\\Administrator\\Desktop\\Resources\\Manager\\build\\notes.db";
 using db = sqlite::Database<db_name>;
 //static const char db1_name[] = "C:\\Users\\Administrator\\Downloads\\notes.db";
 //using db1 = sqlite::Database<db1_name>;

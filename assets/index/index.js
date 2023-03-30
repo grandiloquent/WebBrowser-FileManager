@@ -16,7 +16,7 @@ function onCustomBottomSheetSubmit(evt) {
         div.textContent = decodeURIComponent(detail.path);
         dialogDelete.appendChild(div);
     } else if (evt.detail.id === '2') {
-        localStorage.setItem('path', decodeURIComponent(detail.path));
+        insertPathLocalStorage(detail.path)
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '4') {
         fetch(`/api/zip?path=${detail.path}`)
@@ -145,11 +145,7 @@ function onFavSubmit(evt) {
 }
 
 async function onPaste() {
-    const source = localStorage.getItem('path');
-    localStorage.setItem('path', '');
-    const path = new URL(window.location).searchParams.get("path");
-    await fetch(`/api/file?path=${encodeURIComponent(source)}&dst=${path}&action=4`);
-    //location.reload();
+    launchPasteDialog();
 }
 
 ///////////////////////////

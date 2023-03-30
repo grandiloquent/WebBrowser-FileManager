@@ -105,10 +105,10 @@ int main() {
         h.handlePage("srt.html", req, res);
     });
     server.Get("/notes", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("notes.html", req, res);
+        h.handlePage("assets/notes/notes.html", req, res);
     });
 
-    server.Get(R"(/assets/([/a-z.-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
+    server.Get(R"(/assets/([/a-z._-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });
     server.Get("/api/files", [&h](const httplib::Request &req, httplib::Response &res) {
