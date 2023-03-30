@@ -90,10 +90,10 @@ int main() {
     handler h{dir};
     httplib::Server server;
     server.Get("/", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("index.html", req, res);
+        h.handlePage("assets/index/index.html", req, res);
     });
     server.Get("/editor", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("editor.html", req, res);
+        h.handlePage("assets/editor/editor.html", req, res);
     });
     server.Get("/video", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handlePage("video.html", req, res);
@@ -108,7 +108,7 @@ int main() {
         h.handlePage("notes.html", req, res);
     });
 
-    server.Get(R"(/([a-z.-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
+    server.Get(R"(/assets/([/a-z.-]+\.(js|css)))", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handleStaticFiles(req, res);
     });
     server.Get("/api/files", [&h](const httplib::Request &req, httplib::Response &res) {

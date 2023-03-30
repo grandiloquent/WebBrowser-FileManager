@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑器</title>
-    <link rel="stylesheet" href="editor.css">
-    <script src="custom-toast.js"></script>
+    <link rel="stylesheet" href="assets/editor/editor.css">
+    <script src="assets/custom-toast.js"></script>
 </head>
 
 <body>
@@ -16,16 +16,7 @@
         <div style="height: 49px;"></div>
     </div>
     <div class="bar-renderer">
-        <div bind @click="openLink" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M14.578 16.594l4.641-4.594-4.641-4.594 1.406-1.406 6 6-6 6zM9.422 16.594l-1.406 1.406-6-6 6-6 1.406 1.406-4.641 4.594z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                链接
-            </div>
-        </div>
+        
         <div bind @click="onTranslateFn" class="bar-item-renderer">
             <svg viewBox="0 0 24 24">
                 <path
@@ -34,6 +25,14 @@
             </svg>
             <div class="bar-item-title">
                 中文
+            </div>
+        </div>
+        <div bind @click="onTranslateEnglish" class="bar-item-renderer">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.891 17.016h3.234l-1.641-4.359zM18.516 9.984l4.5 12h-2.016l-1.125-3h-4.734l-1.125 3h-2.016l4.5-12h2.016zM12.891 15.047l-0.797 2.063-3.094-3.094-5.016 4.969-1.406-1.406 5.109-5.016q-1.875-2.063-3-4.547h2.016q0.984 1.875 2.297 3.328 2.156-2.391 3.188-5.344h-11.203v-2.016h7.031v-1.969h1.969v1.969h7.031v2.016h-2.953q-0.469 1.5-1.547 3.398t-2.156 3.117l-0.047 0.047z"></path>
+            </svg>
+            <div class="bar-item-title">
+                英文
             </div>
         </div>
         <div bind @click="onCopyLine" class="bar-item-renderer">
@@ -75,7 +74,7 @@
     <custom-bottom-sheet bind="customBottomSheet" @submit="onCustomBottomSheet" style="display:none;">
     </custom-bottom-sheet>
 
-    <script src="editor.js"></script>
+    <script src="assets/editor/editor.js"></script>
     
 </body>
 

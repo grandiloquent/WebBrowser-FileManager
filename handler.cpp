@@ -60,9 +60,12 @@ static void serveFile(const std::filesystem::path &f, const char *contentType, h
 }
 
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
+    std::cout<<"Handling static files"<<std::endl;
     std::filesystem::path f = mDir;
+    std::cout<<f<<" "<<req.path<<std::endl;
 
-    f /= req.matches[1].str();
+    f /= req.path.substr(1);
+    std::cout<<f<<" "<<req.path<<std::endl;
     serveFile(f, req.matches[2].str() == "css" ? "text/css" : "application/javascript", res);
 }
 
@@ -121,13 +124,16 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     if (action == "1") {
         f /= to_wide_string(UrlDecode(req.get_param_value("dst")));
         if (!std::filesystem::exists(f)) {
+            if (!std::filesystem::exists(f.parent_path())) {
+                std::filesystem::create_directory(f.parent_path());
+            }
             std::ofstream of(f);
             of.close();
         }
     } else if (action == "2") {
         f /= to_wide_string(UrlDecode(req.get_param_value("dst")));
         if (!std::filesystem::exists(f)) {
-            std::filesystem::create_directory(f);
+            std::filesystem::create_directories(f);
         }
     } else if (action == "3") {
         if (std::filesystem::exists(f)) {

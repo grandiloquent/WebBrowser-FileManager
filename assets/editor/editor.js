@@ -737,7 +737,7 @@ function jumpPage(textarea) {
     const line = getLine(textarea);
     const value = /(?<=(href|src)=")[^"]+(?=")/.exec(line);
     const path = new URL(window.location).searchParams.get("path");
-    if (!value) {
+    if (!value && path) {
         window.open('http://127.0.0.1:8081/' + substringBeforeLast(substringAfter(path, "\\app\\"), "."), "_blank");
         return
     }
@@ -767,50 +767,6 @@ function onCopy() {
 
 function onCopyLine() {
     copyLine(textarea);
-}
-
-async function onCustomBottomSheet(evt) {
-    customBottomSheet.style.display = 'none';
-    switch (evt.detail.id) {
-        case "1":
-            onCopy();
-            break;
-        case "2":
-            onPreview();
-            break;
-        case "3":
-            onTranslateChinese();
-            break;
-        case "4":
-            onTranslateEnglish();
-            break;
-        case "5":
-            evt.preventDefault();
-            const p = findCodeBlock(textarea);
-            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
-            break;
-        case "6":
-            onEval();
-            break;
-        case "7":
-            customDialog.style.display = 'block';
-            break;
-        case "8":
-            insertLink()
-            break;
-        case "9":
-            onCode();
-            break;
-        case "10":
-            onShowTranslator()
-            break
-        case "11":
-            evt.preventDefault();
-            const pv = findCodeBlock(textarea);
-            writeText(textarea.value.substring(pv[0], pv[1]));
-            textarea.setRangeText('', pv[0], pv[1], "end");
-            break
-    }
 }
 
 async function onEval() {
@@ -904,12 +860,14 @@ async function onTranslateEnglish() {
     textarea.setRangeText(`\n\n${await translate(array1[0], 'en')}
           `, array1[2], array1[2], 'end');
 }
+
 async function onTranslateFn() {
     let array1 = getLine();
     textarea.setRangeText(`\n\nfn ${snake(await translate(array1[0], 'en'))}(){
     }
           `, array1[2], array1[2], 'end');
 }
+
 function openLink() {
     let start = textarea.selectionStart;
     let end = textarea.selectionEnd;
@@ -1018,7 +976,13 @@ function snake(string) {
 function sortLines() {
     const points = findBlock(textarea);
     const lines = textarea.value.substring(points[0], points[1]).split('\n')
-        .sort((x, y) => x.localeCompare(y));
+        .sort((x, y) => {
+            let v1 = /\(\d{4}\)/.exec(x);
+            let v2 = /\(\d{4}\)/.exec(y)
+            if (v1 && v2)
+                return v1[0].localeCompare(v2[0])
+            return  x.localeCompare(y);
+        });
     textarea.setRangeText(`\n\n${lines.join('\n')}`, points[0], points[1], 'end');
 }
 
@@ -1250,8 +1214,95 @@ customElements.whenDefined('custom-bottom-sheet').then(() => {
     }, {
         id: 11,
         title: "剪切代码段"
-    }, ]
+    }, {
+        id: 12,
+        title: "创建文件"
+    }, {
+        id: 13,
+        title: "链接"
+    }, {
+        id: 14,
+        title: "替换"
+    }, {
+        id: 15,
+        title: "符号"
+    },]
 })
+
+async function onCustomBottomSheet(evt) {
+    customBottomSheet.style.display = 'none';
+    switch (evt.detail.id) {
+        case "1":
+            onCopy();
+            break;
+        case "2":
+            onPreview();
+            break;
+        case "3":
+            onTranslateChinese();
+            break;
+        case "4":
+            onTranslateEnglish();
+            break;
+        case "5":
+            evt.preventDefault();
+            const p = findCodeBlock(textarea);
+            textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
+            break;
+        case "6":
+            onEval();
+            break;
+        case "7":
+            customDialog.style.display = 'block';
+            break;
+        case "8":
+            insertLink()
+            break;
+        case "9":
+            onCode();
+            break;
+        case "10":
+            onShowTranslator()
+            break
+        case "11":
+            evt.preventDefault();
+            const pv = findCodeBlockExtend(textarea);
+            writeText(textarea.value.substring(pv[0] + 3, pv[1] - 3));
+            textarea.setRangeText('', pv[0], pv[1] + 1, "end");
+            break
+        case "12":
+            createFile();
+            break
+        case "13":
+            openLink();
+            break;
+        case "14":
+            replaceText()
+            break;
+        case "15":
+            insertBound();
+            break;
+    }
+}
+
+async function createFile() {
+    const path = decodeURIComponent(new URL(window.location).searchParams.get("path"));
+    const s = (await readText()).trim();
+    const dir = substringBeforeLast(path, "\\");
+    const extension = substringAfterLast(path, ".");
+    fetch(`/api/file?action=1&path=${encodeURIComponent(dir)}&dst=${encodeURIComponent(s + "." + extension)}`)
+}
+
+function replaceText() {
+    const pv = findCodeBlockExtend(textarea);
+    let str = textarea.value.substring(pv[0] + 3, pv[1] - 3).trim();
+    const firstLine = substringBefore(str, "\n");
+    str = substringAfter(str, "\n");
+    const secondLine = substringBefore(str, "\n");
+    str = substringAfter(str, "\n").trim();
+
+    textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine), pv[0], pv[1] + 1, "end");
+}
 
 document.addEventListener('visibilitychange', () => {
     localStorage.setItem('contents', textarea.value);
@@ -1260,6 +1311,11 @@ textarea.value = localStorage.getItem('contents') || '';
 const id = new URL(window.location).searchParams.get("id");
 let baseUri = window.location.host === '127.0.0.1:5500' ? 'http://192.168.8.55:10808' : '';
 render();
+
+function insertBound() {
+    textarea.setRangeText('```', textarea.selectionStart, textarea.selectionEnd, 'end');
+}
+
 document.addEventListener('keydown', async evt => {
     if (evt.ctrlKey) {
         if (evt.key === 's') {
@@ -1277,12 +1333,21 @@ document.addEventListener('keydown', async evt => {
         } else if (evt.key === 'k') {
             evt.preventDefault();
             insertLink();
+        } else if (evt.key === 'g') {
+            evt.preventDefault();
+            replaceText();
+        } else if (evt.key === 'f') {
+            evt.preventDefault();
+            insertBound();
         } else if (evt.key === 'e') {
             evt.preventDefault();
             onEval();
         } else if (evt.key === 'l') {
             evt.preventDefault();
             onCode()
+        } else if (evt.key === 'd') {
+            evt.preventDefault();
+            createFile();
         } else if (evt.key === '1') {
             evt.preventDefault();
             const pv = findCodeBlock(textarea);
