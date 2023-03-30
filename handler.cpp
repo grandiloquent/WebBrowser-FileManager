@@ -375,7 +375,7 @@ void handler::handleMoveFiles(const httplib::Request &req, httplib::Response &re
     std::filesystem::path dir = to_wide_string(UrlDecode(req.get_param_value("dst")));
     nlohmann::json j = nlohmann::json::parse(body);
     for (auto &element: j) {
-        std::filesystem::path f(element);
+        std::filesystem::path f(to_wide_string(element));
         auto t = dir / f.filename();
         if (!std::filesystem::exists(t)) {
             std::filesystem::rename(f, t);
@@ -394,8 +394,9 @@ void handler::handleDeleteFiles(const httplib::Request &req, httplib::Response &
     });
     nlohmann::json j = nlohmann::json::parse(body);
     for (auto &element: j) {
-        std::filesystem::path f(element);
-        std::filesystem::remove_all(f);
+        std::filesystem::path f(to_wide_string(element));
+        if (std::filesystem::exists(f))
+            std::filesystem::remove_all(f);
     }
     nlohmann::json d = {"Result", "OK"};
     res.set_content(d.dump(), "application/json");
