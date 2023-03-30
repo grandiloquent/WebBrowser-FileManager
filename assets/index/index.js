@@ -14,7 +14,7 @@ function onCustomBottomSheetSubmit(evt) {
         insertPathLocalStorage(detail.path)
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '2') {
-
+        const f =  new URL(window.location).searchParams.get("f") || ''
         const items = [...document.querySelectorAll('custom-item')];
         const item = items.filter(x => {
             return x.getAttribute('path') === detail.path;
@@ -22,23 +22,26 @@ function onCustomBottomSheetSubmit(evt) {
         if (item.getAttribute('isdirectory') === 'true') {
             items.filter(x => {
                 return x.getAttribute('isdirectory') === 'true'
+                    && (!f || (substringAfterLast(decodeURIComponent(x.getAttribute('path')), "\\").indexOf(f) !== -1))
             }).forEach(x => {
                 insertPathLocalStorage(x.getAttribute('path'))
             })
         } else {
             const path = decodeURIComponent(item.getAttribute('path'));
             if (substringAfterLast(path, "\\").lastIndexOf(".") !== -1) {
-                const extension = "."+substringAfterLast(path, ".");
+                const extension = "." + substringAfterLast(path, ".");
                 items.filter(x => {
                     return x.getAttribute('isdirectory') === 'false' &&
-                        substringAfterLast(x.getAttribute('path')).endsWith(extension);
+                        substringAfterLast(x.getAttribute('path')).endsWith(extension)
+                        && (!f || (substringAfterLast(decodeURIComponent(x.getAttribute('path')), "\\").indexOf(f) !== -1));
                 }).forEach(x => {
                     insertPathLocalStorage(x.getAttribute('path'))
                 })
-            }else {
+            } else {
                 items.filter(x => {
                     return x.getAttribute('isdirectory') === 'false' &&
-                        substringAfterLast( decodeURIComponent(x.getAttribute('path')), "\\").lastIndexOf(".") === -1;
+                        substringAfterLast(path, "\\").lastIndexOf(".") === -1
+                        && (!f || (substringAfterLast(decodeURIComponent(x.getAttribute('path')), "\\").indexOf(f) !== -1));
                 }).forEach(x => {
                     insertPathLocalStorage(x.getAttribute('path'))
                 })

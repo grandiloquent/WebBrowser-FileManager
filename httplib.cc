@@ -1008,9 +1008,14 @@ void get_remote_ip_and_port(socket_t sock, std::string &ip, int &port) {
 
 constexpr unsigned int str2tag_core(const char *s, size_t l,
                                            unsigned int h) {
-  return (l == 0) ? h
-                  : str2tag_core(s + 1, l - 1,
-                                 (h * 33) ^ static_cast<unsigned char>(*s));
+  return (l == 0)
+             ? h
+             : str2tag_core(
+                   s + 1, l - 1,
+                   // Unsets the 6 high bits of h, therefore no overflow happens
+                   (((std::numeric_limits<unsigned int>::max)() >> 6) &
+                    h * 33) ^
+                       static_cast<unsigned char>(*s));
 }
 
 unsigned int str2tag(const std::string &s) {
@@ -4435,7 +4440,7 @@ bool ClientImpl::send_(Request &req, Response &res, Error &error) {
   auto ret = false;
   auto close_connection = !keep_alive_;
 
-  auto se = detail::scope_exit<std::function<void(void)>>([&]() {
+  auto se = detail::scope_exit([&]() {
     // Briefly lock mutex in order to mark that a request is no longer ongoing
     std::lock_guard<std::mutex> guard(socket_mutex_);
     socket_requests_in_flight_ -= 1;
@@ -4851,11 +4856,14 @@ bool ClientImpl::process_request(Stream &strm, Request &req,
 
 #ifdef CPPHTTPLIB_OPENSSL_SUPPORT
   if (is_ssl()) {
-    char buf[1];
-    if (SSL_peek(socket_.ssl, buf, 1) == 0 &&
-        SSL_get_error(socket_.ssl, 0) == SSL_ERROR_ZERO_RETURN) {
-      error = Error::SSLPeerCouldBeClosed_;
-      return false;
+    auto is_proxy_enabled = !proxy_host_.empty() && proxy_port_ != -1;
+    if (!is_proxy_enabled) {
+      char buf[1];
+      if (SSL_peek(socket_.ssl, buf, 1) == 0 &&
+          SSL_get_error(socket_.ssl, 0) == SSL_ERROR_ZERO_RETURN) {
+        error = Error::SSLPeerCouldBeClosed_;
+        return false;
+      }
     }
   }
 #endif

@@ -225,8 +225,7 @@ std::string GetTitle(const std::string &host, const std::string &path) {
                     "Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8"
             }
     };
-
-    std::cout << host << " " << UrlDecode(path) << std::endl;
+    c.set_proxy("127.0.0.1", 10809);
     if (auto res = c.Get(UrlDecode(path), headers)) {
         auto start = res->body.find("<title>");
         if (start == std::string::npos)return {};

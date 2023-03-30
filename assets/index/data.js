@@ -165,6 +165,11 @@ button
             this.remove();
         }
 
+        closeDelete(){
+            this.remove();
+            localStorage.setItem('paths', '');
+        }
+
         click(evt) {
             removePathLocalStorage(evt.currentTarget.dataset.path);
             evt.currentTarget.remove();
@@ -215,7 +220,7 @@ button
         insertBottomButtons() {
             const html = `<div class="menu-item">
       <div class="buttons">
-        <button bind @click="close">
+        <button bind @click="closeDelete">
           取消
         </button> <button bind @click="submit">确定
         </button>

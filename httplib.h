@@ -1,14 +1,14 @@
 //
 //  httplib.h
 //
-//  Copyright (c) 2022 Yuji Hirose. All rights reserved.
+//  Copyright (c) 2023 Yuji Hirose. All rights reserved.
 //  MIT License
 //
 
 #ifndef CPPHTTPLIB_HTTPLIB_H
 #define CPPHTTPLIB_HTTPLIB_H
 
-#define CPPHTTPLIB_VERSION "0.12.1"
+#define CPPHTTPLIB_VERSION "0.12.2"
 
 /*
  * Configuration
@@ -314,8 +314,8 @@ struct ci {
 // This is based on
 // "http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4189".
 
-template <typename EF> struct scope_exit {
-  explicit scope_exit(EF &&f)
+struct scope_exit {
+  explicit scope_exit(std::function<void(void)> &&f)
       : exit_function(std::move(f)), execute_on_destruction{true} {}
 
   scope_exit(scope_exit &&rhs)
@@ -335,7 +335,7 @@ private:
   void operator=(const scope_exit &) = delete;
   scope_exit &operator=(scope_exit &&) = delete;
 
-  EF exit_function;
+  std::function<void(void)> exit_function;
   bool execute_on_destruction;
 };
 
