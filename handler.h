@@ -13,6 +13,7 @@
 
 static const char db_name[] = "C:\\Users\\Administrator\\Desktop\\Resources\\Manager\\build\\notes.db";
 using db = sqlite::Database<db_name>;
+
 //static const char db1_name[] = "C:\\Users\\Administrator\\Downloads\\notes.db";
 //using db1 = sqlite::Database<db1_name>;
 class handler {
@@ -29,6 +30,10 @@ public:
     void
     handlePostFile(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
 
+    void
+    handleMoveFiles(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
+
+
     void handleZipFile(const httplib::Request &req, httplib::Response &res);
 
 
@@ -37,7 +42,9 @@ public:
     void listNotes(const httplib::Request &req, httplib::Response &res);
 
     void insertNote(const httplib::Request &req, httplib::Response &res, const httplib::ContentReader &content_reader);
+
     void getNote(const httplib::Request &req, httplib::Response &res);
+
     void searchNotes(const httplib::Request &req, httplib::Response &res);
 
 

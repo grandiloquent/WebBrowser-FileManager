@@ -60,12 +60,12 @@ static void serveFile(const std::filesystem::path &f, const char *contentType, h
 }
 
 void handler::handleStaticFiles(const httplib::Request &req, httplib::Response &res) {
-    std::cout<<"Handling static files"<<std::endl;
+    std::cout << "Handling static files" << std::endl;
     std::filesystem::path f = mDir;
-    std::cout<<f<<" "<<req.path<<std::endl;
+    std::cout << f << " " << req.path << std::endl;
 
     f /= req.path.substr(1);
-    std::cout<<f<<" "<<req.path<<std::endl;
+    std::cout << f << " " << req.path << std::endl;
     serveFile(f, req.matches[2].str() == "css" ? "text/css" : "application/javascript", res);
 }
 
@@ -363,4 +363,24 @@ void handler::searchNotes(const httplib::Request &req, httplib::Response &res) {
 
     }
     res.set_content(doc.dump(), "application/json");
+}
+
+void handler::handleMoveFiles(const httplib::Request &req, httplib::Response &res,
+                              const httplib::ContentReader &content_reader) {
+    std::string body;
+    content_reader([&](const char *data, size_t data_length) {
+        body.append(data, data_length);
+        return true;
+    });
+    std::filesystem::path dir = to_wide_string(UrlDecode(req.get_param_value("dst")));
+    nlohmann::json j = nlohmann::json::parse(body);
+    for (auto &element: j) {
+        std::filesystem::path f(element);
+        auto t = dir / f.filename();
+        if (!std::filesystem::exists(t)) {
+            std::filesystem::rename(f, t);
+        }
+    }
+    nlohmann::json d = {"Result", "OK"};
+    res.set_content(d.dump(), "application/json");
 }

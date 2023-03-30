@@ -6,7 +6,6 @@
 #include "helper.h"
 
 
-
 static inline void WritePrefix(std::ostream *os, const char *prefix, bool odd) {
     if (prefix != nullptr) {
         *os << prefix;
@@ -179,13 +178,19 @@ int main() {
                                   const httplib::ContentReader &content_reader) {
         h.insertNote(req, res, content_reader);
     });
+    server.Post("/api/files/move", [&h](const httplib::Request &req, httplib::Response &res,
+                                        const httplib::ContentReader &content_reader) {
+        h.handleMoveFiles(req, res, content_reader);
+    });
+
+
     server.Get("/api/note", [&h](const httplib::Request &req, httplib::Response &res) {
         auto action = req.get_param_value("action");
         if (action.empty()) {
             h.listNotes(req, res);
         } else if (action == "1") {
             h.getNote(req, res);
-        }else if (action == "2") {
+        } else if (action == "2") {
             h.searchNotes(req, res);
         }
     });
