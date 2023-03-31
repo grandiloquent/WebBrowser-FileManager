@@ -704,7 +704,7 @@ async function insertLink() {
     } catch (e) {
     }
     textarea.setRangeText(
-        `- [${name}](${strings})`,
+        `- [${name.trim()}](${strings})`,
         textarea.selectionStart,
         textarea.selectionEnd,
         'end'
@@ -955,8 +955,8 @@ function sortLines() {
     const points = findBlock(textarea);
     const lines = textarea.value.substring(points[0], points[1]).split('\n')
         .sort((x, y) => {
-            let v1 = /\(\d{4}\)/.exec(x);
-            let v2 = /\(\d{4}\)/.exec(y)
+            let v1 = /\d{4}\)/.exec(x);
+            let v2 = /\d{4}\)/.exec(y)
             if (v1 && v2)
                 return v1[0].localeCompare(v2[0])
             return  x.localeCompare(y);

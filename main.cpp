@@ -95,13 +95,13 @@ int main() {
         h.handlePage("assets/editor/editor.html", req, res);
     });
     server.Get("/video", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("video.html", req, res);
+        h.handlePage("assets/video.html", req, res);
     });
     server.Get("/markdown", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("markdown.html", req, res);
+        h.handlePage("assets/markdown.html", req, res);
     });
     server.Get("/srt", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("srt.html", req, res);
+        h.handlePage("assets/srt.html", req, res);
     });
     server.Get("/notes", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handlePage("assets/notes/notes.html", req, res);
