@@ -98,7 +98,7 @@ int main() {
         h.handlePage("assets/video.html", req, res);
     });
     server.Get("/markdown", [&h](const httplib::Request &req, httplib::Response &res) {
-        h.handlePage("assets/markdown.html", req, res);
+        h.handlePage("assets/markdown/markdown.html", req, res);
     });
     server.Get("/srt", [&h](const httplib::Request &req, httplib::Response &res) {
         h.handlePage("assets/srt.html", req, res);

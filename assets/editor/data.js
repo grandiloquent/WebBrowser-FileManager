@@ -1,4 +1,3 @@
-
 (() => {
     class CustomDialog extends HTMLElement {
 
@@ -451,6 +450,7 @@ button {
   -->
   */
 })();
+
 ////////////////////////////////////////////////////////////
 
 function copyLine(editor, count) {
@@ -669,17 +669,22 @@ function formatHead(editor, count) {
         offsetEnd, 'end');
 }
 
-function getLine() {
+function getLine(extended) {
     let start = textarea.selectionStart;
     const strings = textarea.value;
     if (strings[start] === '\n' && start - 1 > 0) {
         start--;
     }
-    while (start > 0 && strings[start] != '\n') {
+    while (start > 0 && strings[start] !== '\n') {
         start--;
     }
+    if (extended) {
+        while (start + 1 < strings.length && /\s/.test(strings[start])) {
+            start++
+        }
+    }
     let end = textarea.selectionEnd;
-    while (end - 1 < strings.length && strings[end] != '\n') {
+    while (end + 1 < strings.length && strings[end] !== '\n') {
         end++;
     }
     return [strings.substring(start, end), start, end]
@@ -959,7 +964,7 @@ function sortLines() {
             let v2 = /\d{4}\)/.exec(y)
             if (v1 && v2)
                 return v1[0].localeCompare(v2[0])
-            return  x.localeCompare(y);
+            return x.localeCompare(y);
         });
     textarea.setRangeText(`\n\n${lines.join('\n')}`, points[0], points[1], 'end');
 }

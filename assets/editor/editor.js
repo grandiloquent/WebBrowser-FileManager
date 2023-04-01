@@ -203,6 +203,17 @@ document.addEventListener('keydown', async evt => {
             formatHead(textarea, 3);
         }
 
+    } else if (evt.key === 'F2') {
+        evt.preventDefault();
+
+        if (textarea.selectionStart === textarea.selectionEnd) {
+            const data = getLine(true);
+            textarea.setRangeText(';~', data[1], data[1], 'end');
+        } else {
+            const string = getSelectedString(textarea);
+            textarea.setRangeText(string.split('\n')
+                .map(x=>'\t'+x.trim()), textarea.selectionStart, textarea.selectionEnd, 'end');
+        }
     } else if (evt.key === 'F3') {
         evt.preventDefault();
         onTranslateChinese();
