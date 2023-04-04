@@ -102,7 +102,20 @@ void handler::handleFiles(const httplib::Request &req, httplib::Response &res) {
     }
     res.set_content(doc.dump(), "application/json");
 }
+std::vector<std::string> split(std::string s, std::string delimiter) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
 
+    while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back (token);
+    }
+
+    res.push_back (s.substr (pos_start));
+    return res;
+}
 void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
     std::filesystem::path f = to_wide_string(UrlDecode(req.get_param_value("path")));
     auto action = req.get_param_value("action");
@@ -122,14 +135,34 @@ void handler::handleFile(const httplib::Request &req, httplib::Response &res) {
         return;
     }
     if (action == "1") {
-        f /= to_wide_string(UrlDecode(req.get_param_value("dst")));
-        if (!std::filesystem::exists(f)) {
-            if (!std::filesystem::exists(f.parent_path())) {
-                std::filesystem::create_directory(f.parent_path());
+        auto str = UrlDecode(req.get_param_value("dst"));
+        if (str.contains(",")) {
+            std::string delimiter = ",";
+            std::vector<std::string> v = split (str, delimiter);
+
+            for (auto token : v){
+                auto d = f / to_wide_string(token);
+                if (!std::filesystem::exists(d)) {
+                    if (!std::filesystem::exists(d.parent_path())) {
+                        std::filesystem::create_directory(d.parent_path());
+                    }
+                    std::ofstream of(d);
+                    of.close();
+                }
             }
-            std::ofstream of(f);
-            of.close();
+
+
+        } else {
+            f /= to_wide_string(str);
+            if (!std::filesystem::exists(f)) {
+                if (!std::filesystem::exists(f.parent_path())) {
+                    std::filesystem::create_directory(f.parent_path());
+                }
+                std::ofstream of(f);
+                of.close();
+            }
         }
+
     } else if (action == "2") {
         f /= to_wide_string(UrlDecode(req.get_param_value("dst")));
         if (!std::filesystem::exists(f)) {

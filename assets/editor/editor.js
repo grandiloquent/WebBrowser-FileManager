@@ -107,10 +107,24 @@ async function onCustomBottomSheet(evt) {
 
 async function createFile() {
     const path = decodeURIComponent(new URL(window.location).searchParams.get("path"));
-    const s = (await readText()).trim();
+    const s = (await readText()).trim() || (path.endsWith(".java") && 'Actions,Calculations,Data')
+        || 'actions,calculations,data';
     const dir = substringBeforeLast(path, "\\");
     const extension = substringAfterLast(path, ".");
-    fetch(`/api/file?action=1&path=${encodeURIComponent(dir)}&dst=${encodeURIComponent(s + "." + extension)}`)
+    fetch(`/api/file?action=1&path=${encodeURIComponent(dir)}&dst=${encodeURIComponent(s.split(',').map(x => x.trim() + "." + extension).join(","))}`)
+}
+
+async function createQuickFiles() {
+    const path = decodeURIComponent(new URL(window.location).searchParams.get("path"));
+    const s = (await readText()).trim();
+    const value = (path.endsWith(".java") && 'Actions,Calculations,Data')
+        ||
+        (path.endsWith(".rs") && 'actions,calculations,data,mod')
+        ||
+        'actions,calculations,data';
+    const dir = substringBeforeLast(path, "\\");
+    const extension = substringAfterLast(path, ".");
+    fetch(`/api/file?action=1&path=${encodeURIComponent(dir)}&dst=${encodeURIComponent(value.split(',').map(x => s + "\\" + x.trim() + "." + extension).join(","))}`)
 }
 
 function replaceText() {
@@ -125,14 +139,25 @@ function replaceText() {
 
         textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine), pv[0], pv[1] + 1, "end");
     } else {
-        let str = textarea.value;
-        const firstLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n");
-        const secondLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n").trim();
-        textarea.value = firstLine + "\n" + secondLine + "\n" + str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
-            .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine));
-
+        if (textarea.selectionStart === textarea.selectionEnd) {
+            let str = textarea.value.trim();
+            const firstLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n");
+            const secondLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n").trim();
+            textarea.value = firstLine + "\n" + secondLine + "\n" + str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
+                .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine))
+                .replaceAll(new RegExp(firstLine.toLowerCase(), 'g'), secondLine.toLowerCase())
+                .replaceAll(new RegExp(camel(firstLine), 'g'), camel(secondLine))
+            ;
+        } else {
+            let str = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+            const first = substringBefore(str, " ");
+            str = substringAfter(str, " ").trim();
+            const second = substringBefore(str, " ");
+            str = substringAfter(str, " ").trim();
+            textarea.setRangeText(str.replaceAll(new RegExp(first, 'g'), second), textarea.selectionStart, textarea.selectionEnd, 'end');
+        }
     }
 
 }
@@ -150,6 +175,7 @@ function insertBound() {
 }
 
 document.addEventListener('keydown', async evt => {
+    console.log(evt.key)
     if (evt.ctrlKey) {
         if (evt.key === 's') {
             evt.preventDefault();
@@ -201,18 +227,50 @@ document.addEventListener('keydown', async evt => {
         } else if (evt.key === 'h') {
             evt.preventDefault();
             formatHead(textarea, 3);
+        } else if (evt.key === 'q') {
+            evt.preventDefault();
+            const s = await readText();
+            textarea.setRangeText(`
+            let ${/(?<=\.)[a-zA-Z_0-9-]+(?=\()/.exec(s)[0]} = match ${s} {
+        Some(v) => v,
+        None => Err("Bad request")?,
+    };`, textarea.selectionStart, textarea.selectionEnd, 'end');
+            /*if let Some(value)=${s}{
+                        }else{
+                        }
+                        let value = match ${s} {
+                    Some(v) => v,
+                    None => Err("Bad request")?,
+                };
+                        */
+        } else if (evt.key === 'x') {
+            if (textarea.selectionStart === textarea.selectionEnd) {
+                evt.preventDefault();
+                const data = getLine(true);
+                writeText(data[0])
+                textarea.setRangeText('', data[1], data[2], 'end');
+            }
         }
-
-    } else if (evt.key === 'F2') {
+    } else if (evt.altKey) {
+        if (evt.key === 'd') {
+            evt.preventDefault();
+            createQuickFiles();
+        }
+    } else if (evt.key === 'Tab') {
         evt.preventDefault();
 
         if (textarea.selectionStart === textarea.selectionEnd) {
             const data = getLine(true);
-            textarea.setRangeText(';~', data[1], data[1], 'end');
+            if (data[0].startsWith(";~"))
+                textarea.setRangeText(data[0].slice(2), data[1], data[2], 'end');
+            else
+                textarea.setRangeText(';~', data[1], data[1], 'end');
         } else {
             const string = getSelectedString(textarea);
+            console.log(string);
             textarea.setRangeText(string.split('\n')
-                .map(x=>'\t'+x.trim()), textarea.selectionStart, textarea.selectionEnd, 'end');
+                // .filter(x => x.trim())
+                .map(x => '\t' + x.trim()).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
         }
     } else if (evt.key === 'F3') {
         evt.preventDefault();

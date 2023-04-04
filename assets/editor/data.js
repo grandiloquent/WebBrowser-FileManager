@@ -846,7 +846,7 @@ async function onTranslateEnglish() {
 
 async function onTranslateFn() {
     let array1 = getLine();
-    textarea.setRangeText(`\n\nfn ${snake(await translate(array1[0], 'en'))}(){
+    textarea.setRangeText(`\n\nfn ${snake(await translate(array1[0], 'en'))}()-> Result<(), Box<dyn Error>>{
     }
           `, array1[2], array1[2], 'end');
 }

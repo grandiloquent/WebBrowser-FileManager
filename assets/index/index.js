@@ -130,7 +130,7 @@ function submit(evt) {
                 //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
             else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml|au3)$/.test(evt.detail.path)) {
-                window.open(`/editor?path=${encodedPath}`)
+                window.location =`/editor?path=${encodedPath}`
             } else {
                 window.location = `/api/file?path=${encodedPath}`
             }
