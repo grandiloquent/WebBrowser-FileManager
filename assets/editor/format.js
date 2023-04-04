@@ -1,9 +1,14 @@
 function onFormatResult() {
     replaceWithClipboard(s => {
-        return `if let Ok(v)= ${s}{
-}else{
-}`
+        return `let v = match ${s} {
+        Ok(v) => v,
+        Err(err) => {
+            log::error!("{}",err.to_string());
+            return Err(err.to_string())?;
+        }
+    };`
     })
+
 }
 
 function onFormatUnwrap() {
