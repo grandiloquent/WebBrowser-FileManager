@@ -734,11 +734,6 @@ async function loadFile(path) {
     return res.text();
 }
 
-async function loadData(id) {
-    const res = await fetch(`/api/note?action=1&id=${id}`, {cache: "no-cache"});
-    return res.json();
-}
-
 function onCode() {
     pasteCode();
 }
@@ -775,36 +770,6 @@ function onPreview() {
         window.open(`/markdown?path=${path}`, '_blank')
     } else {
         window.open(`/markdown?id=${searchParams.get("id")}`, '_blank')
-    }
-}
-
-async function onSave() {
-    const searchParams = new URL(window.location).searchParams;
-    if (searchParams.has("path")) {
-        const path = searchParams.get("path");
-        if (path.endsWith(".srt")) {
-            textarea.value = textarea.value.replace(/WEBVTT\s+/, "").replaceAll(/\s*\d{2}:\d{2}:\d{2}\.\d{3} --> \d{2}:\d{2}:\d{2}\.\d{3}[\s]+/g, ' ');
-            return;
-        }
-        const res = await fetch(`/api/file?path=${path}`, {
-            method: 'POST', body: textarea.value
-        });
-        toast.setAttribute('message', '成功');
-    } else {
-        const content = textarea.value
-        if (content.trim().length === 0) return;
-        const id = searchParams.has("id") ? parseInt(searchParams.get("id")) : 0;
-        const title = substringBefore(content.trim(), '\n').trim();
-        const obj = {
-            title, content
-        }
-        if (id) {
-            obj.id = id;
-        }
-        const res = await fetch(`/api/note`, {
-            method: 'POST', body: JSON.stringify(obj)
-        });
-        toast.setAttribute('message', '成功');
     }
 }
 
@@ -926,30 +891,6 @@ async function removeLines() {
     }
 }
 
-async function render() {
-    textarea.value = localStorage.getItem("content");
-
-    const searchParams = new URL(window.location).searchParams;
-    if (searchParams.has("path")) {
-        const path = searchParams.get("path");
-        try {
-            textarea.value = await loadFile(path);
-        } catch (error) {
-            console.log(error)
-        }
-    } else {
-        const id = searchParams.get("id");
-        try {
-            const obj = await loadData(id)
-            document.title = obj.title;
-            textarea.value = obj.content;
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-
-}
 
 function snake(string) {
     return string.replaceAll(/(?<=[a-z])[A-Z]/g, m => `_${m}`).toLowerCase()
