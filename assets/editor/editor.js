@@ -1,4 +1,3 @@
-
 async function render() {
     textarea.value = localStorage.getItem("content");
     const searchParams = new URL(window.location).searchParams;
@@ -54,6 +53,16 @@ async function onSave() {
         });
         toast.setAttribute('message', '成功');
     }
+}
+
+async function loadFile(path) {
+    document.title = substringAfterLast(decodeURIComponent(path), "\\")
+    const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
+    return res.text();
+}
+
+function onInsertComment() {
+    actions.onInsertComment();
 }
 
 ///////////////////
@@ -232,61 +241,83 @@ function insertBound() {
     textarea.setRangeText('```', textarea.selectionStart, textarea.selectionEnd, 'end');
 }
 
-customElements.whenDefined('custom-actions').then(() => {
-    document.addEventListener('keydown', async evt => {
-        console.log(evt.key)
-        if (evt.ctrlKey) {
-            if (evt.key === 's') {
-                evt.preventDefault();
-                await onSave();
-            } else if (evt.key === 'j') {
-                evt.preventDefault();
-                openLink();
-            } else if (evt.key === 'o') {
-                evt.preventDefault();
-                sortLines();
-            } else if (evt.key === 'p') {
-                evt.preventDefault();
-                actions. onPreview();
-            } else if (evt.key === 'k') {
-                evt.preventDefault();
-                insertLink();
-            } else if (evt.key === 'g') {
-                evt.preventDefault();
-                replaceText();
-            } else if (evt.key === 'f') {
-                evt.preventDefault();
-                insertBound();
-            } else if (evt.key === 'e') {
-                evt.preventDefault();
-                onEval();
-            } else if (evt.key === 'l') {
-                evt.preventDefault();
-                onCode()
-            } else if (evt.key === 'd') {
-                evt.preventDefault();
-                createFile();
-            } else if (evt.key === '1') {
+document.addEventListener('keydown', async evt => {
+    console.log(evt.key)
+    if (evt.ctrlKey) {
+        switch (evt.key) {
+
+            case '1': {
                 evt.preventDefault();
                 const pv = findCodeBlock(textarea);
                 navigator.clipboard.writeText(textarea.value.substring(pv[0], pv[1]));
-            } else if (evt.key === '2') {
+                break;
+            }
+            case '2': {
                 evt.preventDefault();
                 const p = findCodeBlock(textarea);
                 textarea.setRangeText(await navigator.clipboard.readText(), p[0], p[1], "end");
-            } else if (evt.key === '3') {
+                break;
+            }
+            case '3': {
                 evt.preventDefault();
                 const p = findCodeBlockExtend(textarea);
                 textarea.setRangeText(textarea.value.substring(p[0], p[1])
                     .split('\n')
                     .map(x => `    ${x.trimEnd()}`).join('\n'), p[0], p[1]);
-            } else if (evt.key === 'u') {
+                break;
+            }
+            case 'd': {
                 evt.preventDefault();
-                actions.uploadHanlder(textarea)
-            } else if (evt.key === 'h') {
+                //createFile();
+                actions.onInsertComment();
+                break;
+            }
+            case 'e': {
+                evt.preventDefault();
+                onEval();
+                break;
+            }
+            case 'f': {
+                evt.preventDefault();
+                insertBound();
+                break;
+            }
+            case 'g': {
+                evt.preventDefault();
+                replaceText();
+                break;
+            }
+            case 'h': {
                 evt.preventDefault();
                 formatHead(textarea, 3);
-            } else if (evt.key === 'q') {
+                break;
+            }
+            case 'j': {
+                evt.preventDefault();
+                openLink();
+                break;
+            }
+            case 'k': {
+                evt.preventDefault();
+                actions.insertLink();
+                break;
+            }
+            case 'l': {
+                evt.preventDefault();
+                onCode()
+                break;
+            }
+            case 'o': {
+                evt.preventDefault();
+                sortLines();
+                break;
+            }
+            case 'p': {
+                evt.preventDefault();
+                actions.onPreview();
+                break;
+            }
+            case 'q': {
                 evt.preventDefault();
                 const s = await readText();
                 textarea.setRangeText(`
@@ -302,39 +333,53 @@ customElements.whenDefined('custom-actions').then(() => {
                         None => Err("Bad request")?,
                     };
                             */
-            } else if (evt.key === 'x') {
+                break;
+            }
+            case 's': {
+                evt.preventDefault();
+                await onSave();
+                break;
+            }
+            case 'u': {
+                evt.preventDefault();
+                actions.uploadHanlder(textarea)
+                break;
+            }
+            case 'x': {
                 if (textarea.selectionStart === textarea.selectionEnd) {
                     evt.preventDefault();
                     const data = getLine(true);
                     writeText(data[0])
                     textarea.setRangeText('', data[1], data[2], 'end');
                 }
+                break;
             }
-        } else if (evt.altKey) {
-            if (evt.key === 'd') {
-                evt.preventDefault();
-                createQuickFiles();
-            }
-        } else if (evt.key === 'Tab') {
-            evt.preventDefault();
-
-            if (textarea.selectionStart === textarea.selectionEnd) {
-                const data = getLine(true);
-                if (data[0].startsWith(";~"))
-                    textarea.setRangeText(data[0].slice(2), data[1], data[2], 'end');
-                else
-                    textarea.setRangeText(';~', data[1], data[1], 'end');
-            } else {
-                const string = getSelectedString(textarea);
-                console.log(string);
-                textarea.setRangeText(string.split('\n')
-                    // .filter(x => x.trim())
-                    .map(x => '\t' + x.trim()).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
-            }
-        } else if (evt.key === 'F3') {
-            evt.preventDefault();
-            onTranslateChinese();
         }
-    });
 
+    } else if (evt.altKey) {
+        if (evt.key === 'd') {
+            evt.preventDefault();
+            createQuickFiles();
+        }
+    } else if (evt.key === 'Tab') {
+        evt.preventDefault();
+
+        if (textarea.selectionStart === textarea.selectionEnd) {
+            const data = getLine(true);
+            if (data[0].startsWith(";~"))
+                textarea.setRangeText(data[0].slice(2), data[1], data[2], 'end');
+            else
+                textarea.setRangeText(';~', data[1], data[1], 'end');
+        } else {
+            const string = getSelectedString(textarea);
+            console.log(string);
+            textarea.setRangeText(string.split('\n')
+                // .filter(x => x.trim())
+                .map(x => '\t' + x.trim()).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
+        }
+    } else if (evt.key === 'F3') {
+        evt.preventDefault();
+        onTranslateChinese();
+    }
 });
+

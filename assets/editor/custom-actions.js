@@ -361,6 +361,12 @@
             <div bind @click="onDeleteString" class="menu-item">
               删除
             </div>
+            <div bind @click="onFormatCodeBlock" class="menu-item">
+              格式化代码
+            </div>
+            <div bind @click="onCopyLine" class="menu-item">
+              复制行
+            </div>
             <div bind @click="close" class="menu-item">
               取消
             </div>
@@ -375,6 +381,7 @@
         [...element.attributes].filter(attr => attr.nodeName.startsWith('@')).forEach(attr => {
           if (!attr.value) return;
           element.addEventListener(attr.nodeName.slice(1), evt => {
+            this.style.display = 'none';
             this[attr.value](evt);
           });
         });
@@ -486,7 +493,94 @@
       textarea.setRangeText('', start, end, 'end');
       console.log(start);
     }
-
+    async pasteCode() {
+      let strings;
+      if (typeof NativeAndroid !== 'undefined') {
+        strings = NativeAndroid.readText()
+      } else {
+        strings = await navigator.clipboard.readText()
+      }
+      textarea.setRangeText(`
+\`\`\`
+${strings}
+\`\`\`
+  `, textarea.selectionStart, textarea.selectionEnd, 'end');
+    }
+    onInsertComment() {
+      let start = textarea.selectionStart;
+      const strings = textarea.value;
+      if (strings[start] === '\n' && start - 1 > 0) {
+        start--;
+      }
+      while (start > 0 && strings[start - 1] !== '\n') {
+        start--;
+      }
+      let end = textarea.selectionEnd;
+      while (end + 1 < strings.length && strings[end] !== '\n') {
+        end++;
+      }
+      if (end < textarea.value.length) {
+        let nexEnd = end + 1;
+        while (nexEnd + 1 < strings.length && /\s+/.test(strings[nexEnd])) {
+          nexEnd++;
+        }
+        textarea.setRangeText(`${' '.repeat(nexEnd - end - 1)}// `, start, start, 'end')
+        return
+      }
+      textarea.setRangeText(`// `, this.textarea.selectionStart, this.textarea.selectionEnd, 'end')
+    }
+    formatIndentIncrease() {
+      if (textarea.selectionStart === textarea.selectionEnd) {
+        const line = getLine();
+        textarea.setRangeText(
+          ' '.repeat(2) + line[0],
+          line[1], line[2], 'end'
+        )
+      } else {
+        const string = getSelectedString(textarea);
+        textarea.setRangeText(string.split('\n')
+          // .filter(x => x.trim())
+          .map(x => '  ' + x).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
+      }
+    }
+    formatIndentDecrease() {
+      if (textarea.selectionStart === textarea.selectionEnd) {
+        const line = getLine();
+        if (line[0].startsWith("  "))
+          textarea.setRangeText(
+            line[0].slice(2),
+            line[1], line[2], 'end'
+          )
+      } else {
+        const string = getSelectedString(textarea);
+        textarea.setRangeText(string.split('\n')
+          // .filter(x => x.trim())
+          .map(x => x.startsWith("  ") ? x.slice(2) : x).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
+      }
+    }
+    onFormatCodeBlock() {
+      const indexs = findCodeBlock(textarea);
+      if (textarea.selectionStart !== textarea.selectionEnd) {
+        const selected = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+        let s = textarea.value.substring(indexs[0], indexs[1])
+          .split('\n').map(x => {
+            if (x.startsWith(selected)) {
+              x = x.substring(selected.length);
+            }
+            return x;
+          }).join('\n');
+        textarea.setRangeText(s, indexs[0], indexs[1], 'end');
+      }
+    }
+    onCopyLine() {
+      copyLine(textarea);
+    }
+    onCutLine() {
+      const p = getLine(textarea);
+      writeText(p[0]);
+      textarea.setRangeText(``,
+        p[1], p[2], 'end')
+    }
   }
 
   customElements.define('custom-actions', CustomActions);

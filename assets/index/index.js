@@ -14,7 +14,7 @@ function onCustomBottomSheetSubmit(evt) {
         insertPathLocalStorage(detail.path)
         customToast.setAttribute('message', '成功写入剪切板');
     } else if (evt.detail.id === '2') {
-        const f =  new URL(window.location).searchParams.get("f") || ''
+        const f = new URL(window.location).searchParams.get("f") || ''
         const items = [...document.querySelectorAll('custom-item')];
         const item = items.filter(x => {
             return x.getAttribute('path') === detail.path;
@@ -130,8 +130,9 @@ function submit(evt) {
                 //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
             else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml|au3)$/.test(evt.detail.path)) {
-                window.location =`/editor?path=${encodedPath}`
+                window.location = `/editor?path=${encodedPath}`
             } else {
+
                 window.location = `/api/file?path=${encodedPath}`
             }
         }
