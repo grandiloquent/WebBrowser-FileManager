@@ -289,6 +289,21 @@
       }
     });
   }
+  function getIndexLine(textarea, index) {
+    let start = index || textarea.selectionStart;
+    const strings = textarea.value;
+    if (strings[start] === '\n' && start - 1 > 0) {
+      start--;
+    }
+    while (start > 0 && strings[start - 1] !== '\n') {
+      start--;
+    }
+    let end = index || textarea.selectionEnd;
+    while (end + 1 < strings.length && strings[end] !== '\n') {
+      end++;
+    }
+    return [strings.substring(start, end), start, end]
+  }
   async function uploadImage(image, name) {
     const form = new FormData();
     form.append('images', image, name)
@@ -367,6 +382,21 @@
             <div bind @click="onCopyLine" class="menu-item">
               复制行
             </div>
+            <div bind @click="onCutLine" class="menu-item">
+              剪切行
+            </div>
+            <div bind @click="pasteCode" class="menu-item">
+              粘贴代码
+            </div>
+            <div bind @click="onInsertComment" class="menu-item">
+              评论
+            </div>   
+            <div bind @click="formatIndentIncrease" class="menu-item">
+              缩进
+            </div>   
+            <div bind @click="formatIndentDecrease" class="menu-item">
+              缩退
+            </div>   
             <div bind @click="close" class="menu-item">
               取消
             </div>
@@ -580,6 +610,108 @@ ${strings}
       writeText(p[0]);
       textarea.setRangeText(``,
         p[1], p[2], 'end')
+    }
+    onDeleteLine() {
+      const p = getLine(textarea);
+      let start = p[1];
+      let end = p[2];
+      const re = new RegExp("[\\s\t]");
+      while (start > -1 && re.test(textarea.value[start - 1]))
+        start--
+      while (end + 1 < textarea.value.length && re.test(textarea.value[end]))
+        end++;
+      textarea.setRangeText(`\n\n`,
+        start, end, 'end');
+    }
+    onFormatCode() {
+      let start = textarea.selectionStart;
+      let end = textarea.selectionEnd;
+      // \(\)\[\].!/\?%-
+      const re = new RegExp("[a-zA-Z0-9.+%'#*=()!?|^&\\[\\]{}\" -]");
+      while (start > -1 && re.test(textarea.value[start - 1])) {
+        start--;
+      }
+      while (end + 1 < textarea.value.length && re.test(textarea.value[end])) {
+        end++;
+      }
+      const value = textarea.value.substring(start, end);
+      textarea.setRangeText(` \`${value.trim()}\` `, start, end, 'end');
+      writeText('`')
+    }
+    onFormatBold() {
+      let start = textarea.selectionStart;
+      let end = textarea.selectionEnd;
+      // \(\)\[\].!/\?%-
+      const re = new RegExp("[a-zA-Z0-9.+%'#*=()!?|^&\\[\\]{}\" -]");
+      while (start > -1 && re.test(textarea.value[start - 1])) {
+        start--;
+      }
+      while (end + 1 < textarea.value.length && re.test(textarea.value[end])) {
+        end++;
+      }
+      const value = textarea.value.substring(start, end);
+      textarea.setRangeText(` **${value.trim()}** `, start, end, 'end');
+      writeText('`')
+    }
+    onFormatNumberList() {
+      let p = getIndexLine(textarea);
+      let p1 = p;
+      while (true) {
+        if (p1[1] <= 0) {
+          break;
+        }
+        let p2 = getIndexLine(textarea, p1[1] - 1);
+        if (p2[0].trim()) {
+          let index = 1;
+          if (/(\d+). /.test(p2[0])) {
+            index = parseInt(/(\d+). /.exec(p2[0])[1]) + 1;
+            textarea.setRangeText(`${index}. ${p[0]}`,
+              p[1], p[2], 'end')
+            return;
+          } else {
+            textarea.setRangeText(`${index}. ${p[0]}`,
+              p[1], p[2], 'end')
+            return;
+          }
+        }
+        p1 = p2;
+
+      }
+      textarea.setRangeText(`1. ${p[0]}`,
+        p[1], p[2], 'end')
+    }
+    onFormatList() {
+      let p = getIndexLine(textarea);
+      let p1 = p;
+      while (true) {
+        if (p1[1] <= 0) {
+          break;
+        }
+        let p2 = getIndexLine(textarea, p1[1] - 1);
+        if (p2[0].trim()) {
+
+          if (/(\d+). /.test(p2[0])) {
+            textarea.setRangeText(`    - ${p[0]}`,
+              p[1], p[2], 'end')
+            return;
+          } else if (/ +- /.test(p2[0])) {
+            textarea.setRangeText(`${/( +)- /.exec(p2[0])[1]}- ${p[0]}`,
+              p[1], p[2], 'end')
+            return;
+          } else {
+            textarea.setRangeText(`- ${p[0]}`,
+              p[1], p[2], 'end')
+            return;
+          }
+        }
+        p1 = p2;
+
+      }
+      textarea.setRangeText(`- ${p[0]}`,
+        p[1], p[2], 'end')
+    }
+    onFormatHead() {
+      formatHead(textarea, 3)
     }
   }
 
