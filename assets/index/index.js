@@ -19,17 +19,6 @@ async function onDialogSubmit() {
     location.reload();
 }
 
-function onNewFile() {
-    this.dialog.style.display = 'block';
-    this.dialog.setAttribute('title', '新建文件');
-    this.dialog.dataset.action = "/api/file/new_file";
-}
-
-function onNewFolder() {
-    this.dialog.style.display = 'block';
-    this.dialog.setAttribute('title', '新建文件夹');
-    this.dialog.dataset.action = "/api/file/new_dir";
-}
 
 function substringAfterLast(string, delimiter, missingDelimiterValue) {
     const index = string.lastIndexOf(delimiter);
@@ -39,7 +28,6 @@ function substringAfterLast(string, delimiter, missingDelimiterValue) {
         return string.substring(index + delimiter.length);
     }
 }
-
 
 
 function submit(evt) {
@@ -58,10 +46,12 @@ function submit(evt) {
             if (evt.detail.path.endsWith(".srt")) {
                 window.location = `/srt?path=${encodeURIComponent(evt.detail.path)}`
             }
-            // else if (evt.detail.path.endsWith(".md")) {
-            //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
+                // else if (evt.detail.path.endsWith(".md")) {
+                //     window.location = `/markdown?path=${encodeURIComponent(evt.detail.path)}`
             // }
-            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") === -1 && /\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml|au3)$/.test(evt.detail.path)) {
+            else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") !== -1 && (/\.(?:html|xhtml|htm)$/.test(evt.detail.path))) {
+                window.location = `/api/file?path=${encodedPath}`
+            } else if (/\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml|au3)$/.test(evt.detail.path)) {
                 window.open(`/editor?path=${encodedPath}`)
             } else {
                 if ((/\.(?:pdf|epub|apk)$/.test(encodedPath)) && (typeof NativeAndroid !== 'undefined')) {

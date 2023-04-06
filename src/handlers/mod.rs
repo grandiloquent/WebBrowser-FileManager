@@ -10,3 +10,4 @@ pub mod favicon;
 pub mod api_file_new_file;
 pub mod api_file_new_dir;
 pub mod extract_zip;
+pub mod editor;

@@ -26,7 +26,6 @@ fn read_file(p: &Path) -> Result<(), Box<dyn Error>> {
             Some(path) => path.to_owned(),
             None => continue,
         };
-
         // .replace("\\", "/")
         outpath = dx.join(outpath.to_str().unwrap());
         if (*file.name()).ends_with('/') {
