@@ -15,13 +15,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/editor/editor.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/editor.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/editor/editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/editor/save_data.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/save_data.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/api_file.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/api_file.rs" afterDir="false" />
-    </list>
+    <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -89,7 +83,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680771083950</updated>
-      <workItem from="1680771085684" duration="15964000" />
+      <workItem from="1680771085684" duration="16386000" />
     </task>
     <servers />
   </component>
