@@ -26,7 +26,9 @@ fn read_file(p: &Path) -> Result<(), Box<dyn Error>> {
             Some(path) => path.to_owned(),
             None => continue,
         };
-        outpath = dx.join(outpath.to_str().unwrap().replace("\\", "/"));
+
+        // .replace("\\", "/")
+        outpath = dx.join(outpath.to_str().unwrap());
         if (*file.name()).ends_with('/') {
             fs::create_dir_all(&outpath)?;
         } else {
@@ -42,7 +44,7 @@ fn read_file(p: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 // https://github.com/zip-rs/zip
-#[get("/api/zip?<path>")]
+#[get("/extract_zip?<path>")]
 pub async fn api_zip(path: String) -> Value {
 // https://doc.rust-lang.org/std/path/struct.Path.html
     let p = Path::new(path.as_str());

@@ -220,31 +220,37 @@ button
 
     customElements.define('custom-favorites', CustomFavorites);
 })();
-function readStoragePaths() {
-    const text = NativeAndroid.getString('favorite_paths');
-    return JSON.parse(text || '[]');
-}
-function saveStoragePath(path) {
-    let paths = readStoragePaths();
+
+
+
+function savePath(path) {
+    let paths = readPaths();
     paths.push(decodeURIComponent(path));
     paths = [...new Set(paths)];
-    NativeAndroid.setString('favorite_paths', JSON.stringify(paths));
+    localStorage.setItem('favorite_paths', JSON.stringify(paths));
 }
-function removeStoragePath(path) {
-    let paths = readStoragePaths();
+
+function readPaths() {
+    const text = localStorage.getItem('favorite_paths');
+    return JSON.parse(text || '[]');
+}
+
+function removePath(path) {
+    let paths = readPaths();
     paths = paths.filter(x => x !== path);
-    NativeAndroid.setString('favorite_paths', JSON.stringify(paths));
+    localStorage.setItem('favorite_paths', JSON.stringify(paths));
 }
+
 function onShowFavorites() {
     const favorites = document.createElement('custom-favorites');
     document.body.appendChild(favorites);
-    favorites.data = readStoragePaths();
+    favorites.data = readPaths();
     favorites.addEventListener('submit', evt => {
         let uri = window.location;
         uri.search = '?path=' + encodeURIComponent(evt.detail);
-        window.location = uri;
+        //window.location = uri;
     })
     favorites.addEventListener('remove', evt => {
-        removeStoragePath(evt.detail)
+        removePath(evt.detail)
     })
 }

@@ -35,7 +35,7 @@ function showContextMenu(detail) {
         } else if (evt.detail === '重命名') {
             rename(detail.path)
         } else if (evt.detail === "收藏") {
-            saveStoragePath(detail.path);
+            savePath(detail.path);
         } else if (evt.detail === "删除") {
             showDeleteDialog(detail.path)
         }
