@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+
+    </style>
+</head>
+
+<body>
+<div style="height: 20px;"></div>
+<div class="title">
+    服务器
+</div>
+<div class="tablist">
+    <div class="tablist-wrapper">
+        <div bind @click="startServer" class="tablist-item">
+            启动服务器
+        </div>
+        <div bind @click="serverHome" class="tablist-item">
+            服务器
+        </div>
+        <div bind @click="notes" class="tablist-item">
+            笔记
+        </div>
+    </div>
+</div>
+<div style="height: 20px;"></div>
+<div class="title">
+    视频
+</div>
+<div class="tablist">
+    <div class="tablist-wrapper">
+
+        <div bind @click="playVideo" class="tablist-item">
+            播放视频
+        </div>
+        <div bind @click="videoList" class="tablist-item">
+            视频列表
+        </div>
+        <div bind @click="searchVideo" class="tablist-item">
+            搜索视频
+        </div>
+    </div>
+
+</div>
+<div style="height: 20px;"></div>
+<div class="title">
+    其他
+</div>
+<div class="tablist">
+    <div class="tablist-wrapper">
+        <div bind @click="openPage" class="tablist-item">
+            打开页面
+        </div>
+        <div bind @click="switchInputMethod" class="tablist-item">
+            切换输入法
+        </div>
+        <div bind @click="settings" class="tablist-item">
+            设置
+        </div>
+    </div>
+</div>
+<div style="height: 20px;"></div>
+<div class="title">
+    收藏
+</div>
+<div class="tablist">
+    <div bind="quickAccess" class="tablist-wrapper">
+        
+        <div bind @click="setFavorite" class="tablist-item">
+            设置
+        </div>
+    </div>
+</div>
+<script src="shared.js"></script>
+<script src="calculations.js"></script>
+<script src="actions.js"></script>
+</body>
+
+</html>

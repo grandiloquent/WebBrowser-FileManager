@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 local-ip-address = "0.5.1"
 rocket = { version = "=0.5.0-rc.3", features = ["json"] }
+rocket_contrib = "0.4.11"
