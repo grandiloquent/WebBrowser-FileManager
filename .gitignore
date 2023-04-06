@@ -1,5 +1,2 @@
-.idea
-ZIP
+/target
 cmake-build-debug
-*.bat
-build
