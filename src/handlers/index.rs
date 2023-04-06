@@ -1,6 +1,9 @@
-use rocket::fs::NamedFile;
+use std::path::Path;
+use crate::seek_stream::seekstream::SeekStream;
 
 #[get("/")]
-pub async fn index() -> Option<NamedFile> {
-    NamedFile::open("/index/index.html").await.ok()
+pub fn index<'a>() -> std::io::Result<SeekStream<'a>> {
+    let p = Path::new("assets/index/index.html");
+    SeekStream::from_path(p)
 }
+

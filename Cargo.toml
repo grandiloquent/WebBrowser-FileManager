@@ -7,5 +7,8 @@ edition = "2021"
 
 [dependencies]
 local-ip-address = "0.5.1"
-rocket = { version = "=0.5.0-rc.3", features = ["json"] }
-rocket_contrib = "0.4.11"
+rocket = { git = "https://github.com/SergioBenitez/Rocket", features = ["json"] }
+tree_magic = "0.2"
+range_header = "0.2"
+rand = "0.8.5"
+futures = "0.3.21"
