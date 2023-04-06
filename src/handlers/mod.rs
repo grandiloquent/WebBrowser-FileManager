@@ -12,3 +12,4 @@ pub mod api_file_new_dir;
 pub mod extract_zip;
 pub mod editor;
 pub mod compress_zip;
+pub mod auto_it;

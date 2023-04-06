@@ -7,8 +7,9 @@ edition = "2021"
 
 [dependencies]
 local-ip-address = "0.5.1"
-# 使用最新的源代码
-rocket = { git = "https://github.com/SergioBenitez/Rocket", features = ["json"] }
+
+# rocket = { git = "https://github.com/SergioBenitez/Rocket", features = ["json"] }
+rocket = { version = "=0.5.0-rc.3", features = ["json"] }
 tree_magic = "0.2"
 range_header = "0.2"
 rand = "0.8.5"
@@ -17,7 +18,8 @@ urlencoding = "2.1.2"
 # https://github.com/zip-rs/zip
 zip = "0.6.4"
 walkdir = "2.3.3"
-
+# https://github.com/GuillaumeGomez/sysinfo
+sysinfo = "0.28.4"
 [dependencies.serde]
 version = "1.0"
 features = ["derive"]
