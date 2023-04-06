@@ -2,9 +2,11 @@ mod handlers;
 mod seek_stream;
 mod models;
 mod utils;
+mod headers;
 
 #[macro_use]
 extern crate rocket;
+extern crate core;
 
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
@@ -29,7 +31,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     rocket::custom(figment)
         .mount("/",
-               routes![handlers::api_file::api_file,handlers::api_files::api_files,handlers::file::file,handlers::index::index])
+               routes![handlers::api_asset_file::api_asset_file,handlers::api_file::api_file,handlers::api_files::api_files,handlers::file::file,handlers::index::index])
         .register("/", catchers![   handlers::not_found::not_found])
         .launch().await?;
 
