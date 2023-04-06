@@ -1,5 +1,7 @@
 mod handlers;
 mod seek_stream;
+mod models;
+mod utils;
 
 #[macro_use]
 extern crate rocket;
@@ -27,7 +29,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     rocket::custom(figment)
         .mount("/",
-               routes![handlers::asset::index,handlers::asset::api_file,handlers::asset::file,handlers::asset::api_files])
+               routes![handlers::asset::api_file,handlers::asset::file,handlers::asset::api_files,handlers::index::index])
         .register("/", catchers![   handlers::not_found::not_found])
         .launch().await?;
 

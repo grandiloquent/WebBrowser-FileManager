@@ -1,5 +1,9 @@
 # Web File Manager
 
+```
+cargo fix --allow-dirty
+```
+
 ### Error: Pear requires a 'dev' or 'nightly' version of rustc.
 
 ```
