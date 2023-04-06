@@ -16,9 +16,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/editor/custom-actions.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/custom-actions.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/compress_zip.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/compress_zip.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +85,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680771083950</updated>
-      <workItem from="1680771085684" duration="19657000" />
+      <workItem from="1680771085684" duration="20046000" />
     </task>
     <servers />
   </component>

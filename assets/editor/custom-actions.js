@@ -682,6 +682,31 @@
             const patterns = this.getPatterns();
             if (patterns)
                 this.loadPatterns(patterns);
+            this.snippets = this.readSnippets();
+            document.addEventListener('keydown', async ev => {
+                if (ev.key === ' ' || ev.keyCode == 229) {
+
+                    let start = textarea.selectionStart;
+                    let end = start;
+                    if (start > -1)
+                        start--;
+                    while (start > -1 && /[a-zA-Z0-9]+/.test(textarea.value[start])) {
+                        start--;
+                    }
+                    start++;
+                    const key = textarea.value.substring(start, end).trim();
+                    if (!key) {
+                        return;
+                    }
+                    const value = this.snippets[key];
+                    if (!value) {
+                        return;
+                    }
+                    ev.preventDefault();
+                    textarea.setRangeText(value, start, end, "end");
+
+                }
+            });
         }
 
         async insertLink() {
@@ -1081,9 +1106,13 @@ ${textarea.value.substring(p[0], p[1])}
         }
 
         saveSnippets() {
-            let paths = this.readSnippets();
-            paths [`${substringBefore(textarea.value.trim(), '\n')}`] = substringAfter(textarea.value.trim(), '\n');
-
+            let paths = {};
+            const lines = textarea.value.split('---------------------------------');
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                paths[substringBefore(line.trim(), "\n")] = substringAfter(line.trim(), "\n")
+            }
+            this.snippets = paths;
             localStorage.setItem('snippets', JSON.stringify(paths));
         }
 

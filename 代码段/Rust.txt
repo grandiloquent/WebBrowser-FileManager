@@ -1,3 +1,16 @@
 ---------------------------------
 log
+println!("{}",error.to_string());
+---------------------------------
+get
+#[get("/?<path>")]
+pub async fn zip(path: String) -> Result<(), Status> {
+    match v(path.as_str()) {
+        Ok(_) => {}
+        Err(_) => {
+            return Err(Status::NotFound);
+        }
+    }
+    Ok(())
+}
 ---------------------------------
