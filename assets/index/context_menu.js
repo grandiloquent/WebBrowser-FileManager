@@ -31,7 +31,7 @@ function showContextMenu(detail) {
         } else if (evt.detail === '选定同类文件') {
             selectSameTypeFiles(detail)
         } else if (evt.detail === '解压') {
-            fetch(`/api/zip?path=${detail.path}`)
+            extractDirectory(detail.path)
         } else if (evt.detail === '重命名') {
             rename(detail.path)
         } else if (evt.detail === "收藏") {
