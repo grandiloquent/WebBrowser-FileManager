@@ -4,3 +4,4 @@ pub mod index;
 pub mod api_files;
 pub mod file;
 pub mod api_file;
+pub mod api_file_delete;
