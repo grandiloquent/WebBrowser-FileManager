@@ -7,7 +7,7 @@ async function render(path) {
         return x.path.localeCompare(y.path)
     })
         .map(x => {
-            return `<custom-item bind @submit="submit" ${x.is_directory ? 'folder' : ''} title="${substringAfterLast(x.path, '/')}" path="${encodeURIComponent(x.path)}" isdirectory="${x.is_directory}"></custom-item>`
+            return `<custom-item bind @submit="submit" ${x.is_directory ? 'folder' : ''} title="${substringAfterLast(x.path, '\\')}" path="${encodeURIComponent(x.path)}" isdirectory="${x.is_directory}"></custom-item>`
         }).join('');
     bind(this.wrapper);
 }

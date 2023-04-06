@@ -12,3 +12,7 @@ tree_magic = "0.2"
 range_header = "0.2"
 rand = "0.8.5"
 futures = "0.3.21"
+
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
