@@ -29,7 +29,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     rocket::custom(figment)
         .mount("/",
-               routes![handlers::asset::api_file,handlers::asset::file,handlers::asset::api_files,handlers::index::index])
+               routes![handlers::api_file::api_file,handlers::api_files::api_files,handlers::file::file,handlers::index::index])
         .register("/", catchers![   handlers::not_found::not_found])
         .launch().await?;
 
