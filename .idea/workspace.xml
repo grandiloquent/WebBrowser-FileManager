@@ -17,14 +17,7 @@
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/context_menu.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/context_menu.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/delete_files.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/delete_files.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/api_asset_file.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/api_asset_file.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/api_file_delete.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/api_file_delete.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/index.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/index.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +86,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680771083950</updated>
-      <workItem from="1680771085684" duration="9666000" />
+      <workItem from="1680771085684" duration="11086000" />
     </task>
     <servers />
   </component>
