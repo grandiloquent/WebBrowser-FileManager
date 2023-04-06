@@ -43,5 +43,8 @@ async function submitData() {
 }
 
 function saveData() {
-
+    fetch(`/api/file?path=${getSearchParams("path")}`, {
+        method: 'POST',
+        body: textarea.value
+    })
 }

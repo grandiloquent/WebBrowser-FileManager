@@ -19,11 +19,8 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/editor/editor.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/editor.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/editor/editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/editor/save_data.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/save_data.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/api_file.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/api_file.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/extract_zip.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/extract_zip.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +89,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680771083950</updated>
-      <workItem from="1680771085684" duration="14883000" />
+      <workItem from="1680771085684" duration="15964000" />
     </task>
     <servers />
   </component>
