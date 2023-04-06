@@ -42,9 +42,10 @@ async function submitData() {
         window.location = `${window.location.origin}${window.location.pathname}?id=${res}`
 }
 
-function saveData() {
-    fetch(`/api/file?path=${getSearchParams("path")}`, {
+async function saveData() {
+   await fetch(`/api/file?path=${getSearchParams("path")}`, {
         method: 'POST',
         body: textarea.value
     })
+    toast.setAttribute('message', '成功');
 }

@@ -15,6 +15,7 @@ use local_ip_address::local_ip;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
+    // 获取本机在局域网中的IP地址
     let my_local_ip = local_ip().unwrap();
 
     let limits = Limits::default()
