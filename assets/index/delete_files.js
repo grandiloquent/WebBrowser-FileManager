@@ -5,22 +5,9 @@ async function requestDeleteFiles(paths) {
         body: JSON.stringify(paths)
     });
     localStorage.setItem('paths', '');
-    return response.json();
+    return response.text();
 }
-function showDeleteDialog(detail) {
-    const dialog = document.createElement('custom-dialog');
-    document.body.appendChild(dialog);
-    dialog.appendChild(document.createTextNode(
-        `您确定要删除 ${decodeURIComponent(detail.path)} 吗`
-    ));
-    dialog.addEventListener('submit',async evt=>{
-        await requestDeleteFiles( [
-            decodeURIComponent(detail.path)
-        ]);
-        location.reload();
-    })
 
-}
 function launchDeleteDialog() {
     const customPathsBottomSheet = document.createElement('custom-paths-bottom-sheet');
     document.body.appendChild(customPathsBottomSheet);

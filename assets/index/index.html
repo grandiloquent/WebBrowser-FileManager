@@ -14,197 +14,198 @@
     <script src="index/open_file.js"></script>
     <script src="index/context_menu.js"></script>
     <script src="index/upload.js"></script>
+    <script src="index/show_delete_dialog.js"></script>
 </head>
 
 <body>
-    <div bind="wrapper" class="wrapper"></div>
-    <div style="height: 49px"></div>
-    <div class="bar-renderer">
-        <div bind @click="onNewFile" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
+<div bind="wrapper" class="wrapper"></div>
+<div style="height: 49px"></div>
+<div class="bar-renderer">
+    <div bind @click="onNewFile" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
                     d="M12.984 9h5.531l-5.531-5.484v5.484zM6 2.016h8.016l6 6v12q0 0.797-0.609 1.383t-1.406 0.586h-12q-0.797 0-1.406-0.586t-0.609-1.383l0.047-16.031q0-0.797 0.586-1.383t1.383-0.586z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                新建文件
-            </div>
-        </div>
-        <div bind @click="onNewFolder" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M9.984 3.984l2.016 2.016h8.016q0.797 0 1.383 0.609t0.586 1.406v9.984q0 0.797-0.586 1.406t-1.383 0.609h-16.031q-0.797 0-1.383-0.609t-0.586-1.406v-12q0-0.797 0.586-1.406t1.383-0.609h6z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                新建文件夹
-            </div>
-        </div>
-        <div bind @click="onShowFavorites" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M12 21.328l-1.453-1.313q-2.484-2.25-3.609-3.328t-2.508-2.672-1.898-2.883-0.516-2.648q0-2.297 1.57-3.891t3.914-1.594q2.719 0 4.5 2.109 1.781-2.109 4.5-2.109 2.344 0 3.914 1.594t1.57 3.891q0 1.828-1.219 3.797t-2.648 3.422-4.664 4.359z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                收藏夹
-            </div>
-        </div>
-        <div bind @click="onMove" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M18.984 20.016v-16.031h-1.969v3h-10.031v-3h-1.969v16.031h13.969zM12 2.016q-0.422 0-0.703 0.281t-0.281 0.703 0.281 0.703 0.703 0.281 0.703-0.281 0.281-0.703-0.281-0.703-0.703-0.281zM18.984 2.016q0.797 0 1.406 0.586t0.609 1.383v16.031q0 0.797-0.609 1.383t-1.406 0.586h-13.969q-0.797 0-1.406-0.586t-0.609-1.383v-16.031q0-0.797 0.609-1.383t1.406-0.586h4.172q0.328-0.891 1.078-1.453t1.734-0.563 1.734 0.563 1.078 1.453h4.172z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                粘贴
-            </div>
-        </div>
-        <div bind @click="onDelete" class="bar-item-renderer">
-            <svg viewBox="0 0 24 24">
-                <path
-                    d="M12.71,12l8.15,8.15l-0.71,0.71L12,12.71l-8.15,8.15l-0.71-0.71L11.29,12L3.15,3.85l0.71-0.71L12,11.29l8.15-8.15l0.71,0.71 L12.71,12z">
-                </path>
-            </svg>
-            <div class="bar-item-title">
-                删除
-            </div>
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            新建文件
         </div>
     </div>
-
-    <script src="custom-bottom-sheet.js"></script>
-    <script src="custom-item.js"></script>
-    <script src="index/data.js"></script>
-    <custom-toast bind="customToast"></custom-toast>
-    <script src="custom-toast.js"></script>
-    <script src="index/calculations.js"></script>
-    <script src="index/move_files.js"></script>
-    <script src="index/delete_files.js"></script>
-    <script src="index/index.js"></script>
-    <style>
-        .dialog-mask {
-            position: fixed;
-            z-index: 1001;
-            right: 0;
-            bottom: -200px;
-            top: 0;
-            left: 0;
-            /* -webkit-transition: opacity .25s; */
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .dialog-show .dialog-mask {
-            background-color: #000;
-            opacity: .4;
-            visibility: inherit;
-        }
-
-        .dialog-wrapper {
-            position: fixed;
-            right: 0;
-            bottom: 0;
-            top: 0;
-            left: 0;
-            z-index: 1002;
-            text-align: center;
-            vertical-align: middle;
-            visibility: hidden;
-            white-space: nowrap;
-            max-height: 100%;
-            max-width: 100%;
-            overflow: auto;
-            transform: translateZ(0);
-            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-        }
-
-        .dialog-show .dialog-wrapper {
-            opacity: 1;
-            visibility: inherit;
-        }
-
-        .dialog-wrapper::after {
-            content: '';
-            display: inline-block;
-            height: 100%;
-            vertical-align: middle;
-        }
-
-        .dialog-container {
-            border-radius: 8px;
-            position: relative;
-            display: inline-block;
-            z-index: 1060;
-            background-color: #fff;
-            opacity: 0;
-            text-align: left;
-            vertical-align: middle;
-            white-space: normal;
-            overflow: hidden;
-            transform: translateZ(0);
-            box-shadow: 0 5px 26px 0 rgba(0, 0, 0, .22), 0 20px 28px 0 rgba(0, 0, 0, .3);
-        }
-
-        .dialog-show .dialog-container {
-            opacity: 1;
-            visibility: inherit;
-        }
-
-        .dialog-container-wrapper {
-            max-width: 300px;
-            -webkit-user-select: none;
-        }
-
-        .dialog-content {
-            padding: 24px;
-            font-size: 16px;
-            overflow-wrap: break-word;
-        }
-
-        .dialog-footer {
-            display: flex;
-            justify-content: flex-end;
-            padding: 0 0 8px 0;
-        }
-
-        .dialog-button {
-            margin-bottom: -1px;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-            flex: 0 0 auto;
-            margin-right: 8px;
-            min-width: 48px;
-            padding: 0 8px;
-            line-height: 36px !important;
-            text-align: center;
-            font-family: Roboto-Medium, HelveticaNeue-Medium, HelveticaNeue, sans-serif-medium, Arial, sans-serif !important;
-        }
-    </style>
-    <div class="dialog">
-        <div class="dialog-mask">
+    <div bind @click="onNewFolder" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
+                    d="M9.984 3.984l2.016 2.016h8.016q0.797 0 1.383 0.609t0.586 1.406v9.984q0 0.797-0.586 1.406t-1.383 0.609h-16.031q-0.797 0-1.383-0.609t-0.586-1.406v-12q0-0.797 0.586-1.406t1.383-0.609h6z">
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            新建文件夹
         </div>
-        <div class="dialog-wrapper">
-            <div class="dialog-container">
-                <div class="dialog-container-wrapper">
-                    <div class="dialog-content">
-                        <div class="spinner">
-                        </div>
-                        <span>正在上传文件...
-                        </span>
+    </div>
+    <div bind @click="onShowFavorites" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
+                    d="M12 21.328l-1.453-1.313q-2.484-2.25-3.609-3.328t-2.508-2.672-1.898-2.883-0.516-2.648q0-2.297 1.57-3.891t3.914-1.594q2.719 0 4.5 2.109 1.781-2.109 4.5-2.109 2.344 0 3.914 1.594t1.57 3.891q0 1.828-1.219 3.797t-2.648 3.422-4.664 4.359z">
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            收藏夹
+        </div>
+    </div>
+    <div bind @click="onMove" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
+                    d="M18.984 20.016v-16.031h-1.969v3h-10.031v-3h-1.969v16.031h13.969zM12 2.016q-0.422 0-0.703 0.281t-0.281 0.703 0.281 0.703 0.703 0.281 0.703-0.281 0.281-0.703-0.281-0.703-0.703-0.281zM18.984 2.016q0.797 0 1.406 0.586t0.609 1.383v16.031q0 0.797-0.609 1.383t-1.406 0.586h-13.969q-0.797 0-1.406-0.586t-0.609-1.383v-16.031q0-0.797 0.609-1.383t1.406-0.586h4.172q0.328-0.891 1.078-1.453t1.734-0.563 1.734 0.563 1.078 1.453h4.172z">
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            粘贴
+        </div>
+    </div>
+    <div bind @click="onDelete" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
+                    d="M12.71,12l8.15,8.15l-0.71,0.71L12,12.71l-8.15,8.15l-0.71-0.71L11.29,12L3.15,3.85l0.71-0.71L12,11.29l8.15-8.15l0.71,0.71 L12.71,12z">
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            删除
+        </div>
+    </div>
+</div>
+
+<script src="custom-bottom-sheet.js"></script>
+<script src="custom-item.js"></script>
+<script src="index/data.js"></script>
+<custom-toast bind="customToast"></custom-toast>
+<script src="custom-toast.js"></script>
+<script src="index/calculations.js"></script>
+<script src="index/move_files.js"></script>
+<script src="index/delete_files.js"></script>
+<script src="index/index.js"></script>
+<style>
+    .dialog-mask {
+        position: fixed;
+        z-index: 1001;
+        right: 0;
+        bottom: -200px;
+        top: 0;
+        left: 0;
+        /* -webkit-transition: opacity .25s; */
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .dialog-show .dialog-mask {
+        background-color: #000;
+        opacity: .4;
+        visibility: inherit;
+    }
+
+    .dialog-wrapper {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        z-index: 1002;
+        text-align: center;
+        vertical-align: middle;
+        visibility: hidden;
+        white-space: nowrap;
+        max-height: 100%;
+        max-width: 100%;
+        overflow: auto;
+        transform: translateZ(0);
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+
+    .dialog-show .dialog-wrapper {
+        opacity: 1;
+        visibility: inherit;
+    }
+
+    .dialog-wrapper::after {
+        content: '';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+    }
+
+    .dialog-container {
+        border-radius: 8px;
+        position: relative;
+        display: inline-block;
+        z-index: 1060;
+        background-color: #fff;
+        opacity: 0;
+        text-align: left;
+        vertical-align: middle;
+        white-space: normal;
+        overflow: hidden;
+        transform: translateZ(0);
+        box-shadow: 0 5px 26px 0 rgba(0, 0, 0, .22), 0 20px 28px 0 rgba(0, 0, 0, .3);
+    }
+
+    .dialog-show .dialog-container {
+        opacity: 1;
+        visibility: inherit;
+    }
+
+    .dialog-container-wrapper {
+        max-width: 300px;
+        -webkit-user-select: none;
+    }
+
+    .dialog-content {
+        padding: 24px;
+        font-size: 16px;
+        overflow-wrap: break-word;
+    }
+
+    .dialog-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 0 8px 0;
+    }
+
+    .dialog-button {
+        margin-bottom: -1px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        flex: 0 0 auto;
+        margin-right: 8px;
+        min-width: 48px;
+        padding: 0 8px;
+        line-height: 36px !important;
+        text-align: center;
+        font-family: Roboto-Medium, HelveticaNeue-Medium, HelveticaNeue, sans-serif-medium, Arial, sans-serif !important;
+    }
+</style>
+<div class="dialog">
+    <div class="dialog-mask">
+    </div>
+    <div class="dialog-wrapper">
+        <div class="dialog-container">
+            <div class="dialog-container-wrapper">
+                <div class="dialog-content">
+                    <div class="spinner">
                     </div>
-                    <div class="dialog-footer" style="display: none;">
-                        <div class="dialog-button">
-                            确认
-                        </div>
-                        <div class="dialog-button" style="color: #db4437;">
-                            删除
-                        </div>
+                    <span>正在上传文件...
+                        </span>
+                </div>
+                <div class="dialog-footer" style="display: none;">
+                    <div class="dialog-button">
+                        确认
+                    </div>
+                    <div class="dialog-button" style="color: #db4437;">
+                        删除
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 </body>
 
 </html>

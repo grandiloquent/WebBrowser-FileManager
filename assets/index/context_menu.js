@@ -10,7 +10,7 @@ function showContextMenu(detail) {
             "选定同类文件",
             "重命名",
             "解压",
-                        "删除"
+            "删除"
 
         ]
     } else {
@@ -20,7 +20,7 @@ function showContextMenu(detail) {
             "重命名",
             "压缩",
             "收藏",
-                        "删除"
+            "删除"
 
         ]
     }
@@ -37,11 +37,10 @@ function showContextMenu(detail) {
         } else if (evt.detail === "收藏") {
             saveStoragePath(detail.path);
         } else if (evt.detail === "删除") {
-            showDeleteDialog(detail)
+            showDeleteDialog(detail.path)
         }
     })
 }
-
 
 
 async function selectSameTypeFiles(detail) {
