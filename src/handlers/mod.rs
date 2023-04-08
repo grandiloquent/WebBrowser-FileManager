@@ -1,4 +1,3 @@
-pub mod asset;
 pub mod not_found;
 pub mod index;
 pub mod api_files;
@@ -13,3 +12,4 @@ pub mod extract_zip;
 pub mod editor;
 pub mod compress_zip;
 pub mod auto_it;
+pub mod video;

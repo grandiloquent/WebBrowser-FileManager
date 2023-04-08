@@ -32,7 +32,7 @@ async fn main() -> Result<(), rocket::Error> {
 
     rocket::custom(figment)
         .mount("/",
-               routes![handlers::api_asset_file::api_asset_file,handlers::api_file::api_file,handlers::api_file::api_file_post,handlers::api_files::api_files,handlers::api_file_delete::api_file_delete,handlers::api_file_new_dir::api_file_new_dir,handlers::api_file_new_file::api_file_new_file,handlers::auto_it::auto_it,handlers::compress_zip::compress_zip,handlers::editor::index,handlers::extract_zip::api_zip,handlers::favicon::favicon,handlers::file::file,handlers::index::index])
+               routes![handlers::api_asset_file::api_asset_file,handlers::api_file::api_file,handlers::api_file::api_file_post,handlers::api_files::api_files,handlers::api_file_delete::api_file_delete,handlers::api_file_new_dir::api_file_new_dir,handlers::api_file_new_file::api_file_new_file,handlers::auto_it::auto_it,handlers::compress_zip::compress_zip,handlers::editor::index,handlers::extract_zip::api_zip,handlers::favicon::favicon,handlers::file::file,handlers::index::index,handlers::video::videos,handlers::video::video,handlers::video::subtitle])
         .register("/", catchers![   handlers::not_found::not_found])
         .launch().await?;
 

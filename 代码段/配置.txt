@@ -1,0 +1,4 @@
+[file] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers\mod.rs
+[dir] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers
+[rs] = C:\Users\Administrator\Desktop\Resources\Manager\src\main.rs
+[extension] = .js

@@ -2,6 +2,9 @@
 log
 println!("{}",error.to_string());
 ---------------------------------
+error
+log::error!("{}: {}",error.to_string(),"");
+---------------------------------
 get
 #[get("/?<path>")]
 pub async fn zip(path: String) -> Result<(), Status> {

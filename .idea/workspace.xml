@@ -3,9 +3,9 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakePresetLoader"><![CDATA[{
-  "useNewFormat": true
-}]]></component>
+  <component name="CMakePresetLoader">{
+  &quot;useNewFormat&quot;: true
+}</component>
   <component name="CMakeSettings">
     <configurations>
       <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
@@ -17,9 +17,16 @@
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/editor/editor.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/editor/editor.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/video/actions.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/actions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/video/video.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/video.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/video/video.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/video.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/video/videos.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/videos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/asset.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/auto_it.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/auto_it.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/代码段/Rust.txt" beforeDir="false" afterPath="$PROJECT_DIR$/代码段/Rust.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,21 +50,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "nodejs_package_manager_path": "npm",
-    "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
-    "org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/rocket_seek_stream/src/lib.rs": "true",
-    "org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/src/models/FileItem.rs": "true",
-    "org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/src/models/file_item.rs": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Administrator/Desktop/Example&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;org.rust.cargo.project.model.PROJECT_DISCOVERY&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/rocket_seek_stream/src/lib.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/src/models/FileItem.rs&quot;: &quot;true&quot;,
+    &quot;org.rust.disableDetachedFileInspectionC:/Users/Administrator/Desktop/Resources/Manager/src/models/file_item.rs&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;language.rust.cargo.check&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Run" type="CargoCommandRunConfiguration" factoryName="Cargo Command" nameIsGenerated="true">
       <option name="command" value="run" />
@@ -79,6 +88,7 @@
   </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
+    <option name="version" value="2" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -88,11 +98,18 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1680771083950</updated>
-      <workItem from="1680771085684" duration="23293000" />
+      <workItem from="1680771085684" duration="24414000" />
+      <workItem from="1680823768984" duration="1288000" />
+      <workItem from="1680844649853" duration="5911000" />
+      <workItem from="1680967987972" duration="4253000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

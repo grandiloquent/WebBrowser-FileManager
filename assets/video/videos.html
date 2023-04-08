@@ -214,18 +214,19 @@
             stroke: none;
         }
     </style>
+    <script src="/video/strings.js"></script>
 </head>
 
 <body>
-    <script src="strings.js"></script>
     <script>
         function buildItem(item) {
 
             return `<div class="media-item">
-            <a class="media-item-thumbnail-container" href="/video/video?path=${encodeURIComponent(item.path)}">
+            <a class="media-item-thumbnail-container" href="/video?path=${encodeURIComponent(item.path)}">
                 <div class="video-thumbnail-container-large">
                     <div class="video-thumbnail-bg">
-                        <img class="video-thumbnail-img">
+                        <img class="video-thumbnail-img"
+                       src="/api/file?path=${substringBeforeLast(item.path, "/")}/.images/${substringAfterLast(item.path, "/")}">
                     </div>
                 </div>
             </a>
@@ -236,7 +237,7 @@
                     <div class="media-item-metadata">
                         <a class="title-wrapper">
                             <h3 class="media-item-headline">
-                            ${substringAfterLast(item.path,"/")}
+                            ${substringAfterLast(item.path, "\\")}
                                 </h3>
                             <div class="badge-and-byline-renderer">
                                 <span class="badge-and-byline-item-byline">
@@ -266,12 +267,16 @@
         </div>`;
         }
         async function loadData() {
-            const res = await fetch(`/api/files?path=%2Fstorage%2Femulated%2F0%2F.others`);
+            const res = await fetch(`/api/files?path=D:\\视频`);
             return res.json();
         }
         async function render() {
             const items = await loadData();
             items.forEach(element => {
+                if (element.is_directory
+                || !element.path.endsWith(".mp4")) {
+                    return;
+                }
                 document.body.insertAdjacentHTML('afterbegin',
                     buildItem(element));
             });

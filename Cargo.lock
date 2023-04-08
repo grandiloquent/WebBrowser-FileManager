@@ -10,6 +10,7 @@ dependencies = [
  "local-ip-address",
  "rand",
  "range_header",
+ "regex",
  "rocket",
  "serde",
  "sysinfo",
@@ -35,6 +36,15 @@ dependencies = [
  "cipher",
  "cpufeatures",
  "opaque-debug",
+]
+
+[[package]]
+name = "aho-corasick"
+version = "0.7.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc936419f96fa211c1b9166887b38e5e40b19958e5b895be7c1f93adec7071ac"
+dependencies = [
+ "memchr 2.5.0",
 ]
 
 [[package]]
@@ -1248,6 +1258,8 @@ version = "1.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b1f693b24f6ac912f4893ef08244d70b6067480d2f1a46e950c9691e6749d1d"
 dependencies = [
+ "aho-corasick",
+ "memchr 2.5.0",
  "regex-syntax",
 ]
 

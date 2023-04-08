@@ -183,11 +183,11 @@ function onPlay(evt) {
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
-
+        video.style.height = 'inherit';
     } else {
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        
+
         }
     }
 }
@@ -200,9 +200,9 @@ function onTimeupdate() {
     //const width = calculateProgressPercent(video);
     //progressBarPlayed.style.width = width
     //progressBarPlayhead.style.left = width
-    const width= ((video.currentTime / video.duration) * 100);;
-    range.style.setProperty("--progress",width+"%");
-    range.value=width
+    const width = ((video.currentTime / video.duration) * 100);;
+    range.style.setProperty("--progress", width + "%");
+    range.value = width
     elapsed.textContent = formatDuration(video.currentTime);
 }
 function onProgress() {
@@ -214,9 +214,17 @@ function onPause() {
 }
 function onDurationChange() {
     remaining.textContent = formatDuration(video.duration);
+    if (window.innerWidth < window.innerHeight) {
+        const ratio = video.videoWidth / window.innerWidth;
+        video.style.height = `${video.videoHeight / ratio}px`;
+    } else {
+        const ratio = video.videoHeight / window.innerHeight;
+        video.style.height = `${video.videoHeight / ratio}px`;
+    }
 }
 function onSeek(evt) {
     video.currentTime = video.duration * (parseInt(evt.target.value) / 100);
+    scheduleHide();
 }
 function onBack() {
     video.currentTime = video.currentTime - 10;
@@ -343,22 +351,23 @@ function start(uri) {
         video.src = uri;
     } else {
         let path = new URL(window.location).searchParams.get('path');
-        setTitle(substringAfterLast(path, "/"));
+        setTitle(substringAfterLast(path, "\\"));
         if (path)
             video.src = `/api/file?path=${encodeURIComponent(path)}`
-            appendSubtitle(video,path)
-        }
-    
+        appendSubtitle(video, path)
+    }
+
 }
-function appendSubtitle(video,path) {
+function appendSubtitle(video, path) {
     //document.querySelectorAll('track').forEach(x => x.remove())
     const track = document.createElement('track');
     var tracks = video.textTracks;
     var numTracks = tracks.length;
     for (var i = numTracks - 1; i >= 0; i--)
         video.textTracks[i].mode = "disabled";
-    track.src =`/subtitle?path=${encodeURIComponent(path+".srt")}`   
+    track.src = `/subtitle?path=${encodeURIComponent(path + ".srt")}`
     track.default = true;
+
     video.appendChild(track);
 }
 start()
