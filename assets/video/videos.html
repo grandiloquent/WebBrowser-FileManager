@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频</title>
+
     <style>
         html {
             font-size: 10px;
@@ -214,75 +215,17 @@
             stroke: none;
         }
     </style>
-    <script src="/video/strings.js"></script>
 </head>
 
 <body>
-    <script>
-        function buildItem(item) {
 
-            return `<div class="media-item">
-            <a class="media-item-thumbnail-container" href="/video?path=${encodeURIComponent(item.path)}">
-                <div class="video-thumbnail-container-large">
-                    <div class="video-thumbnail-bg">
-                        <img class="video-thumbnail-img"
-                       src="/api/file?path=${substringBeforeLast(item.path, "/")}/.images/${substringAfterLast(item.path, "/")}">
-                    </div>
-                </div>
-            </a>
-            <div class="details">
-                <div class="media-channel">
-                </div>
-                <div class="media-item-info">
-                    <div class="media-item-metadata">
-                        <a class="title-wrapper">
-                            <h3 class="media-item-headline">
-                            ${substringAfterLast(item.path, "\\")}
-                                </h3>
-                            <div class="badge-and-byline-renderer">
-                                <span class="badge-and-byline-item-byline">
-                                </span>
-                                <!-- • -->
-                                <span class="badge-and-byline-separator">
-                                </span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="bottom-sheet-renderer">
-                        <button class="button">
-                            <div class="icon">
-                                <div class="c3-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
-                                        height="24" viewBox="0 0 24 24" width="24">
-                                        <path
-                                            d="M12,16.5c0.83,0,1.5,0.67,1.5,1.5s-0.67,1.5-1.5,1.5s-1.5-0.67-1.5-1.5S11.17,16.5,12,16.5z M10.5,12 c0,0.83,0.67,1.5,1.5,1.5s1.5-0.67,1.5-1.5s-0.67-1.5-1.5-1.5S10.5,11.17,10.5,12z M10.5,6c0,0.83,0.67,1.5,1.5,1.5 s1.5-0.67,1.5-1.5S12.83,4.5,12,4.5S10.5,5.17,10.5,6z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-        }
-        async function loadData() {
-            const res = await fetch(`/api/files?path=D:\\视频`);
-            return res.json();
-        }
-        async function render() {
-            const items = await loadData();
-            items.forEach(element => {
-                if (element.is_directory
-                || !element.path.endsWith(".mp4")) {
-                    return;
-                }
-                document.body.insertAdjacentHTML('afterbegin',
-                    buildItem(element));
-            });
-        }
-        render();
-    </script>
+<script type="module">
+    import init, {start} from "/video/hello_wasm.js";
+
+    init().then(() => {
+        start("D:\\视频", "\\")
+    });
+</script>
 </body>
 
 </html>

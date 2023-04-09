@@ -5,12 +5,12 @@ use regex::Regex;
 use std::fs::File;
 use std::io::{Write, BufReader, BufRead};
 use rocket::fs;
-#[get("/videos")]
+#[get("/video/videos")]
 pub fn videos<'a>() -> std::io::Result<SeekStream<'a>> {
     let p = Path::new("assets/video/videos.html");
     SeekStream::from_path(p)
 }
-#[get("/video")]
+#[get("/video/video")]
 pub fn video<'a>() -> std::io::Result<SeekStream<'a>> {
     let p = Path::new("assets/video/video.html");
     SeekStream::from_path(p)
