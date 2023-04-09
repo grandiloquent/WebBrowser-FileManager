@@ -19,3 +19,14 @@ pub fn get_query_string(window: &Window, s: &str) -> String {
         .1
         .to_string()
 }
+
+pub fn set_text_content(document: &Document, selectors: &str, value: &str) -> Result<(), JsValue> {
+    let v = document.query_selector(selectors)?;
+    match v {
+        Some(e) => {
+            e.set_text_content(Some(value));
+            Ok(())
+        }
+        None => Err(JsValue::from_str("Cant find element")),
+    }
+}

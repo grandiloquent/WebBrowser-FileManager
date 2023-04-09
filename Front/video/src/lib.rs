@@ -1,10 +1,11 @@
 use urlencoding::encode;
 use utils::dom::get_query_string;
 use utils::dom::query_selector;
+use utils::dom::set_text_content;
+use utils::strings::StringExt;
 use wasm_bindgen::prelude::*;
 use web_sys::Document;
 use web_sys::HtmlVideoElement;
-use web_sys::SvgPathElement;
 
 mod utils;
 
@@ -23,6 +24,7 @@ struct Video {
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Window.html
     video: HtmlVideoElement,
     path: String,
+    path_separator: String,
     document: Document,
 }
 
@@ -32,6 +34,7 @@ impl Video {
         let document = window.document().unwrap();
         // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Location.html
         let path = get_query_string(&window, "path");
+
         let video = query_selector(&document, "video")
             .unwrap()
             .dyn_into::<HtmlVideoElement>()
@@ -40,14 +43,22 @@ impl Video {
             video: video,
             path,
             document,
+            path_separator:path_separator.to_string()
         }
     }
     fn init(&self) {
         self.video.set_src(
             format!("/api/file?path={}", encode(self.path.as_str()).into_owned()).as_str(),
         );
-
+        self.set_title();
         self.set_play_event();
+    }
+    fn set_title(&self) {
+        let _ = set_text_content(
+            &self.document,
+            ".video-player-title",
+            self.path.substring_after_last(self.path_separator.as_str()).as_str(),
+        );
     }
     fn set_play_event(&self) {
         onclick!((".playback-play__play",&self.document)->{
@@ -63,7 +74,6 @@ impl Video {
             }
         });
         let path = query_selector(&self.document, ".playback-controls-play path").unwrap();
-        
 
         {
             let path = path.clone();
