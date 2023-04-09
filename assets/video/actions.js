@@ -365,7 +365,7 @@ function appendSubtitle(video, path) {
     var numTracks = tracks.length;
     for (var i = numTracks - 1; i >= 0; i--)
         video.textTracks[i].mode = "disabled";
-    track.src = `/subtitle?path=${encodeURIComponent(path + ".srt")}`
+    track.src = `/subtitle?path=${encodeURIComponent(substringBeforeLast(path,".") + ".srt")}`
     track.default = true;
 
     video.appendChild(track);
