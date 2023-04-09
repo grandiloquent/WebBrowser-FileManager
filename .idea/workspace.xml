@@ -16,12 +16,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/video/video.css" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/video.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/video/video.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/video.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/video/videos.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/video/videos.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/video.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/video.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/代码段/配置.txt" beforeDir="false" afterPath="$PROJECT_DIR$/代码段/配置.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/videos/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Front/videos/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/videos/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Front/videos/Cargo.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -97,7 +93,7 @@
       <workItem from="1680823768984" duration="1288000" />
       <workItem from="1680844649853" duration="5911000" />
       <workItem from="1680967987972" duration="7797000" />
-      <workItem from="1681048682515" duration="3745000" />
+      <workItem from="1681048682515" duration="4211000" />
     </task>
     <servers />
   </component>

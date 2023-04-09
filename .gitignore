@@ -1,7 +1,5 @@
 target
 cmake-build-debug
 *.exe
-/assets/video/*.js
 /assets/video/*.ts
-/assets/video/*.wasm
 
