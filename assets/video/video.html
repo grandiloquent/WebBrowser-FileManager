@@ -7,16 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>视频</title>
     <link rel="stylesheet" href="video.css">
-    <!-- <script src="video.js"></script> -->
-    <script src="custom-bottom-sheet.js"></script>
-    <script src="toast.js"></script>
-    <script src="shared.js"></script>
-    <script src="calculations.js"></script>
-    <style>
-
-    </style>
-    <script src="title.js"></script>
-    <script src="strings.js"></script>
 
 </head>
 
@@ -123,7 +113,13 @@
             </div>
         </div>
     </div>
-    <script src="actions.js"></script>
+    <script type="module">
+        import init, {start} from "/video/video.js";
+
+        init().then(() => {
+            start("\\")
+        });
+    </script>
 </body>
 
 </html>

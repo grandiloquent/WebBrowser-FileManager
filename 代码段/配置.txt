@@ -1,4 +1,4 @@
-[file] = C:\Users\Administrator\Desktop\Killer\hello-wasm\src\utils\mod.rs
+[file] = C:\Users\Administrator\Desktop\Resources\Manager\Front\video\src\utils\mod.rs
 [dir] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers
 [rs] = C:\Users\Administrator\Desktop\Resources\Manager\src\main.rs
 [extension] = .js

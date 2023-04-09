@@ -2,4 +2,4 @@ target
 cmake-build-debug
 *.exe
 /assets/video/*.ts
-
+test.html
