@@ -6,6 +6,8 @@ use utils::dom::set_text_content;
 use utils::strings::StringExt;
 use wasm_bindgen::prelude::*;
 use web_sys::Document;
+use web_sys::Event;
+use web_sys::HtmlInputElement;
 use web_sys::HtmlVideoElement;
 mod utils;
 
@@ -97,19 +99,43 @@ impl Video {
                     });
         }
         {
+            let element = query_selector(&self.document, ".range")
+                .unwrap()
+                .dyn_into::<HtmlInputElement>()
+                .unwrap();
             let video = self.video.clone();
-            let elemnt = query_selector(&self.document, ".elapsed").unwrap();
-            let handler = Closure::wrap(Box::new(move || {
-                elemnt.set_text_content(Some(
+
+            let handler = move |event: Event| {
+                event.prevent_default();
+                let value = (event
+                    .current_target()
+                    .unwrap()
+                    .dyn_into::<HtmlInputElement>()
+                    .unwrap()
+                    .value()
+                    .as_str()
+                    .parse::<u16>()
+                    .unwrap() as f32)
+                    / 100.0;
+                video.set_current_time((value as f64) * video.duration());
+            };
+            let closure = Closure::wrap(Box::new(handler) as Box<dyn FnMut(Event)>);
+            element.set_onchange(closure.as_ref().dyn_ref());
+            closure.forget();
+        }
+        handler!( (set_ontimeupdate,self.video)->{
+            let video = self.video.clone();
+            let element = query_selector(&self.document, ".elapsed").unwrap();
+            move || {
+                element.set_text_content(Some(
                     seconds_to_duration(video.current_time() as u64).as_str(),
                 ));
-            }) as Box<dyn FnMut()>);
-            self.video.set_ontimeupdate(handler.as_ref().dyn_ref());
-            handler.forget();
-        }
+            }
+        });
+
         {
             let video = self.video.clone();
-            let elemnt = query_selector(&self.document, ".remaining").unwrap();
+            let element = query_selector(&self.document, ".remaining").unwrap();
             let handler = Closure::wrap(Box::new(move || {
                 log(format!(
                     "Video Size: {}x{}",
@@ -117,7 +143,7 @@ impl Video {
                     video.video_height()
                 )
                 .as_str());
-                elemnt
+                element
                     .set_text_content(Some(seconds_to_duration(video.duration() as u64).as_str()));
             }) as Box<dyn FnMut()>);
             self.video.set_ondurationchange(handler.as_ref().dyn_ref());
