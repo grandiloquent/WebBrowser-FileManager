@@ -18,6 +18,7 @@ mod schema {
 
 use self::schema::notes;
 use self::schema::notes::dsl::{notes as all_notes};
+use diesel::prelude::*;
 
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
@@ -30,16 +31,19 @@ pub struct Notes {
     pub update_at: i64,
 }
 
+#[derive(Serialize, Queryable)]
+pub struct Note {
+    pub _id: Option<i32>,
+    pub title: String,
+    pub update_at: i64,
+}
+
 impl Notes {
-    pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Notes>> {
+    pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Note>> {
         conn.run(|c| {
             notes::table
-                .select((
-                    notes::_id,
-                    notes::title,
-                    notes::update_at,
-                ))
-                .order(notes::update_at.desc()).get_result(c)
+                .select((notes::_id, notes::title, notes::update_at))
+                .order(notes::update_at.desc()).load::<Note>(c)
         }).await
     }
 }
@@ -48,18 +52,10 @@ impl Notes {
 pub async fn get_notes(conn: NotesConnection) -> Result<String, Status> {
     match Notes::all(&conn).await {
         Ok(v) => {
-            Ok(serde_json::to_string::<Vec<Notes>>(&v).unwrap())
+            Ok(serde_json::to_string::<Vec<Note>>(&v).unwrap())
         }
         Err(e) => {
             Err(Status::InternalServerError)
         }
     }
-    // conn.0
-    //     .query_row(
-    //         "SELECT COUNT(*) FROM game_ratings WHERE timestamp > ?
-    //                 AND (value_a < 1200 OR value_b < 1300)",
-    //         params!["1"],
-    //         |r| r.get(0),
-    //     )
-    //     .unwrap();
 }

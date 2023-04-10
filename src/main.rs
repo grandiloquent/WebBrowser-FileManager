@@ -7,6 +7,7 @@ mod headers;
 #[macro_use]
 extern crate rocket;
 extern crate core;
+extern crate diesel;
 
 use rocket::config::LogLevel;
 use rocket::data::{Limits, ToByteUnit};
@@ -16,7 +17,7 @@ use rocket::{Build, Config, Rocket};
 use rocket::figment::providers::{Format, Toml};
 use rusqlite::Connection;
 
-use rocket_sync_db_pools::{database, diesel};
+use rocket_sync_db_pools::{database};
 
 #[database("notes")]
 pub struct NotesConnection(diesel::SqliteConnection);

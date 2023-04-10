@@ -2,6 +2,8 @@
 [dir] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers
 [rs] = C:\Users\Administrator\Desktop\Resources\Manager\src\main.rs
 [extension] = .js
-[WorkingDirectory] = C:\Users\Administrator\Desktop\Resources\Manager\Front\video
-[out-dir] = C:\Users\Administrator\Desktop\Resources\Manager\assets\video
+[WorkingDirectory] = C:\Users\Administrator\Desktop\Resources\Manager\Front\notes
+[out-dir] = C:\Users\Administrator\Desktop\Resources\Manager\assets\notes
 [fmt] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers\db.rs
+[source] = C:\Users\Administrator\Desktop\Resources\Manager\Front\video
+[destination] = C:\Users\Administrator\Desktop\Resources\Manager\Front\notes
