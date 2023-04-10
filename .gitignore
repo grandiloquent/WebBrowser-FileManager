@@ -4,3 +4,5 @@ cmake-build-debug
 /assets/video/*.ts
 test.html
 *.db
+notes.db-shm
+notes.db-wal
