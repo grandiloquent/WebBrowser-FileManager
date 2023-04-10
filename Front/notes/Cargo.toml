@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # convert_case = "0.6.0"
-# js-sys = "0.3.61"
+js-sys = "0.3.61"
 wasm-bindgen = "0.2.84"
 wasm-bindgen-futures = "0.4.34"
 # serde = { version = "1.0", features = ["derive"] }
@@ -17,9 +17,14 @@ wasm-bindgen-futures = "0.4.34"
 url = "2.3.1"
 # https://docs.rs/urlencoding/2.1.2/urlencoding/
 urlencoding = "2.1.2"
-
+futures = "0.3.28"
 [dependencies.web-sys]
 features = [
+  'Headers',
+  'Request',
+  'RequestInit',
+  'RequestMode',
+  'Response',
   "Window",
   "Document",
   "HtmlElement",

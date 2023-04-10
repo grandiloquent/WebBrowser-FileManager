@@ -1,9 +1,9 @@
+use std::path::Path;
 use crate::NotesConnection;
 use rocket::http::Status;
 use rocket::serde::json::serde_json;
 use rocket::serde::Serialize;
 use diesel::{self, result::QueryResult, prelude::*};
-
 mod schema {
     diesel::table! {
         notes(_id) {
@@ -15,11 +15,10 @@ mod schema {
         }
     }
 }
-
 use self::schema::notes;
 use self::schema::notes::dsl::{notes as all_notes};
 use diesel::prelude::*;
-
+use crate::seek_stream::SeekStream;
 #[derive(Serialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "notes"]
@@ -30,14 +29,12 @@ pub struct Notes {
     pub create_at: i64,
     pub update_at: i64,
 }
-
 #[derive(Serialize, Queryable)]
 pub struct Note {
     pub _id: Option<i32>,
     pub title: String,
     pub update_at: i64,
 }
-
 impl Notes {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Note>> {
         conn.run(|c| {
@@ -47,7 +44,6 @@ impl Notes {
         }).await
     }
 }
-
 #[get("/api/notes")]
 pub async fn get_notes(conn: NotesConnection) -> Result<String, Status> {
     match Notes::all(&conn).await {
@@ -58,4 +54,9 @@ pub async fn get_notes(conn: NotesConnection) -> Result<String, Status> {
             Err(Status::InternalServerError)
         }
     }
+}
+#[get("/notes/notes")]
+pub fn get_notes_page<'a>() -> std::io::Result<SeekStream<'a>> {
+    let p = Path::new("assets/notes/notes.html");
+    SeekStream::from_path(p)
 }
