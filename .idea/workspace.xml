@@ -20,6 +20,7 @@
       <change beforePath="$PROJECT_DIR$/Front/notes/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Front/notes/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Front/notes/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/notes/notes.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/notes/notes.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/db.rs" afterDir="false" />
@@ -103,7 +104,7 @@
       <workItem from="1681057010208" duration="16932000" />
       <workItem from="1681121536358" duration="16195000" />
       <workItem from="1681146067344" duration="604000" />
-      <workItem from="1681148105326" duration="3426000" />
+      <workItem from="1681148105326" duration="9416000" />
     </task>
     <servers />
   </component>

@@ -1,24 +1,11 @@
-use std::pin::Pin;
-use std::task::Context;
-use std::task::Waker;
-
-use futures::executor;
-use futures::Future;
-use urlencoding::encode;
-use utils::date::seconds_to_duration;
-use utils::dom::get_query_string;
 use utils::dom::query_selector;
-use utils::dom::set_text_content;
-use utils::strings::StringExt;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen_futures::spawn_local;
-use web_sys::Document;
-use web_sys::Event;
 use web_sys::HtmlTextAreaElement;
 use web_sys::KeyboardEvent;
 
-use crate::utils::utils::format_comment;
-use crate::utils::utils::format_translate_chinese;
+use crate::utils::format::format_comment;
+use crate::utils::translate::format_translate_chinese;
+use crate::utils::utils::format_delete_current_line;
 use crate::utils::utils::log;
 mod utils;
 
@@ -28,7 +15,7 @@ pub fn start(path_separator: &str) {
     //  https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Window.html#method.document
     let document = window.document().unwrap();
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Document.html
-    let textarea = query_selector(&document, "textarea")
+    let textarea = query_selector(&document, "#textarea")
         .unwrap()
         .dyn_into::<HtmlTextAreaElement>()
         .unwrap();
@@ -46,11 +33,7 @@ pub fn start(path_separator: &str) {
                 match e.key().as_str() {
                     "d"=>{
                         e.prevent_default();
-                  //      format_comment(&textarea,"//");
-
-                      format_translate_chinese(&textarea);
-
-
+                      format_comment(&textarea,"//");
                     }
                     "w"=>{
                         e.prevent_default();
@@ -65,6 +48,11 @@ pub fn start(path_separator: &str) {
                         e.prevent_default();
                       format_translate_chinese(&textarea);
                     }
+                    "F2"=>{
+                        log("------------");
+                        e.prevent_default();
+                        format_delete_current_line(&textarea);
+                    }
                     _=>{
 
                     }
@@ -74,3 +62,5 @@ pub fn start(path_separator: &str) {
         }
     });
 }
+
+// &env:RUSTFLAGS="--cfg=web_sys_unstable_apis";wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Resources\Manager\assets\notes
