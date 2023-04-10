@@ -1,4 +1,5 @@
 use urlencoding::encode;
+use utils::date::seconds_to_duration;
 use utils::dom::get_query_string;
 use utils::dom::query_selector;
 use utils::dom::set_text_content;
@@ -6,7 +7,6 @@ use utils::strings::StringExt;
 use wasm_bindgen::prelude::*;
 use web_sys::Document;
 use web_sys::HtmlVideoElement;
-
 mod utils;
 
 #[wasm_bindgen]
@@ -43,7 +43,7 @@ impl Video {
             video: video,
             path,
             document,
-            path_separator:path_separator.to_string()
+            path_separator: path_separator.to_string(),
         }
     }
     fn init(&self) {
@@ -52,12 +52,28 @@ impl Video {
         );
         self.set_title();
         self.set_play_event();
+        // remaining
+        // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.HtmlVideoElement.html
+
+        {
+            let video = self.video.clone();
+            let elemnt = query_selector(&self.document, ".remaining").unwrap();
+            let handler = Closure::wrap(Box::new(move || {
+                log(format!("Video Size: {}x{}", video.video_width(), video.video_height()).as_str());
+                elemnt
+                    .set_text_content(Some(seconds_to_duration(video.duration() as u64).as_str()));
+            }) as Box<dyn FnMut()>);
+            self.video.set_ondurationchange(handler.as_ref().dyn_ref());
+            handler.forget();
+        }
     }
     fn set_title(&self) {
         let _ = set_text_content(
             &self.document,
             ".video-player-title",
-            self.path.substring_after_last(self.path_separator.as_str()).as_str(),
+            self.path
+                .substring_after_last(self.path_separator.as_str())
+                .as_str(),
         );
     }
     fn set_play_event(&self) {
@@ -93,5 +109,3 @@ impl Video {
         }
     }
 }
-
-//  wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Resources\Manager\assets\video

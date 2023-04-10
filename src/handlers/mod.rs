@@ -13,3 +13,4 @@ pub mod editor;
 pub mod compress_zip;
 pub mod auto_it;
 pub mod video;
+pub mod rust;

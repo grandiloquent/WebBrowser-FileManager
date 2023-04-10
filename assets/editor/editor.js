@@ -1,4 +1,3 @@
-
 async function render() {
     textarea.value = localStorage.getItem("content");
 
@@ -31,7 +30,7 @@ ${obj.content.trim()}`
 
 
 async function loadData(id) {
-    const res = await fetch(`/api/article?id=${id}`, { cache: "no-cache" });
+    const res = await fetch(`/api/article?id=${id}`, {cache: "no-cache"});
     return res.json();
 }
 
@@ -103,26 +102,38 @@ async function createFile() {
 }
 
 function replaceText() {
-    const founded = textarea.value.indexOf("```") !== -1;
-    if (founded) {
-        const pv = findCodeBlockExtend(textarea);
-        let str = textarea.value.substring(pv[0] + 3, pv[1] - 3).trim();
-        const firstLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n");
-        const secondLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n").trim();
-
-        textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine), pv[0], pv[1] + 1, "end");
+    if (textarea.selectionStart !== textarea.selectionEnd) {
+        let str = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd).trim();
+        const firstLine = substringBefore(str, " ");
+        str = substringAfter(str, " ").trim();
+        const secondLine = substringBefore(str, " ");
+        str = substringAfter(str, " ").trim();
+        textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
+                .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine)),
+            textarea.selectionStart, textarea.selectionEnd, 'end')
     } else {
-        let str = textarea.value;
-        const firstLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n");
-        const secondLine = substringBefore(str, "\n");
-        str = substringAfter(str, "\n").trim();
-        textarea.value = firstLine + "\n" + secondLine + "\n" + str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
-            .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine));
+        const founded = textarea.value.indexOf("```") !== -1;
+        if (founded) {
+            const pv = findCodeBlockExtend(textarea);
+            let str = textarea.value.substring(pv[0] + 3, pv[1] - 3).trim();
+            const firstLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n");
+            const secondLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n").trim();
 
+            textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine), pv[0], pv[1] + 1, "end");
+        } else {
+
+            let str = textarea.value;
+            const firstLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n");
+            const secondLine = substringBefore(str, "\n");
+            str = substringAfter(str, "\n").trim();
+            textarea.value = firstLine + "\n" + secondLine + "\n" + str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
+                .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine));
+        }
     }
+
 
 }
 
@@ -184,7 +195,7 @@ document.addEventListener('keydown', async evt => {
             }
             case 'h': {
                 evt.preventDefault();
-               actions.onFormatHead()
+                actions.onFormatHead()
                 break;
             }
             case 'j': {
@@ -245,8 +256,15 @@ document.addEventListener('keydown', async evt => {
                 // .filter(x => x.trim())
                 .map(x => '\t' + x.trim()).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
         }
-    } else if (evt.key === 'F3') {
-        evt.preventDefault();
-        onTranslateChinese();
     }
+    // else if (evt.key === 'F1') {
+    //     evt.preventDefault();
+    //     fetch(`/rustfmt?path=` + new URL(window.location).searchParams.get("path"))
+    // } else if (evt.key === 'F3') {
+    //     evt.preventDefault();
+    //     onTranslateChinese();
+    // } else if (evt.key === 'F4') {
+    //     evt.preventDefault();
+    //     fetch(`/wasm?dir=C:\\Users\\Administrator\\Desktop\\Resources\\Manager\\Front\\video&path=C:\\Users\\Administrator\\Desktop\\Resources\\Manager\\assets\\video`)
+    // }
 });
