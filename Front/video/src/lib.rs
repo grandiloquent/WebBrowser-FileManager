@@ -54,12 +54,69 @@ impl Video {
         self.set_play_event();
         // remaining
         // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.HtmlVideoElement.html
+        // http://192.168.8.189:3000/video/videos
+        {
+            onclick!((".fullscreen",&self.document)->{
+            let video = self.video.clone();
+            let d=self.document.clone();
+            move || match d.fullscreen_element() {
+                Some(v) => {
+                }
+                None => {
+                    d
+                        .document_element()
+                        .unwrap()
+                        .request_fullscreen();
+                }
+            }
+            });
+        }
 
+        {
+            onclick!((".button--back",&self.document)->{
+            let video = self.video.clone();
+            move || {
+                let time = video.current_time();
+                if time - 10.0 > 0.0 {
+                    video.set_current_time(time - 10.0);
+                }
+            }
+            });
+        }
+
+        {
+            onclick!((".button--forward",&self.document)->{
+                        let video=self.video.clone();
+                        move || {
+                            let   time=video.current_time();
+            if time+10.0<=video.duration(){
+                video .set_current_time(time+10.0);
+            }
+
+                        }
+                    });
+        }
+        {
+            let video = self.video.clone();
+            let elemnt = query_selector(&self.document, ".elapsed").unwrap();
+            let handler = Closure::wrap(Box::new(move || {
+                elemnt.set_text_content(Some(
+                    seconds_to_duration(video.current_time() as u64).as_str(),
+                ));
+            }) as Box<dyn FnMut()>);
+            self.video.set_ontimeupdate(handler.as_ref().dyn_ref());
+            handler.forget();
+        }
         {
             let video = self.video.clone();
             let elemnt = query_selector(&self.document, ".remaining").unwrap();
             let handler = Closure::wrap(Box::new(move || {
-                log(format!("Video Size: {}x{}", video.video_width(), video.video_height()).as_str());
+                log(format!(
+                    "Video Size: {}x{}",
+                    video.video_width(),
+                    video.video_height()
+                )
+                .as_str());
                 elemnt
                     .set_text_content(Some(seconds_to_duration(video.duration() as u64).as_str()));
             }) as Box<dyn FnMut()>);

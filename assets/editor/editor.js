@@ -256,11 +256,10 @@ document.addEventListener('keydown', async evt => {
                 // .filter(x => x.trim())
                 .map(x => '\t' + x.trim()).join('\n'), textarea.selectionStart, textarea.selectionEnd, 'end');
         }
-    }
-    // else if (evt.key === 'F1') {
-    //     evt.preventDefault();
-    //     fetch(`/rustfmt?path=` + new URL(window.location).searchParams.get("path"))
-    // } else if (evt.key === 'F3') {
+    } else if (evt.key === 'F1') {
+        evt.preventDefault();
+        //     fetch(`/rustfmt?path=` + new URL(window.location).searchParams.get("path"))
+    } //  else if (evt.key === 'F3') {
     //     evt.preventDefault();
     //     onTranslateChinese();
     // } else if (evt.key === 'F4') {
