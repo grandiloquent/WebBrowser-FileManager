@@ -67,3 +67,20 @@ impl StringExt for String {
         answer
     }
 }
+
+
+pub fn find_current_line(s: &str, start: usize) -> (usize, usize) {
+    if s.len() == 0 {
+        return (0, 0);
+    }
+    let mut start_index = start;
+    while start_index > 0 && &s[start_index - 1..start_index] != "\n" {
+        start_index = start_index - 1;
+    }
+    let mut end_index = start;
+    while end_index + 1 < s.len() && &s[end_index..end_index + 1] != "\n" {
+        end_index = end_index + 1;
+    }
+
+    return (start_index, end_index);
+}

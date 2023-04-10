@@ -24,9 +24,9 @@ features = [
   "Document",
   "HtmlElement",
   "Location",
-  "HtmlVideoElement",
   "Event",
-  "HtmlInputElement"
+  "KeyboardEvent",
+  "HtmlTextAreaElement"
 ]
 version = "0.3.61"
 
