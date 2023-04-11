@@ -314,7 +314,16 @@
             代码段
         </div>
     </div>
-
+    <div id="show-note" class="bar-item-renderer">
+        <svg viewBox="0 0 24 24">
+            <path
+                    d="M20.016 2.016h-16.031q-0.797 0-1.383 0.586t-0.586 1.383v18l3.984-3.984h14.016q0.797 0 1.383-0.586t0.586-1.43v-12q0-0.797-0.586-1.383t-1.383-0.586zM18.984 12.984l-2.484-1.5-2.484 1.5v-7.969h4.969v7.969z">
+            </path>
+        </svg>
+        <div class="bar-item-title">
+            笔记
+        </div>
+    </div>
 </div>
 
 <textarea id="textarea"></textarea>
@@ -686,6 +695,14 @@
                     )
                 }
             );
+            div.querySelectorAll('.dialog-item-icon').forEach(element => {
+                element.addEventListener('click', async evt => {
+                    const prefix = element.previousElementSibling.textContent.trim();
+                    const res = await fetch(`/api/snippet/delete?prefix=${encodeURIComponent(prefix)}`)
+                    div.remove();
+                })
+            })
+
 
         }
 
@@ -707,6 +724,95 @@
     const showSnippet = document.querySelector('#show-snippet');
     showSnippet.addEventListener('click', evt => {
         launchDialog();
+    });
+
+    function launchNote() {
+        let html = `<div class="dialog-container">
+        <div class="dialog">
+            <div class="dialog-header">
+                <h2 class="dialog-header-title">
+                    笔记</h2>
+            </div>
+            <div class="dialog-body">
+            </div>
+
+            <div class="dialog-buttons">
+                <div class="dialog-button">
+                    取消
+                </div>
+                <div class="dialog-button" style="color: #909090;">
+                    继续
+                </div>
+            </div>
+        </div>
+        <div class="modern-overlay">
+        </div>
+    </div>`;
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        document.body.appendChild(div);
+
+
+        const noteContainer = div.querySelector('.dialog-container');
+        const noteButton = div.querySelector('.dialog-button');
+        const modernOverlay = div.querySelector('.modern-overlay');
+        const noteBody = div.querySelector('.dialog-body');
+        noteButton.addEventListener('click', () => {
+            div.remove();
+        })
+        modernOverlay.addEventListener('click', () => {
+            div.remove();
+        });
+
+        async function renderNote() {
+            const res = await fetch(`/api/note`);
+            const items = await res.json();
+            items.forEach(element => {
+                    let html = `<div class="dialog-item">
+      <div class="dialog-item-title">
+        ${element.title}
+      </div>
+      <div class="dialog-item-icon" data-id="${element._id}">
+        <svg class="dialog-item-svg" viewBox="0 0 24 24">
+          <path d="M18.984 6.422l-5.578 5.578 5.578 5.578-1.406 1.406-5.578-5.578-5.578 5.578-1.406-1.406 5.578-5.578-5.578-5.578 1.406-1.406 5.578 5.578 5.578-5.578z">
+          </path>
+        </svg>
+      </div>
+    </div>`;
+                    noteBody.insertAdjacentHTML(
+                        'afterbegin', html
+                    )
+                }
+            );
+            div.querySelectorAll('.note-item-icon').forEach(element => {
+                element.addEventListener('click', async evt => {
+                    const prefix = element.previousElementSibling.textContent.trim();
+                    const res = await fetch(`/api/snippet/delete?prefix=${encodeURIComponent(prefix)}`)
+                    div.remove();
+                })
+            })
+
+
+        }
+
+        renderNote();
+
+
+        // fetch(`/api/snippet/insert`, {
+        //     method: 'post',
+        //     headers: {
+        //         "Content-Type": "application/json; charset=utf-8"
+        //     },
+        //     body: JSON.stringify({
+        //         "prefix": "good",
+        //         "body": "321"
+        //     })
+        // })
+    }
+
+    const showNote = document.querySelector('#show-note');
+    showNote.addEventListener('click', evt => {
+        launchNote();
     });
 </script>
 </body>

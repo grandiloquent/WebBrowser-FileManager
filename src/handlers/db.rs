@@ -111,9 +111,9 @@ impl Snippet {
             diesel::insert_into(snippet::table).values(&t).execute(c)
         }).await
     }
-    pub async fn delete_with_id(id: i32, conn: &NotesConnection) -> QueryResult<usize> {
+    pub async fn delete_with_prefix(prefix: String, conn: &NotesConnection) -> QueryResult<usize> {
         conn.run(move |c| diesel::delete(snippet::table)
-            .filter(snippet::id.eq(&id))
+            .filter(snippet::prefix.eq(&prefix))
             .execute(c))
             .await
     }
@@ -148,7 +148,7 @@ pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String,
             }
         }
         Some(v) => {
-
+            Err(Status::InternalServerError)
         }
     }
 }
@@ -196,9 +196,9 @@ pub async fn insert_snippet(snippet_form: String, conn: NotesConnection) -> Resu
     Ok("Success".to_string())
 }
 
-#[get("/api/snippet/delete?<id>")]
-pub async fn delete_snippet(id: i32, conn: NotesConnection) -> Result<String, Status> {
-    if let Err(e) = Snippet::delete_with_id(id, &conn).await {
+#[get("/api/snippet/delete?<prefix>")]
+pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<String, Status> {
+    if let Err(e) = Snippet::delete_with_prefix(prefix, &conn).await {
         println!("{}", e);
         return Err(Status::InternalServerError);
     }
