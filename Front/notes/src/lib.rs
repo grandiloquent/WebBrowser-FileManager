@@ -12,11 +12,16 @@ use crate::utils::utils::jump_link;
 use crate::utils::utils::log;
 use crate::utils::utils::save_data;
 use crate::utils::utils::load_data;
+use crate::utils::timer::Timer;
 
 mod utils;
 
+
 #[wasm_bindgen]
 pub fn start(path_separator: &str) {
+    Timer::new_immediate(5000, || {
+        log("stop_timeout");
+    });
     let window = web_sys::window().unwrap();
     //  https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Window.html#method.document
     let document = window.document().unwrap();

@@ -18,6 +18,8 @@ serde_json = "1.0.95"
 url = "2.3.1"
 # https://docs.rs/urlencoding/2.1.2/urlencoding/
 urlencoding = "2.1.2"
+send_wrapper = { version = "0.6.0", default-features = false }
+futures-channel = "0.3"
 
 [dependencies.web-sys]
 features = [
