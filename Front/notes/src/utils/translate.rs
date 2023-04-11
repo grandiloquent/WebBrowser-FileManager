@@ -35,14 +35,22 @@ async fn translate(q: &str, to: &str) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
-pub fn format_translate_chinese(textarea: &HtmlTextAreaElement) {
+pub fn format_translate(textarea: &HtmlTextAreaElement, is_chinese: bool) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
     let (start_index, end_index) = find_current_line(s.as_str(), start as usize);
 
     let textarea = textarea.clone();
     spawn_local(async move {
-        let result = translate(&s[start_index..end_index], "zh").await;
+        let mut to = "zh";
+        if !is_chinese {
+            to = "en";
+        }
+        let result = translate(s.chars()
+        .skip(start_index)
+        .take(end_index - start_index)
+        .collect::<String>().as_str(),to).await;
+ 
         let data = result.unwrap().as_string().unwrap();
         let v: Value = serde_json::from_str(&data).unwrap();
         let res = v["sentences"]
