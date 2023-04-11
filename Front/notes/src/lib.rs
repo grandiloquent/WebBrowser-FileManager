@@ -1,3 +1,4 @@
+use std::io::Read;
 #[cfg(feature = "static_ref")]
 use static_ref_macro::static_ref;
 
@@ -19,9 +20,8 @@ use crate::utils::timer::Timer;
 
 mod utils;
 
-use futures_signals::signal::{Mutable , MutableLockRef, MutableSignalCloned};
 use futures_signals::signal::Signal;
-
+use crate::utils::mutable::Mutable;
 
 // -- timeout --
 
@@ -39,14 +39,14 @@ fn start_timeout() {
 }
 
 fn stop_timeout() {
-    timeout().get();
-    log("13");
+    timeout().take();
+    log("timeout");
 }
 
 
 #[wasm_bindgen]
 pub fn start(path_separator: &str) {
-    start_timeout();
+    //start_timeout();
     let window = web_sys::window().unwrap();
     //  https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Window.html#method.document
     let document = window.document().unwrap();

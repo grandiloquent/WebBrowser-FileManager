@@ -35,7 +35,6 @@ function submit(evt) {
     if (evt.detail.id === '0') {
         if (evt.detail.isDirectory === "true") {
 
-            const url = new URL(window.location);
             //url.searchParams.set('path', path);
             window.history.pushState({}, '', `?path=${encodedPath}`);
             render(evt.detail.path);
