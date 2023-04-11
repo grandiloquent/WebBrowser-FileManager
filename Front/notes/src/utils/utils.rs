@@ -1,4 +1,7 @@
 use super::strings::find_current_line;
+use super::strings::StringExt;
+use convert_case::Case;
+use convert_case::Casing;
 use regex::Regex;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsValue;
@@ -21,9 +24,12 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let start = textarea.selection_start().unwrap().unwrap();
     let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
 
-    while start_index > 0 &&  s.chars()
-    .nth(start_index - 1)
-    .unwrap_or(' ').is_whitespace() {
+    while start_index > 0
+        && s.chars()
+            .nth(start_index - 1)
+            .unwrap_or(' ')
+            .is_whitespace()
+    {
         start_index = start_index - 1;
     }
     let x = s.chars().count();
@@ -67,4 +73,28 @@ pub fn format_code(textarea: &HtmlTextAreaElement) {
         start_index as u32,
         end_index as u32,
     );
+}
+pub fn format_replace_text(textarea: &HtmlTextAreaElement) {
+    let start = textarea.selection_start().unwrap().unwrap();
+    let end = textarea.selection_end().unwrap().unwrap();
+    if start != end {
+    } else {
+        let mut str = textarea.value();
+        str = str.trim().to_string();
+        let lines = str.lines();
+        if lines.count() > 2 {
+            
+            let f = str.lines().nth(0).unwrap();
+            let s = str.lines().nth(1).unwrap();
+            let mut str = str.lines().skip(2).collect::<Vec<&str>>().join("\n");
+            
+            str = str.replace(f, s);
+            str = str.replace(&f.to_case(Case::Snake), &s.to_case(Case::Snake));
+            str = str.replace(&f.to_case(Case::Camel), &s.to_case(Case::Camel));
+            str = str.replace(&f.to_case(Case::UpperCamel), &s.to_case(Case::UpperCamel));
+            str = str.replace(&f.to_case(Case::Upper), &s.to_case(Case::Upper));
+            str = str.replace(&f.to_case(Case::Lower), &s.to_case(Case::Lower));
+            textarea.set_value(format!("{}\n{}\n{}", f, s, str).as_str());
+        }
+    }
 }

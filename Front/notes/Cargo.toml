@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 
 [dependencies]
-# convert_case = "0.6.0"
+convert_case = "0.6.0"
 js-sys = "0.3.61"
 wasm-bindgen = "0.2.84"
 wasm-bindgen-futures = "0.4.34"

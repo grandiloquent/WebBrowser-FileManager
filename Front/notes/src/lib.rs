@@ -7,6 +7,7 @@ use crate::utils::format::format_comment;
 use crate::utils::translate::format_translate;
 use crate::utils::utils::format_code;
 use crate::utils::utils::format_delete_current_line;
+use crate::utils::utils::format_replace_text;
 use crate::utils::utils::log;
 mod utils;
 
@@ -53,6 +54,10 @@ pub fn start(path_separator: &str) {
                     "d"=>{
                         e.prevent_default();
                       format_comment(&textarea,"//");
+                    }
+                    "g"=>{
+                        e.prevent_default();
+                      format_replace_text(&textarea);
                     }
                     "w"=>{
                         e.prevent_default();

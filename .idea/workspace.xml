@@ -17,15 +17,8 @@
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Front/notes/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/strings.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/strings.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/translate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/translate.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/notes/notes.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/notes/notes.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notes.db-shm" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notes.db-wal" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/db.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,6 +100,7 @@
       <workItem from="1681146067344" duration="604000" />
       <workItem from="1681148105326" duration="16395000" />
       <workItem from="1681186789490" duration="975000" />
+      <workItem from="1681187989443" duration="987000" />
     </task>
     <servers />
   </component>

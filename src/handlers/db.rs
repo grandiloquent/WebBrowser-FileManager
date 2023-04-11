@@ -134,14 +134,21 @@ impl Snippet {
     }
 }
 
-#[get("/api/notes")]
-pub async fn get_notes(conn: NotesConnection) -> Result<String, Status> {
-    match Notes::all(&conn).await {
-        Ok(v) => {
-            Ok(serde_json::to_string::<Vec<Note>>(&v).unwrap())
+#[get("/api/note?<id..>")]
+pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String, Status> {
+    match id {
+        None => {
+            match Notes::all(&conn).await {
+                Ok(v) => {
+                    Ok(serde_json::to_string::<Vec<Note>>(&v).unwrap())
+                }
+                Err(e) => {
+                    Err(Status::InternalServerError)
+                }
+            }
         }
-        Err(e) => {
-            Err(Status::InternalServerError)
+        Some(v) => {
+
         }
     }
 }
