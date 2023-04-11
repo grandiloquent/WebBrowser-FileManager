@@ -8,7 +8,11 @@ use crate::utils::translate::format_translate;
 use crate::utils::utils::format_code;
 use crate::utils::utils::format_delete_current_line;
 use crate::utils::utils::format_replace_text;
+use crate::utils::utils::jump_link;
 use crate::utils::utils::log;
+use crate::utils::utils::save_data;
+use crate::utils::utils::load_data;
+
 mod utils;
 
 #[wasm_bindgen]
@@ -21,6 +25,7 @@ pub fn start(path_separator: &str) {
         .unwrap()
         .dyn_into::<HtmlTextAreaElement>()
         .unwrap();
+    load_data(&textarea);
     onclick!(("#format-comment",&document)->{
         let textarea=textarea.clone();
         move||{
@@ -44,7 +49,7 @@ pub fn start(path_separator: &str) {
         move||{
             format_delete_current_line(&textarea);
         }
-    }); 
+    });
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Element.html#method.insert_adjacent_element
     handler!(( set_onkeydown,document)->{
         move |e:KeyboardEvent|{
@@ -59,9 +64,18 @@ pub fn start(path_separator: &str) {
                         e.prevent_default();
                       format_replace_text(&textarea);
                     }
+                    "j"=>{
+                        e.prevent_default();
+                      jump_link(&textarea);
+                    }
+                    "s"=>{
+                        e.prevent_default();
+                        save_data(&textarea);
+                         }
                     "w"=>{
                         e.prevent_default();
                          }
+
                     _=>{
 
                     }
@@ -79,8 +93,8 @@ pub fn start(path_separator: &str) {
                     "F3"=>{
                         e.prevent_default();
                         format_code(&textarea);
-                    }          
-                    
+                    }
+
                     _=>{
 
                     }

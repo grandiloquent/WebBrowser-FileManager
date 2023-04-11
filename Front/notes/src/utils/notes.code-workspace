@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "..\\.."
+		},
+		{
+			"path": "..\\..\\..\\..\\assets\\notes"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "notes"
+	}
+}
