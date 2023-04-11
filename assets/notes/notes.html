@@ -327,10 +327,269 @@
         });
     </script>
     <script>
-        const textarea = document.getElementById('textarea');
+        /*
+绑定元素和事件
+例如：<div bind="div" @click="click"></div>
+执行下列代码后，即可通过 this.div 访问该元素
+在全局下编写click函数，即可自动绑定到该元素的click事件
+*/
+        function bind(elememnt) {
+            (elememnt || document).querySelectorAll('[bind]').forEach(element => {
+                if (element.getAttribute('bind')) {
+                    window[element.getAttribute('bind')] = element;
+                }
+                [...element.attributes].filter(attr => attr.nodeName.startsWith('@')).forEach(attr => {
+                    if (!attr.value) return;
+                    element.addEventListener(attr.nodeName.slice(1), evt => {
+                        if (window[attr.value])
+                            window[attr.value](evt);
+                        else {
+                            window['actions'][attr.value](evt);
+                        }
+                    });
+                });
+            })
+        }
+
+        function camel(string) {
+            return string.replaceAll(/[ _-]([a-zA-Z])/g, m => m[1].toUpperCase());
+        }
+
+        function substring(strings, prefix, suffix) {
+            let start = strings.indexOf(prefix);
+            if (start === -1) {
+                return [0, 0]
+            }
+            start += prefix.length;
+            let end = strings.indexOf(suffix, start);
+            if (end === -1) {
+                return [0, 0]
+            }
+            return [start, end]
+        }
+
+        function substringAfter(string, delimiter, missingDelimiterValue) {
+            const index = string.indexOf(delimiter);
+            if (index === -1) {
+                return missingDelimiterValue || string;
+            } else {
+                return string.substring(index + delimiter.length);
+            }
+        }
+
+        function substringAfterLast(string, delimiter, missingDelimiterValue) {
+            const index = string.lastIndexOf(delimiter);
+            if (index === -1) {
+                return missingDelimiterValue || string;
+            } else {
+                return string.substring(index + delimiter.length);
+            }
+        }
+
+        function substringBefore(string, delimiter, missingDelimiterValue) {
+            const index = string.indexOf(delimiter);
+            if (index === -1) {
+                return missingDelimiterValue || string;
+            } else {
+                return string.substring(0, index);
+            }
+        }
+
+        function substringBeforeLast(string, delimiter, missingDelimiterValue) {
+            const index = string.lastIndexOf(delimiter);
+            if (index === -1) {
+                return missingDelimiterValue || string;
+            } else {
+                return string.substring(0, index);
+            }
+        }
+
+        function substringNearest(string, index, start, end) {
+            let j = index;
+            while (j > -1) {
+                if (start.indexOf(string[j]) !== -1) {
+                    j++
+                    break;
+                }
+                j--;
+            }
+            let k = index;
+            while (k < string.length) {
+                if (end.indexOf(string[k]) !== -1) {
+                    break;
+                }
+                k++;
+            }
+            return string.substring(j, k);
+        }
+
+        function upperCamel(string) {
+            string = camel(string);
+            return string.slice(0, 1).toUpperCase() + string.slice(1);
+        }
+
+        function writeText(message) {
+            const textarea = document.createElement("textarea");
+            textarea.style.position = 'fixed';
+            textarea.style.right = '100%';
+            document.body.appendChild(textarea);
+            textarea.value = message;
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+        }
+
+        function snake(string) {
+            return string.replaceAll(/(?<=[a-z])[A-Z]/g, m => `_${m}`).toLowerCase()
+                .replaceAll(/[ -]([a-z])/g, m => `_${m[1]}`)
+        }
+        function humanFileSize(size) {
+            if (size === 0) return '0';
+            var i = Math.floor(Math.log(size) / Math.log(1024));
+            return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
+        }
+        async function readText() {
+            // const textarea = document.createElement("textarea");
+            // textarea.style.position = 'fixed';
+            // textarea.style.right = '100%';
+            // document.body.appendChild(textarea);
+            // textarea.value = message;
+            // textarea.select();
+            // document.execCommand('paste');
+            // return textarea.value;
+            let strings;
+            if (typeof NativeAndroid !== 'undefined') {
+                strings = NativeAndroid.readText()
+            } else {
+                strings = await navigator.clipboard.readText()
+            }
+            return strings
+        }
+
 
     </script>
-    <div class="dialog-container">
+    <script>
+        function findCodeBlockExtend(textarea) {
+            const value = textarea.value;
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            while (start > -1) {
+                if (value[start] === '`' && value[start - 1] === '`' && value[start - 2] === '`') {
+                    // start += 1;
+                    start -= 2;
+                    while (start - 1 > 0 && value[start - 1] !== '\n') {
+                        start--;
+                    }
+                    break;
+                }
+                start--;
+            }
+            while (end < value.length) {
+                if (value[end] === '`' && value[end + 1] === '`' && value[end + 2] === '`') {
+                    end += 2;
+                    break;
+                }
+                end++;
+            }
+            return [start, end];
+        }
+        const textarea = document.getElementById('textarea');
+        document.addEventListener('keydown', async ev => {
+            if (ev.altKey) {
+                if (ev.key === 'q') {
+                    const strings = textarea.value.
+                        substring(textarea.selectionStart, textarea.selectionEnd).trim();
+                    if (!strings) {
+                        return;
+                    }
+                    fetch(`/api/snippet/insert`, {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json; charset=utf-8"
+                        },
+                        body: JSON.stringify({
+                            "prefix": substringBefore(strings, "\n").trim(),
+                            "body": substringAfter(strings, "\n").trim()
+                        })
+                    })
+
+                } else if (ev.key === 'w') {
+                    if (textarea.selectionStart !== textarea.selectionEnd) {
+                        let str = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd).trim();
+                        const firstLine = substringBefore(str, " ");
+                        str = substringAfter(str, " ").trim();
+                        const secondLine = substringBefore(str, " ");
+                        str = substringAfter(str, " ").trim();
+                        textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
+                            .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine)),
+                            textarea.selectionStart, textarea.selectionEnd, 'end')
+                    } else {
+                        const founded = textarea.value.indexOf("```") !== -1;
+                        if (founded) {
+                            const pv = findCodeBlockExtend(textarea);
+                            let str = textarea.value.substring(pv[0] + 3, pv[1] - 3).trim();
+                            const firstLine = substringBefore(str, "\n");
+                            str = substringAfter(str, "\n");
+                            const secondLine = substringBefore(str, "\n");
+                            str = substringAfter(str, "\n").trim();
+
+                            textarea.setRangeText(str.replaceAll(new RegExp(firstLine, 'g'), secondLine), pv[0], pv[1] + 1, "end");
+                        } else {
+
+                            let str = textarea.value;
+                            const firstLine = substringBefore(str, "\n");
+                            str = substringAfter(str, "\n");
+                            const secondLine = substringBefore(str, "\n");
+                            str = substringAfter(str, "\n").trim();
+                            textarea.value = firstLine + "\n" + secondLine + "\n" + str.replaceAll(new RegExp(firstLine, 'g'), secondLine)
+                                .replaceAll(new RegExp(upperCamel(firstLine), 'g'), upperCamel(secondLine));
+                        }
+                    }
+
+                }
+            }
+            if (ev.key === ' ' || ev.keyCode == 229) {
+
+                let start = textarea.selectionStart;
+                let end = start;
+                if (start > -1)
+                    start--;
+                while (start > -1 && /[a-zA-Z0-9]+/.test(textarea.value[start])) {
+                    start--;
+                }
+                start++;
+                const key = textarea.value.substring(start, end).trim();
+                if (!key) {
+                    return;
+                }
+                let value;
+                try {
+                    let res = await fetch(`/api/snippet?prefix=${key}`);
+                    console.log(res)
+                    if (res.status === 200) {
+                        value = await res.text();
+                    }
+                } catch (error) {
+
+                }
+                if (!value) {
+                    return;
+                }
+                ev.preventDefault();
+                textarea.setRangeText(value, start, end, "end");
+            }
+        });
+    </script>
+
+
+    <script>
+        document.addEventListener('visibilitychange', evt => {
+            localStorage.setItem('content', textarea.value)
+        })
+        textarea.value = localStorage.getItem('content') || '';
+
+        function launchDialog() {
+            let html = `<div class="dialog-container">
         <div class="dialog">
             <div class="dialog-header">
                 <h2 class="dialog-header-title">
@@ -350,34 +609,27 @@
         </div>
         <div class="modern-overlay">
         </div>
-    </div>
+    </div>`;
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            document.body.appendChild(div);
 
-    <script>
-        const dialogContainer = document.querySelector('.dialog-container');
-        const dialogButton = document.querySelector('.dialog-button');
-        const modernOverlay = document.querySelector('.modern-overlay');
-        const dialogBody = document.querySelector('.dialog-body');
-        dialogButton.addEventListener('click', () => {
-            dialogContainer.style.display = 'none';
-        })
-        modernOverlay.addEventListener('click', () => {
-            dialogContainer.style.display = 'none';
-        })
-        // fetch(`/api/snippet/insert`, {
-        //     method: 'post',
-        //     headers: {
-        //         "Content-Type": "application/json; charset=utf-8"
-        //     },
-        //     body: JSON.stringify({
-        //         "prefix": "good",
-        //         "body": "321"
-        //     })
-        // })
-        async function renderDialog() {
-            const res = await fetch(`/api/snippet`);
-            const items = await res.json();
-            items.forEach(element => {
-                let html = `<div class="dialog-item">
+
+            const dialogContainer = div.querySelector('.dialog-container');
+            const dialogButton = div.querySelector('.dialog-button');
+            const modernOverlay = div.querySelector('.modern-overlay');
+            const dialogBody = div.querySelector('.dialog-body');
+            dialogButton.addEventListener('click', () => {
+                div.remove();
+            })
+            modernOverlay.addEventListener('click', () => {
+                div.remove();
+            });
+            async function renderDialog() {
+                const res = await fetch(`/api/snippet`);
+                const items = await res.json();
+                items.forEach(element => {
+                    let html = `<div class="dialog-item">
       <div class="dialog-item-title">
         ${element}
       </div>
@@ -388,11 +640,16 @@
         </svg>
       </div>
     </div>`;
-                dialogBody.insertAdjacentHTML(
-                    'afterbegin', html
-                )
+                    dialogBody.insertAdjacentHTML(
+                        'afterbegin', html
+                    )
+                }
+                );
+
             }
-            );
+            renderDialog();
+
+
 
             // fetch(`/api/snippet/insert`, {
             //     method: 'post',
@@ -405,7 +662,7 @@
             //     })
             // })
         }
-        renderDialog();
+        launchDialog();
     </script>
 </body>
 
