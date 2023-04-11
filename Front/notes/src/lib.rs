@@ -1,3 +1,6 @@
+#[cfg(feature = "static_ref")]
+use static_ref_macro::static_ref;
+
 use utils::dom::query_selector;
 use wasm_bindgen::prelude::*;
 use web_sys::HtmlTextAreaElement;
@@ -16,12 +19,34 @@ use crate::utils::timer::Timer;
 
 mod utils;
 
+use futures_signals::signal::{Mutable , MutableLockRef, MutableSignalCloned};
+use futures_signals::signal::Signal;
+
+
+// -- timeout --
+
+#[static_ref]
+fn timeout() -> &'static Mutable<Option<Timer>> {
+    Mutable::new(None)
+}
+
+fn timeout_enabled() -> impl Signal<Item=bool> {
+    timeout().signal_ref(Option::is_some)
+}
+
+fn start_timeout() {
+    timeout().set(Some(Timer::once(2_000, stop_timeout)));
+}
+
+fn stop_timeout() {
+    timeout().get();
+    log("13");
+}
+
 
 #[wasm_bindgen]
 pub fn start(path_separator: &str) {
-    Timer::new_immediate(5000, || {
-        log("stop_timeout");
-    });
+    start_timeout();
     let window = web_sys::window().unwrap();
     //  https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Window.html#method.document
     let document = window.document().unwrap();
