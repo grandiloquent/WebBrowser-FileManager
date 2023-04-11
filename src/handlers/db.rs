@@ -79,10 +79,11 @@ fn get_epoch_ms() -> u128 {
         .as_millis()
 }
 impl Snippet {
-    pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Snippet>> {
+    pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<String>> {
         conn.run(|c| {
             snippet::table
-                .order(snippet::update_at.desc()).load::<Snippet>(c)
+                .select(snippet::prefix)
+                .order(snippet::update_at.desc()).load::<String>(c)
         }).await
     }
     pub async fn insert(snippet: Snippet, conn: &NotesConnection) -> QueryResult<usize> {
@@ -129,7 +130,7 @@ pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Resul
         None => {
             match Snippet::all(&conn).await {
                 Ok(v) => {
-                    Ok(serde_json::to_string::<Vec<Snippet>>(&v).unwrap())
+                    Ok(serde_json::to_string::<Vec<String>>(&v).unwrap())
                 }
                 Err(e) => {
                     Err(Status::InternalServerError)
@@ -137,7 +138,7 @@ pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Resul
             }
         }
         Some(v) => {
-            match Snippet::query_body(v,&conn).await {
+            match Snippet::query_body(v, &conn).await {
                 Ok(v) => {
                     Ok(v)
                 }
@@ -161,6 +162,14 @@ pub async fn insert_snippet(snippet_form: String, conn: NotesConnection) -> Resu
             println!("{}", e);
             return Err(Status::InternalServerError);
         }
+    }
+    Ok("Success".to_string())
+}
+#[get("/api/snippet/delete?<id>")]
+pub async fn delete_snippet(id:i32, conn: NotesConnection) -> Result<String, Status> {
+    if let Err(e) = Snippet::delete_with_id(id, &conn).await {
+        println!("{}", e);
+        return Err(Status::InternalServerError);
     }
     Ok("Success".to_string())
 }
