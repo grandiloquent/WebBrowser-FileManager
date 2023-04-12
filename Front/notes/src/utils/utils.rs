@@ -12,6 +12,7 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::HtmlTextAreaElement;
 use web_sys::{Request, RequestInit, Response};
 use web_sys::Element;
+use serde::Serialize;
 
 #[wasm_bindgen]
 extern "C" {
@@ -35,17 +36,49 @@ fn collect_data(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Er
     m.insert("content", content.trim().to_string());
     serde_json::to_string(&m)
 }
+
+#[derive(Serialize)]
+struct Article {
+    id: i32,
+    title: String,
+    content: String,
+    thumbnail: String,
+    tags: Vec<String>,
+    create_at: u64,
+    update_at: u64,
+}
+
 fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Error> {
     let mut s = textarea.value();
     s = s.trim().to_string();
-    let title = s.substring_before("\n");
+    let mut title = s.substring_before("\n");
     let content = s.substring_after("\n");
-    let mut m: HashMap<&str, String> = HashMap::new();
-    m.insert("title", title.trim().to_string());
-    m.insert("content", content.trim().to_string());
-    serde_json::to_string(&m)
-}
+    let regex = Regex::new(r"!\[[^]]*?]\([^)]+\)").unwrap();
+    let mut thumbnail = String::new();
+    match regex.find(content.as_str()) {
+        Some(v) => {
+            thumbnail = v.as_str().to_string()
+                .substring_after("(")
+                .substring_before(")");
+        }
+        None => {}
+    }
+    let mut tags: Vec<String> = vec![];
+    if title.contains("|") {
+        title = title.substring_before("|").trim().to_string();
 
+    }
+    let a = Article {
+        id: 0,
+        title: title,
+        content: content,
+        thumbnail: thumbnail,
+        tags: tags
+        create_at: (js_sys::Date::new_0().get_time() / 1000.0) as u64,
+        update_at: (js_sys::Date::new_0().get_time() / 1000.0) as u64,
+    };
+    serde_json::to_string(&a)
+}
 
 
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
@@ -370,7 +403,6 @@ pub fn load_data(textarea: &HtmlTextAreaElement) {
             return;
         };
     };
-
 }
 
 async fn load_file(path: &str) -> Result<JsValue, JsValue> {
@@ -432,7 +464,7 @@ pub fn save_data(textarea: &HtmlTextAreaElement, toast: &Element) {
     let search = window.location().search().unwrap();
     if regex.is_match(&search) {
         save_local_file(textarea, search)
-    }else if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
+    } else if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
         save_server(textarea);
     } else {
         save_server(textarea);
@@ -465,6 +497,7 @@ fn save_server(textarea: &HtmlTextAreaElement) {
         })
     }
 }
+
 fn save_article(textarea: &HtmlTextAreaElement) {
     if let Ok(m) = collect_article(textarea) {
         let window = web_sys::window().unwrap();
