@@ -35,8 +35,9 @@ pub fn start(path_separator: &str) {
     if let Some(v) = window.local_storage()
         .unwrap()
         .unwrap()
-        .get_item("patterns")
+        .get_item("pattern")
         .unwrap() {
+
         patterns =v.split("\n")
             .filter(|f| !f.trim().is_empty())
             .map(|f| {
@@ -48,7 +49,6 @@ pub fn start(path_separator: &str) {
             .collect::<Vec<_>>();
         ;
     }
-
     onclick!(("#format-comment",&document)->{
         let textarea=textarea.clone();
         move||{
@@ -79,6 +79,21 @@ pub fn start(path_separator: &str) {
         let toast=toast.clone();
         move||{
             save_data(&textarea,&toast);
+        }
+    });
+
+    onclick!(("#format-code",&document)->{
+        let textarea=textarea.clone();
+        let toast=toast.clone();
+        move||{
+            format_code(&textarea,"`");
+        }
+    });
+    onclick!(("#format-bold",&document)->{
+        let textarea=textarea.clone();
+        let toast=toast.clone();
+        move||{
+            format_code(&textarea,"**");
         }
     });
     onclick!(("#delete-line",&document)->{
@@ -114,8 +129,9 @@ pub fn start(path_separator: &str) {
                         e.prevent_default();
                         save_data(&textarea,&toast);
                          }
-                    "w"=>{
+                    "e"=>{
                         e.prevent_default();
+                        format_indent_increase(&textarea);
                          }
 
                     _=>{
@@ -138,7 +154,7 @@ pub fn start(path_separator: &str) {
                     }
                     "F3"=>{
                         e.prevent_default();
-                        format_code(&textarea);
+                        format_code(&textarea,"`");
                     }
 
                     _=>{
