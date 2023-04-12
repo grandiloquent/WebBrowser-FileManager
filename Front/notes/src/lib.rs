@@ -8,40 +8,14 @@ use web_sys::HtmlTextAreaElement;
 use web_sys::KeyboardEvent;
 
 use crate::utils::format::format_comment;
-use crate::utils::translate::format_translate;
-use crate::utils::utils::format_code;
-use crate::utils::utils::format_delete_current_line;
-use crate::utils::utils::format_replace_text;
-use crate::utils::utils::jump_link;
-use crate::utils::utils::log;
-use crate::utils::utils::save_data;
-use crate::utils::utils::load_data;
+use crate::utils::translate::*;
+use crate::utils::utils::*;
 use crate::utils::timer::Timer;
 
 mod utils;
 
 use futures_signals::signal::Signal;
 use crate::utils::mutable::Mutable;
-
-// -- timeout --
-
-#[static_ref]
-fn timeout() -> &'static Mutable<Option<Timer>> {
-    Mutable::new(None)
-}
-
-fn timeout_enabled() -> impl Signal<Item=bool> {
-    timeout().signal_ref(Option::is_some)
-}
-
-fn start_timeout() {
-    timeout().set(Some(Timer::once(2_000, stop_timeout)));
-}
-
-fn stop_timeout() {
-    timeout().take();
-    log("timeout");
-}
 
 
 #[wasm_bindgen]
@@ -57,6 +31,24 @@ pub fn start(path_separator: &str) {
         .unwrap();
     let toast = query_selector(&document, "#toast").unwrap();
     load_data(&textarea);
+    let mut patterns: Vec<Vec<String>> = vec![];
+    if let Some(v) = window.local_storage()
+        .unwrap()
+        .unwrap()
+        .get_item("patterns")
+        .unwrap() {
+        patterns =v.split("\n")
+            .filter(|f| !f.trim().is_empty())
+            .map(|f| {
+                let array = f.split("|")
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>();
+                array
+            })
+            .collect::<Vec<_>>();
+        ;
+    }
+
     onclick!(("#format-comment",&document)->{
         let textarea=textarea.clone();
         move||{
@@ -65,14 +57,28 @@ pub fn start(path_separator: &str) {
     });
     onclick!(("#translate-chinese",&document)->{
         let textarea=textarea.clone();
+        let patterns=patterns.clone();
         move||{
-            format_translate(&textarea,true);
+            format_translate_chinese(&textarea,&patterns);
         }
     });
     onclick!(("#translate-english",&document)->{
         let textarea=textarea.clone();
         move||{
             format_translate(&textarea,false);
+        }
+    });
+    onclick!(("#format-head",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            format_head(&textarea);
+        }
+    });
+    onclick!(("#format-save",&document)->{
+        let textarea=textarea.clone();
+        let toast=toast.clone();
+        move||{
+            save_data(&textarea,&toast);
         }
     });
     onclick!(("#delete-line",&document)->{
@@ -83,8 +89,9 @@ pub fn start(path_separator: &str) {
     });
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Element.html#method.insert_adjacent_element
     handler!(( set_onkeydown,document)->{
+
         move |e:KeyboardEvent|{
-            log(e.key().as_str());
+
             if e.ctrl_key() {
                 match e.key().as_str() {
                     "d"=>{
@@ -94,6 +101,10 @@ pub fn start(path_separator: &str) {
                     "g"=>{
                         e.prevent_default();
                       format_replace_text(&textarea);
+                    }
+                    "h"=>{
+                        e.prevent_default();
+                        format_head(&textarea);
                     }
                     "j"=>{
                         e.prevent_default();
@@ -113,9 +124,13 @@ pub fn start(path_separator: &str) {
                 }
             }else {
                 match e.key().as_str() {
+
                     "F1"=>{
                         e.prevent_default();
-                      format_translate(&textarea,true);
+
+                        // format_translate_chinese
+                        // format_translate_chinese
+                      format_translate_chinese(&textarea,&patterns);
                     }
                     "F2"=>{
                         e.prevent_default();

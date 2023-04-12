@@ -8,6 +8,7 @@ use wasm_bindgen_futures::JsFuture;
 use web_sys::HtmlTextAreaElement;
 use web_sys::{Request, RequestInit, Response};
 
+
 async fn translate(q: &str, to: &str) -> Result<JsValue, JsValue> {
     let window = web_sys::window().unwrap();
 
@@ -35,6 +36,7 @@ async fn translate(q: &str, to: &str) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
+
 pub fn format_translate(textarea: &HtmlTextAreaElement, is_chinese: bool) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
@@ -47,13 +49,13 @@ pub fn format_translate(textarea: &HtmlTextAreaElement, is_chinese: bool) {
             to = "en";
         }
         let result = translate(s.chars()
-        .skip(start_index)
-        .take(end_index - start_index)
-        .collect::<String>().as_str(),to).await;
- 
+                                   .skip(start_index)
+                                   .take(end_index - start_index)
+                                   .collect::<String>().as_str(), to).await;
+
         let data = result.unwrap().as_string().unwrap();
         let v: Value = serde_json::from_str(&data).unwrap();
-        let res = v["sentences"]
+        let mut res = v["sentences"]
             .as_array()
             .unwrap()
             .iter()
@@ -67,5 +69,37 @@ pub fn format_translate(textarea: &HtmlTextAreaElement, is_chinese: bool) {
             end_index as u32,
         );
     });
-    // Convert that promise into a future and make the test wait on it.
 }
+
+
+pub fn format_translate_chinese(textarea: &HtmlTextAreaElement, patterns:&Vec<Vec<String>>) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (start_index, end_index) = find_current_line(s.as_str(), start as usize);
+
+    let textarea = textarea.clone();
+    spawn_local(async move {
+        let mut to = "zh";
+        let result = translate(s.chars()
+                                   .skip(start_index)
+                                   .take(end_index - start_index)
+                                   .collect::<String>().as_str(), to).await;
+
+        let data = result.unwrap().as_string().unwrap();
+        let v: Value = serde_json::from_str(&data).unwrap();
+        let mut res = v["sentences"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|x| x.as_object().unwrap()["trans"].as_str().unwrap())
+            .collect::<Vec<&str>>()
+            .join("");
+
+        let _ = textarea.set_range_text_with_start_and_end(
+            format!("{}", res).as_str(),
+            start_index as u32,
+            end_index as u32,
+        );
+    });
+}
+

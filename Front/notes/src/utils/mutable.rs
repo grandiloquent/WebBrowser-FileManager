@@ -1,4 +1,4 @@
-use futures_signals::signal::{Mutable as FSMutable, MutableLockRef, MutableSignalCloned,MutableSignal};
+use futures_signals::signal::{Mutable as FSMutable, MutableLockRef, MutableSignalCloned, MutableSignal};
 use std::mem;
 use std::ops::Deref;
 
@@ -16,7 +16,10 @@ impl<T> Mutable<T> {
     pub fn new(value: T) -> Self {
         Self(FSMutable::new(value))
     }
-
+    pub fn get(&self) -> T {
+        self.get()
+    }
+    pub fn set(&mut self, value: T) { self.set(value) }
     pub fn map<B>(&self, f: impl FnOnce(&T) -> B) -> B {
         f(&self.lock_ref())
     }
@@ -25,12 +28,12 @@ impl<T> Mutable<T> {
         f(&mut self.lock_mut())
     }
 
-    pub fn update(&self, f: impl FnOnce(T) -> T)
-        where
-            T: Copy,
-    {
-        self.set(f(self.get()))
-    }
+    // pub fn update(&self, f: impl FnOnce(T) -> T)
+    //     where
+    //         T: Copy,
+    // {
+    //     self.set(f(self.get()))
+    // }
 
     pub fn update_mut(&self, f: impl FnOnce(&mut T)) {
         f(&mut self.lock_mut())

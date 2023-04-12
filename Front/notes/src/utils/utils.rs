@@ -48,7 +48,7 @@ pub fn format_code(textarea: &HtmlTextAreaElement) {
             .nth(start_index - 1)
             .unwrap_or(' ')
             .to_string()
-            .as_str(),
+            .trim(),
     )
     {
         start_index = start_index - 1;
@@ -247,3 +247,26 @@ fn save_server(textarea: &HtmlTextAreaElement) {
         })
     }
 }
+
+pub fn format_head(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+
+    let mut s = s.chars()
+        .skip(start_index)
+        .take(end_index - start_index)
+        .collect::<String>();
+// https://doc.rust-lang.org/std/string/struct.String.html
+    if s.starts_with("#") {
+        s = format!("#{}", s);
+    } else {
+        s = format!("### {}", s);
+    }
+
+    let _ = textarea.set_range_text_with_start_and_end(s.as_str(),
+                                                       start_index as u32,
+                                                       end_index as u32,
+    );
+}
+

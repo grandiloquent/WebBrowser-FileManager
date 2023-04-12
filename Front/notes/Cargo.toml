@@ -38,7 +38,8 @@ features = [
     "Event",
     "KeyboardEvent",
     "HtmlTextAreaElement",
-    "Navigator"
+    "Navigator",
+    "Storage"
 ]
 version = "0.3.61"
 
