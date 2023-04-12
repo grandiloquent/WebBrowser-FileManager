@@ -37,8 +37,7 @@ pub fn start(path_separator: &str) {
         .unwrap()
         .get_item("pattern")
         .unwrap() {
-
-        patterns =v.split("\n")
+        patterns = v.split("\n")
             .filter(|f| !f.trim().is_empty())
             .map(|f| {
                 let array = f.split("|")
@@ -78,6 +77,12 @@ pub fn start(path_separator: &str) {
         let textarea=textarea.clone();
         move||{
             format_indent_increase(&textarea);
+        }
+    });
+    onclick!(("#format-code-block",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            format_code_block(&textarea);
         }
     });
     onclick!(("#format-save",&document)->{
