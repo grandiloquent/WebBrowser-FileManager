@@ -31,7 +31,6 @@ fn collect_data(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Er
     let title = s.substring_before("\n");
     let content = s.substring_after("\n");
     let mut m: HashMap<&str, String> = HashMap::new();
-
     m.insert("title", title.trim().to_string());
     m.insert("content", content.trim().to_string());
     serde_json::to_string(&m)
@@ -40,7 +39,7 @@ fn collect_data(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Er
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
-    let re = Regex::new(r#"([\\/a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’-])"#).unwrap();
+    let re = Regex::new(r#"([$\\/a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’-])"#).unwrap();
     let mut start_index = start as usize;
     while start_index > 1
         && re.is_match(
@@ -52,7 +51,6 @@ pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     {
         start_index = start_index - 1;
     }
-
     let mut end_index = start as usize;
     let x = s.chars().count();
     while end_index + 1 < x && re.is_match(s.chars().nth(end_index).unwrap().to_string().as_str()) {
@@ -66,10 +64,10 @@ pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     {
         start_index = start_index + 1;
     }
-    while end_index >0
+    while end_index > 0
         &&
         s.chars()
-            .nth(end_index-1)
+            .nth(end_index - 1)
             .unwrap_or(' ') == ' '
     {
         end_index = end_index - 1;
@@ -102,6 +100,69 @@ pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     );
 }
 
+pub fn format_code_block(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+    let x = s.chars().count();
+    if start_index != 0 {
+        loop {
+            let mut next_start_index = start_index - 1;
+            while next_start_index > 0
+                && s.chars()
+                .nth(next_start_index - 1)
+                .unwrap_or(' ') != '\n'
+            {
+                next_start_index = next_start_index - 1;
+            }
+            let str = s.chars()
+                .skip(next_start_index)
+                .take(start_index - next_start_index)
+                .collect::<String>();
+            if str.trim().is_empty() {
+                break;
+            }
+            start_index = next_start_index;
+        }
+    }
+    if end_index != x {
+        loop {
+            let mut next_end_index = end_index + 1;
+            while next_end_index > 0
+                && s.chars()
+                .nth(next_end_index)
+                .unwrap_or(' ') != '\n'
+            {
+                next_end_index = next_end_index + 1;
+            }
+            let str = s.chars()
+                .skip(next_end_index)
+                .take(next_end_index - end_index)
+                .collect::<String>();
+            if str.trim().is_empty() {
+                break;
+            }
+            end_index = next_end_index;
+        }
+    }
+    // let x = s.chars().count();
+    // while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
+    //     end_index = end_index + 1;
+    // }
+    let _ = textarea.set_range_text_with_start_and_end(
+        format!(
+            "```rust\n{}\n```",
+            s.chars()
+                .skip(start_index)
+                .take(end_index - start_index)
+                .collect::<String>()
+        )
+            .as_str(),
+        start_index as u32,
+        end_index as u32,
+    );
+}
+
 pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
@@ -120,6 +181,93 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     }
     let _ =
         textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
+}
+
+pub fn format_head(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+    let mut s = s.chars()
+        .skip(start_index)
+        .take(end_index - start_index)
+        .collect::<String>();
+// https://doc.rust-lang.org/std/string/struct.String.html
+    if s.starts_with("#") {
+        s = format!("#{}", s);
+    } else {
+        s = format!("### {}", s);
+    }
+    let _ = textarea.set_range_text_with_start_and_end(s.as_str(),
+                                                       start_index as u32,
+                                                       end_index as u32,
+    );
+}
+
+pub fn format_indent_increase(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+    let x = s.chars().count();
+    if start_index != 0 {
+        loop {
+            let mut next_start_index = start_index - 1;
+            while next_start_index > 0
+                && s.chars()
+                .nth(next_start_index - 1)
+                .unwrap_or(' ') != '\n'
+            {
+                next_start_index = next_start_index - 1;
+            }
+            let str = s.chars()
+                .skip(next_start_index)
+                .take(start_index - next_start_index)
+                .collect::<String>();
+            if str.trim().is_empty() {
+                break;
+            }
+            start_index = next_start_index;
+        }
+    }
+    if end_index != x {
+        loop {
+            let mut next_end_index = end_index + 1;
+            while next_end_index > 0
+                && s.chars()
+                .nth(next_end_index)
+                .unwrap_or(' ') != '\n'
+            {
+                next_end_index = next_end_index + 1;
+            }
+            let str = s.chars()
+                .skip(next_end_index)
+                .take(next_end_index - end_index)
+                .collect::<String>();
+            if str.trim().is_empty() {
+                break;
+            }
+            end_index = next_end_index;
+        }
+    }
+    // let x = s.chars().count();
+    // while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
+    //     end_index = end_index + 1;
+    // }
+    let _ = textarea.set_range_text_with_start_and_end(
+        format!(
+            "{}",
+            s.chars()
+                .skip(start_index)
+                .take(end_index - start_index)
+                .collect::<String>()
+                .split("\n")
+                .map(|s| format!("    {}", s))
+                .collect::<Vec<String>>()
+                .join("\n")
+        )
+            .as_str(),
+        start_index as u32,
+        end_index as u32,
+    );
 }
 
 pub fn format_replace_text(textarea: &HtmlTextAreaElement) {
@@ -276,160 +424,4 @@ fn save_server(textarea: &HtmlTextAreaElement) {
             post_data(url.as_str(), &m).await;
         })
     }
-}
-
-pub fn format_head(textarea: &HtmlTextAreaElement) {
-    let s = textarea.value();
-    let start = textarea.selection_start().unwrap().unwrap();
-    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
-
-    let mut s = s.chars()
-        .skip(start_index)
-        .take(end_index - start_index)
-        .collect::<String>();
-// https://doc.rust-lang.org/std/string/struct.String.html
-    if s.starts_with("#") {
-        s = format!("#{}", s);
-    } else {
-        s = format!("### {}", s);
-    }
-
-    let _ = textarea.set_range_text_with_start_and_end(s.as_str(),
-                                                       start_index as u32,
-                                                       end_index as u32,
-    );
-}
-
-pub fn format_indent_increase(textarea: &HtmlTextAreaElement) {
-    let s = textarea.value();
-    let start = textarea.selection_start().unwrap().unwrap();
-    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
-    let x = s.chars().count();
-    if start_index != 0 {
-        loop {
-            let mut next_start_index = start_index - 1;
-            while next_start_index > 0
-                && s.chars()
-                .nth(next_start_index - 1)
-                .unwrap_or(' ') != '\n'
-            {
-                next_start_index = next_start_index - 1;
-            }
-            let str = s.chars()
-                .skip(next_start_index)
-                .take(start_index - next_start_index)
-                .collect::<String>();
-            if str.trim().is_empty() {
-                break;
-            }
-            start_index = next_start_index;
-        }
-    }
-    if end_index != x {
-        loop {
-            let mut next_end_index = end_index + 1;
-            while next_end_index > 0
-                && s.chars()
-                .nth(next_end_index)
-                .unwrap_or(' ') != '\n'
-            {
-                next_end_index = next_end_index + 1;
-            }
-            let str = s.chars()
-                .skip(next_end_index)
-                .take(next_end_index - end_index)
-                .collect::<String>();
-            if str.trim().is_empty() {
-                break;
-            }
-            end_index = next_end_index;
-        }
-    }
-
-
-    // let x = s.chars().count();
-    // while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
-    //     end_index = end_index + 1;
-    // }
-    let _ = textarea.set_range_text_with_start_and_end(
-        format!(
-            "{}",
-            s.chars()
-                .skip(start_index)
-                .take(end_index - start_index)
-                .collect::<String>()
-                .split("\n")
-                .map(|s| format!("    {}", s))
-                .collect::<Vec<String>>()
-                .join("\n")
-        )
-            .as_str(),
-        start_index as u32,
-        end_index as u32,
-    );
-}
-
-pub fn format_code_block(textarea: &HtmlTextAreaElement) {
-    let s = textarea.value();
-    let start = textarea.selection_start().unwrap().unwrap();
-    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
-    let x = s.chars().count();
-    if start_index != 0 {
-        loop {
-            let mut next_start_index = start_index - 1;
-            while next_start_index > 0
-                && s.chars()
-                .nth(next_start_index - 1)
-                .unwrap_or(' ') != '\n'
-            {
-                next_start_index = next_start_index - 1;
-            }
-            let str = s.chars()
-                .skip(next_start_index)
-                .take(start_index - next_start_index)
-                .collect::<String>();
-            if str.trim().is_empty() {
-                break;
-            }
-            start_index = next_start_index;
-        }
-    }
-    if end_index != x {
-        loop {
-            let mut next_end_index = end_index + 1;
-            while next_end_index > 0
-                && s.chars()
-                .nth(next_end_index)
-                .unwrap_or(' ') != '\n'
-            {
-                next_end_index = next_end_index + 1;
-            }
-            let str = s.chars()
-                .skip(next_end_index)
-                .take(next_end_index - end_index)
-                .collect::<String>();
-            if str.trim().is_empty() {
-                break;
-            }
-            end_index = next_end_index;
-        }
-    }
-
-
-    // let x = s.chars().count();
-    // while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
-    //     end_index = end_index + 1;
-    // }
-    let _ = textarea.set_range_text_with_start_and_end(
-        format!(
-            "```rust\n{}\n```",
-            s.chars()
-                .skip(start_index)
-                .take(end_index - start_index)
-                .collect::<String>()
-        )
-            .as_str(),
-        start_index as u32,
-        end_index as u32,
-    );
 }
