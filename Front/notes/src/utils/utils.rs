@@ -35,6 +35,18 @@ fn collect_data(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Er
     m.insert("content", content.trim().to_string());
     serde_json::to_string(&m)
 }
+fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Error> {
+    let mut s = textarea.value();
+    s = s.trim().to_string();
+    let title = s.substring_before("\n");
+    let content = s.substring_after("\n");
+    let mut m: HashMap<&str, String> = HashMap::new();
+    m.insert("title", title.trim().to_string());
+    m.insert("content", content.trim().to_string());
+    serde_json::to_string(&m)
+}
+
+
 
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     let s = textarea.value();
@@ -342,9 +354,23 @@ pub fn load_data(textarea: &HtmlTextAreaElement) {
                     .await
                     .unwrap().as_string().unwrap();
                 textarea.set_value(&s);
-            })
+            });
+            return;
         };
     };
+    {
+        if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
+            let textarea = textarea.clone();
+            spawn_local(async move {
+                let s = load_article(&search)
+                    .await
+                    .unwrap().as_string().unwrap();
+                textarea.set_value(&s);
+            });
+            return;
+        };
+    };
+
 }
 
 async fn load_file(path: &str) -> Result<JsValue, JsValue> {
@@ -363,6 +389,18 @@ async fn load_server(path: &str) -> Result<JsValue, JsValue> {
     let mut opts = RequestInit::new();
     opts.method("GET");
     let url = format!("/api/note{}", path);
+    let request = Request::new_with_str_and_init(&url, &opts)?;
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let json = JsFuture::from(resp.text()?).await?;
+    Ok(json)
+}
+
+async fn load_article(path: &str) -> Result<JsValue, JsValue> {
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    let url = format!("/api/article{}", path);
     let request = Request::new_with_str_and_init(&url, &opts)?;
     let window = web_sys::window().unwrap();
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
@@ -394,6 +432,8 @@ pub fn save_data(textarea: &HtmlTextAreaElement, toast: &Element) {
     let search = window.location().search().unwrap();
     if regex.is_match(&search) {
         save_local_file(textarea, search)
+    }else if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
+        save_server(textarea);
     } else {
         save_server(textarea);
     }
@@ -421,6 +461,20 @@ fn save_server(textarea: &HtmlTextAreaElement) {
             if !id.is_empty() {
                 url = format!("/api/note/insert?id={}", id)
             }
+            post_data(url.as_str(), &m).await;
+        })
+    }
+}
+fn save_article(textarea: &HtmlTextAreaElement) {
+    if let Ok(m) = collect_article(textarea) {
+        let window = web_sys::window().unwrap();
+        let search = window.location().search().unwrap();
+        let mut id = String::new();
+        if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
+            id = search.substring_after("=");
+        };
+        spawn_local(async move {
+            let mut url = "/api/article".to_string();
             post_data(url.as_str(), &m).await;
         })
     }

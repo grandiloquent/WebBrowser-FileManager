@@ -137,6 +137,7 @@ pub fn start(path_separator: &str) {
                       jump_link(&textarea);
                     }
                     "s"=>{
+
                         e.prevent_default();
                         save_data(&textarea,&toast);
                          }
