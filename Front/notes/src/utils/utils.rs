@@ -11,6 +11,7 @@ use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen_futures::JsFuture;
 use web_sys::HtmlTextAreaElement;
 use web_sys::{Request, RequestInit, Response};
+use web_sys::Element;
 
 #[wasm_bindgen]
 extern "C" {
@@ -209,7 +210,7 @@ pub async fn post_data(url: &str, json_body: &str) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
-pub fn save_data(textarea: &HtmlTextAreaElement) {
+pub fn save_data(textarea: &HtmlTextAreaElement, toast: &Element) {
     let window = web_sys::window().unwrap();
     let regex = Regex::new(r"\?path=.+").unwrap();
     let search = window.location().search().unwrap();
@@ -218,6 +219,7 @@ pub fn save_data(textarea: &HtmlTextAreaElement) {
     } else {
         save_server(textarea);
     }
+    toast.set_attribute("message", "成功");
 }
 
 fn save_local_file(textarea: &HtmlTextAreaElement, search: String) {

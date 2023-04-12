@@ -55,6 +55,7 @@ pub fn start(path_separator: &str) {
         .unwrap()
         .dyn_into::<HtmlTextAreaElement>()
         .unwrap();
+    let toast = query_selector(&document, "#toast").unwrap();
     load_data(&textarea);
     onclick!(("#format-comment",&document)->{
         let textarea=textarea.clone();
@@ -100,7 +101,7 @@ pub fn start(path_separator: &str) {
                     }
                     "s"=>{
                         e.prevent_default();
-                        save_data(&textarea);
+                        save_data(&textarea,&toast);
                          }
                     "w"=>{
                         e.prevent_default();
