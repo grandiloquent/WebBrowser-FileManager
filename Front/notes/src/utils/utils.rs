@@ -40,33 +40,61 @@ fn collect_data(textarea: &HtmlTextAreaElement) -> Result<String, serde_json::Er
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
-    let re = Regex::new(r#"([\\a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’-])"#).unwrap();
+    let re = Regex::new(r#"([\\/a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’-])"#).unwrap();
     let mut start_index = start as usize;
     while start_index > 1
         && re.is_match(
         s.chars()
             .nth(start_index - 1)
             .unwrap_or(' ')
-            .to_string()
-            .trim(),
+            .to_string().as_str(),
     )
     {
         start_index = start_index - 1;
     }
+
     let mut end_index = start as usize;
     let x = s.chars().count();
     while end_index + 1 < x && re.is_match(s.chars().nth(end_index).unwrap().to_string().as_str()) {
         end_index = end_index + 1;
     }
+    while start_index < x
+        &&
+        s.chars()
+            .nth(start_index)
+            .unwrap_or(' ') == ' '
+    {
+        start_index = start_index + 1;
+    }
+    while end_index >0
+        &&
+        s.chars()
+            .nth(end_index-1)
+            .unwrap_or(' ') == ' '
+    {
+        end_index = end_index - 1;
+    }
+    let str = s.chars()
+        .skip(start_index)
+        .take(end_index - start_index)
+        .collect::<String>();
+    //log(format!("<{}-{}-{}>", start_index, end_index, str).as_str());
+    let mut space = " ";
+    if str.starts_with("(") && str.ends_with(")") {
+        start_index = start_index + 1;
+        end_index = end_index - 1;
+        space = "";
+    }
     let _ = textarea.set_range_text_with_start_and_end(
         format!(
-            " {}{}{} ",
-            around,
-            s.chars()
+            "{}{}{}{}{}",
+            space,
+            around, s.chars()
                 .skip(start_index)
                 .take(end_index - start_index)
                 .collect::<String>(),
             around,
+            space
         )
             .as_str(),
         start_index as u32,

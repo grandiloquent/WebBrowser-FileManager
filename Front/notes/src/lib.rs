@@ -74,6 +74,12 @@ pub fn start(path_separator: &str) {
             format_head(&textarea);
         }
     });
+    onclick!(("#format-indent-increase",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            format_indent_increase(&textarea);
+        }
+    });
     onclick!(("#format-save",&document)->{
         let textarea=textarea.clone();
         let toast=toast.clone();
