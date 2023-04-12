@@ -65,15 +65,20 @@ fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json:
     }
     let mut tags: Vec<String> = vec![];
     if title.contains("|") {
+        tags = title.substring_after("[")
+            .substring_before("]")
+            .split(",")
+            .map(|x| x.to_string().substring_after("\"")
+                .substring_before("\""))
+            .collect();
         title = title.substring_before("|").trim().to_string();
-
     }
     let a = Article {
         id: 0,
         title: title,
         content: content,
         thumbnail: thumbnail,
-        tags: tags
+        tags: tags,
         create_at: (js_sys::Date::new_0().get_time() / 1000.0) as u64,
         update_at: (js_sys::Date::new_0().get_time() / 1000.0) as u64,
     };
