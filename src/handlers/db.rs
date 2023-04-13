@@ -5,7 +5,6 @@ use rocket::serde::json::serde_json;
 use rocket::serde::{Serialize, Deserialize};
 use diesel::{self, result::QueryResult, prelude::*};
 use std::time::{SystemTime, UNIX_EPOCH};
-
 mod schema {
     diesel::table! {
         notes(_id) {
@@ -28,7 +27,6 @@ mod schema {
         }
     }
 }
-
 use self::schema::notes;
 use self::schema::notes::dsl::{notes as all_notes};
 use self::schema::snippet;
@@ -37,7 +35,6 @@ use diesel::prelude::*;
 use rocket::data::FromData;
 use rocket::form::Form;
 use crate::seek_stream::SeekStream;
-
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "notes"]
@@ -50,14 +47,12 @@ pub struct Notes {
     #[serde(skip_deserializing, skip_serializing)]
     pub update_at: i64,
 }
-
 #[derive(Serialize, Queryable)]
 pub struct Note {
     pub _id: Option<i32>,
     pub title: String,
     pub update_at: i64,
 }
-
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "snippet"]
@@ -73,7 +68,6 @@ pub struct Snippet {
     #[serde(skip_deserializing, skip_serializing)]
     pub update_at: i32,
 }
-
 impl Notes {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Note>> {
         conn.run(|c| {
@@ -99,6 +93,14 @@ impl Notes {
             notes::table
                 .select((notes::_id, notes::title, notes::update_at))
                 .filter(notes::title.like(needle))
+                .order(notes::update_at.desc()).load::<Note>(c)
+        }).await
+    }
+    pub async fn like(needle: String, conn: &NotesConnection) -> QueryResult<Vec<Note>> {
+        conn.run(|c| {
+            notes::table
+                .select((notes::_id, notes::title, notes::update_at))
+                .filter(notes::content.like(needle))
                 .order(notes::update_at.desc()).load::<Note>(c)
         }).await
     }
@@ -128,14 +130,12 @@ impl Notes {
         }).await
     }
 }
-
 fn get_epoch_ms() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis()
 }
-
 impl Snippet {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<String>> {
         conn.run(|c| {
@@ -193,7 +193,6 @@ impl Snippet {
         }).await
     }
 }
-
 #[get("/api/note?<id..>")]
 pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -219,7 +218,6 @@ pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String,
         }
     }
 }
-
 #[get("/api/note/search?<q>")]
 pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
     match Notes::search(q, &conn).await {
@@ -231,7 +229,17 @@ pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, St
         }
     }
 }
-
+#[get("/api/note/like?<q>")]
+pub async fn like_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
+    match Notes::like(q, &conn).await {
+        Ok(v) => {
+            Ok(serde_json::to_string::<Vec<Note>>(&v).unwrap())
+        }
+        Err(e) => {
+            Err(Status::InternalServerError)
+        }
+    }
+}
 #[post("/api/note/insert?<id..>", data = "<note_form>")]
 pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -264,7 +272,6 @@ pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnecti
     }
     Ok("Success".to_string())
 }
-
 #[get("/api/snippet?<prefix..>")]
 pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Result<String, Status> {
     match prefix {
@@ -290,7 +297,6 @@ pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Resul
         }
     }
 }
-
 #[post("/api/snippet/insert?<id..>", data = "<snippet_form>")]
 pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -312,7 +318,6 @@ pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesCo
     }
     Ok("Success".to_string())
 }
-
 #[get("/api/snippet/delete?<prefix>")]
 pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<String, Status> {
     if let Err(e) = Snippet::delete_with_prefix(prefix, &conn).await {
@@ -321,7 +326,6 @@ pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<Str
     }
     Ok("Success".to_string())
 }
-
 #[get("/notes/notes")]
 pub fn get_notes_page<'a>() -> std::io::Result<SeekStream<'a>> {
     let p = Path::new("assets/notes/notes.html");

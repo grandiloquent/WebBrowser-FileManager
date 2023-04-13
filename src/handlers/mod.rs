@@ -15,3 +15,4 @@ pub mod auto_it;
 pub mod video;
 pub mod rust;
 pub mod db;
+pub mod translate;

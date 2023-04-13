@@ -16,8 +16,7 @@ async fn translate(q: &str, to: &str) -> Result<JsValue, JsValue> {
     opts.method("GET");
 
     let url = format!(
-        "{}//kpkpkp.cn/api/trans?q={}&to={}",
-        window.location().protocol().unwrap(),
+        "/api/trans?q={}&to={}",
         encode(q),
         to
     );

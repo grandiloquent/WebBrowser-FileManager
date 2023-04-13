@@ -13,6 +13,7 @@ use web_sys::HtmlTextAreaElement;
 use web_sys::{Request, RequestInit, Response};
 use web_sys::Element;
 use serde::Serialize;
+use serde_json::Value;
 
 #[wasm_bindgen]
 extern "C" {
@@ -73,8 +74,14 @@ fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json:
             .collect();
         title = title.substring_before("|").trim().to_string();
     }
+    let window = web_sys::window().unwrap();
+    let search = window.location().search().unwrap();
+    let mut id = 0;
+    if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
+        id = search.substring_after("=").parse::<i32>().unwrap();
+    };
     let a = Article {
-        id: 0,
+        id: id,
         title: title,
         content: content,
         thumbnail: thumbnail,
@@ -84,7 +91,6 @@ fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json:
     };
     serde_json::to_string(&a)
 }
-
 
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     let s = textarea.value();
@@ -178,17 +184,23 @@ pub fn format_code_block(textarea: &HtmlTextAreaElement) {
     if end_index != x {
         loop {
             let mut next_end_index = end_index + 1;
-            while next_end_index > 0
+            // log(format!("1>>>{}={}={}<<<1", start, next_end_index, s.chars()
+            //     .skip(start as usize)
+            //     .take(next_end_index - (start as usize))
+            //     .collect::<String>()).as_str());
+            while next_end_index < x
                 && s.chars()
                 .nth(next_end_index)
                 .unwrap_or(' ') != '\n'
             {
                 next_end_index = next_end_index + 1;
             }
+
             let str = s.chars()
-                .skip(next_end_index)
+                .skip(end_index)
                 .take(next_end_index - end_index)
                 .collect::<String>();
+            //log(format!("2>>>{}={}={}<<<2", end_index, next_end_index, str).as_str());
             if str.trim().is_empty() {
                 break;
             }
@@ -199,6 +211,10 @@ pub fn format_code_block(textarea: &HtmlTextAreaElement) {
     // while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
     //     end_index = end_index + 1;
     // }
+    // log(format!("{}={}={}", start_index, end_index, s.chars()
+    //     .skip(start_index)
+    //     .take(end_index - start_index)
+    //     .collect::<String>()).as_str());
     let _ = textarea.set_range_text_with_start_and_end(
         format!(
             "```rust\n{}\n```",
@@ -281,17 +297,23 @@ pub fn format_indent_increase(textarea: &HtmlTextAreaElement) {
     if end_index != x {
         loop {
             let mut next_end_index = end_index + 1;
-            while next_end_index > 0
+            // log(format!("1>>>{}={}={}<<<1", start, next_end_index, s.chars()
+            //     .skip(start as usize)
+            //     .take(next_end_index - (start as usize))
+            //     .collect::<String>()).as_str());
+            while next_end_index < x
                 && s.chars()
                 .nth(next_end_index)
                 .unwrap_or(' ') != '\n'
             {
                 next_end_index = next_end_index + 1;
             }
+
             let str = s.chars()
-                .skip(next_end_index)
+                .skip(end_index)
                 .take(next_end_index - end_index)
                 .collect::<String>();
+            //log(format!("2>>>{}={}={}<<<2", end_index, next_end_index, str).as_str());
             if str.trim().is_empty() {
                 break;
             }
@@ -371,6 +393,18 @@ pub fn jump_link(textarea: &HtmlTextAreaElement) {
     );
 }
 
+async fn load_article(path: &str) -> Result<JsValue, JsValue> {
+    let mut opts = RequestInit::new();
+    opts.method("GET");
+    let url = format!("/api/article{}", path);
+    let request = Request::new_with_str_and_init(&url, &opts)?;
+    let window = web_sys::window().unwrap();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let json = JsFuture::from(resp.text()?).await?;
+    Ok(json)
+}
+
 pub fn load_data(textarea: &HtmlTextAreaElement) {
     let window = web_sys::window().unwrap();
     let search = window.location().search().unwrap();
@@ -403,7 +437,8 @@ pub fn load_data(textarea: &HtmlTextAreaElement) {
                 let s = load_article(&search)
                     .await
                     .unwrap().as_string().unwrap();
-                textarea.set_value(&s);
+                let obj: Value = serde_json::from_str(&s).unwrap();
+                textarea.set_value(format!("{}|{}\n\n{}", obj["title"].as_str().unwrap(), obj["tags"].to_string(), obj["content"].as_str().unwrap()).as_str());
             });
             return;
         };
@@ -434,18 +469,6 @@ async fn load_server(path: &str) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
-async fn load_article(path: &str) -> Result<JsValue, JsValue> {
-    let mut opts = RequestInit::new();
-    opts.method("GET");
-    let url = format!("/api/article{}", path);
-    let request = Request::new_with_str_and_init(&url, &opts)?;
-    let window = web_sys::window().unwrap();
-    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
-    let resp: Response = resp_value.dyn_into().unwrap();
-    let json = JsFuture::from(resp.text()?).await?;
-    Ok(json)
-}
-
 pub async fn post_data(url: &str, json_body: &str) -> Result<JsValue, JsValue> {
     // https://rustwasm.github.io/wasm-bindgen/examples/fetch.html
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.RequestInit.html
@@ -463,6 +486,15 @@ pub async fn post_data(url: &str, json_body: &str) -> Result<JsValue, JsValue> {
     Ok(json)
 }
 
+fn save_article(textarea: &HtmlTextAreaElement) {
+    if let Ok(m) = collect_article(textarea) {
+        spawn_local(async move {
+            let mut url = "/api/article".to_string();
+            post_data(url.as_str(), &m).await;
+        })
+    }
+}
+
 pub fn save_data(textarea: &HtmlTextAreaElement, toast: &Element) {
     let window = web_sys::window().unwrap();
     let regex = Regex::new(r"\?path=.+").unwrap();
@@ -470,7 +502,7 @@ pub fn save_data(textarea: &HtmlTextAreaElement, toast: &Element) {
     if regex.is_match(&search) {
         save_local_file(textarea, search)
     } else if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
-        save_server(textarea);
+        save_article(textarea);
     } else {
         save_server(textarea);
     }
@@ -498,21 +530,6 @@ fn save_server(textarea: &HtmlTextAreaElement) {
             if !id.is_empty() {
                 url = format!("/api/note/insert?id={}", id)
             }
-            post_data(url.as_str(), &m).await;
-        })
-    }
-}
-
-fn save_article(textarea: &HtmlTextAreaElement) {
-    if let Ok(m) = collect_article(textarea) {
-        let window = web_sys::window().unwrap();
-        let search = window.location().search().unwrap();
-        let mut id = String::new();
-        if Regex::new(r"\?article=[0-9]+").unwrap().is_match(&search) {
-            id = search.substring_after("=");
-        };
-        spawn_local(async move {
-            let mut url = "/api/article".to_string();
             post_data(url.as_str(), &m).await;
         })
     }

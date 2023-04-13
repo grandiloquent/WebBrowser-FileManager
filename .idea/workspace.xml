@@ -18,13 +18,16 @@
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/notes/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Front/notes/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/translate.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/translate.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Front/video/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Front/video/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/assets/notes/notes.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/notes/notes.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notes.db-shm" beforeDir="false" afterPath="$PROJECT_DIR$/notes.db-shm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notes.db-wal" beforeDir="false" afterPath="$PROJECT_DIR$/notes.db-wal" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/db.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/代码段/配置.txt" beforeDir="false" afterPath="$PROJECT_DIR$/代码段/配置.txt" afterDir="false" />
     </list>
@@ -111,7 +114,7 @@
       <workItem from="1681186789490" duration="975000" />
       <workItem from="1681187989443" duration="5645000" />
       <workItem from="1681226059260" duration="4110000" />
-      <workItem from="1681231774166" duration="12113000" />
+      <workItem from="1681231774166" duration="47601000" />
     </task>
     <servers />
   </component>
