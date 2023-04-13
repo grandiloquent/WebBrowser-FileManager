@@ -94,9 +94,14 @@ pub fn format_translate_chinese(textarea: &HtmlTextAreaElement, patterns:&Vec<Ve
             .map(|x| x.as_object().unwrap()["trans"].as_str().unwrap())
             .collect::<Vec<&str>>()
             .join("");
-        for s in pattern {
-            res=res.replace(&s[0],&s[1]);
+        if  pattern.len() > 0 {
+            for s in pattern {
+              if s.len() > 1{
+                  res=res.replace(&s[0],&s[1]);
+              }
+            }
         }
+
         let _ = textarea.set_range_text_with_start_and_end(
             format!("{}", res).as_str(),
             start_index as u32,
