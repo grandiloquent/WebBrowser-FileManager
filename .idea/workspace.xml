@@ -16,9 +16,7 @@
     <cargoProject FILE="$PROJECT_DIR$/Front/notes/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" afterDir="false" />
-    </list>
+    <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -102,7 +100,7 @@
       <workItem from="1681186789490" duration="975000" />
       <workItem from="1681187989443" duration="5645000" />
       <workItem from="1681226059260" duration="4110000" />
-      <workItem from="1681231774166" duration="65516000" />
+      <workItem from="1681231774166" duration="66151000" />
     </task>
     <servers />
   </component>
