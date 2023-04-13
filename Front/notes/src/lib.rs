@@ -85,6 +85,12 @@ pub fn start(path_separator: &str) {
             format_code_block(&textarea);
         }
     });
+    onclick!(("#format-list",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            format_list(&textarea);
+        }
+    });
     onclick!(("#format-save",&document)->{
         let textarea=textarea.clone();
         let toast=toast.clone();
