@@ -1,5 +1,6 @@
 #![allow(unused_must_use)]
 
+use std::borrow::Borrow;
 use futures::executor::block_on;
 use rocket::futures;
 use rocket::response::{self, Responder, Response};
@@ -35,7 +36,6 @@ pub struct SeekStream<'a> {
     stream: RefCell<Pin<Box<dyn ReadSeek>>>,
     length: Option<u64>,
     content_type: Option<&'a str>,
-    file_name: Option<&'a str>,
 }
 
 impl<'a> SeekStream<'a> {
@@ -43,14 +43,13 @@ impl<'a> SeekStream<'a> {
         where
             T: AsyncRead + AsyncSeek + Send + 'static,
     {
-        Self::with_opts(s, None, None, None)
+        Self::with_opts(s, None, None)
     }
 
     pub fn with_opts<T>(
         stream: T,
         stream_len: impl Into<Option<u64>>,
         content_type: impl Into<Option<&'a str>>,
-        file_name: impl Into<Option<&'a str>>,
     ) -> SeekStream<'a>
         where
             T: AsyncRead + AsyncSeek + Send + 'static,
@@ -59,7 +58,6 @@ impl<'a> SeekStream<'a> {
             stream: RefCell::new(Box::pin(stream)),
             length: stream_len.into(),
             content_type: content_type.into(),
-            file_name: file_name.into(),
         }
     }
 
@@ -68,14 +66,15 @@ impl<'a> SeekStream<'a> {
     pub fn from_path<T: AsRef<Path>>(p: T) -> std::io::Result<Self> {
         let handle = Handle::current();
         handle.enter();
+
         let content_type = extension_to_mime(p.as_ref().extension().unwrap_or(OsStr::new("")).to_str().unwrap_or(""));
+
         let file = match block_on(rocket::tokio::fs::File::open(p.as_ref())) {
             Ok(f) => f,
             Err(e) => return Err(e),
         };
         let len = block_on(file.metadata()).unwrap().len();
-
-        Ok(Self::with_opts(file, len, Some(content_type), p.as_ref().file_name().unwrap_or(CStr::new("")).to_str()))
+        Ok(Self::with_opts(file, len, Some(content_type)))
     }
 }
 
@@ -166,7 +165,6 @@ impl<'r> Responder<'r, 'static> for SeekStream<'r> {
         let mut resp = Response::new();
         resp.set_raw_header("Accept-Ranges", "bytes");
         resp.set_raw_header("Content-Type", mime_type.clone());
-        resp.set_raw_header("Content-Disposition", format!("attachment; filename=\"{}\"", encode(self.file_name.unwrap_or(""))));
 
         // If the range header exists, set the response status code to
         // 206 partial content and seek the stream to the requested position
