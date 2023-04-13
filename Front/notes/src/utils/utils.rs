@@ -240,71 +240,84 @@ fn find_block(textarea: &HtmlTextAreaElement) -> (usize, usize) {
     let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
     let x = s.chars().count();
     if start_index > 1 {
-        let mut next_start_index = start_index - 2;
-        // log(format!("start_index = {}\nnext_start_index = {}\nstr = {}", start_index, next_start_index,
-        //             s.chars()
-        //                 .nth(next_start_index - 1)
-        //                 .unwrap_or(' ')).as_str());
+        let mut next_start_index = start_index - 1;
+        //log(format!("start_index = {}\nnext_start_index = {}\nx = {}", start_index, next_start_index, x).as_str());
         loop {
             while next_start_index > 0
                 && s.chars()
-                .nth(next_start_index)
+                .nth(next_start_index - 1)
                 .unwrap_or(' ') != '\n'
             {
+                // log(format!("start_index = {}\nnext_start_index = {}\ns = {}-{}", start_index, next_start_index, s.chars()
+                //     .nth(next_start_index)
+                //     .unwrap_or(' ') as u32,s.chars()
+                //     .nth(next_start_index)
+                //     .unwrap_or(' ')).as_str());
                 next_start_index = next_start_index - 1;
             }
+
             let str = s.chars()
                 .skip(next_start_index)
                 .take(start_index - next_start_index)
                 .collect::<String>();
+            //log(format!("start_index = {}\nnext_start_index = {}\ns = {}", start_index, next_start_index, str).as_str());
+
             if str.trim().is_empty() {
                 break;
             }
             start_index = next_start_index;
+            if next_start_index > 0 && s.chars()
+                .nth(next_start_index - 1)
+                .unwrap_or(' ') == '\n' {
+                next_start_index = next_start_index - 1;
+            }
         }
     }
 
     if end_index != x {
         let mut next_end_index = end_index + 1;
+        // log(format!("next_end_index = {}\nend_index = {}\ns = {}", next_end_index, end_index, s.chars()
+        //     .nth(next_end_index + 1)
+        //     .unwrap_or(' ')
+        //     as u32).as_str());
         loop {
-
-// log(format!("1>>>{}={}={}<<<1", start, next_end_index, s.chars()
-//     .skip(start as usize)
-//     .take(next_end_index - (start as usize))
-//     .collect::<String>()).as_str());
             while next_end_index + 1 < x
                 && s.chars()
                 .nth(next_end_index)
                 .unwrap_or(' ') != '\n'
             {
                 next_end_index = next_end_index + 1;
-                // log(format!("next_end_index:{},{}", next_end_index, s.chars()
-                //     .nth(next_end_index).unwrap()).as_str());
+                // log(format!("next_end_index = {}\nc = {}\ns = {}", next_end_index, s.chars()
+                //     .nth(next_end_index )
+                //     .unwrap_or(' ') as u32, s.chars()
+                //                 .nth(next_end_index + 1)
+                //                 .unwrap_or(' ')).as_str());
             }
 
             let str = s.chars()
                 .skip(end_index)
                 .take(next_end_index - end_index)
                 .collect::<String>();
-            // log(format!("{}\n{}", end_index, next_end_index).as_str());
-            // log(format!("{}\n{}\n{}", end_index, next_end_index, str).as_str());
+            //log(format!("end_index = {}\nnext_end_index = {}\nstr = {}",end_index,next_end_index,str).as_str());
             if str.trim().is_empty() {
                 break;
             }
-            if next_end_index + 1 < s.len() {
+
+            end_index = next_end_index;
+            if next_end_index + 1 < x
+                && s.chars()
+                .nth(next_end_index + 1)
+                .unwrap_or(' ') != '\n'
+            {
                 next_end_index = next_end_index + 1;
             }
-            end_index = next_end_index;
         }
     }
-    // log(format!("{}\n{}\n{}\n",start_index,end_index,s.chars()
-    //             .skip(start_index)
-    //             .take( end_index-start_index)
-    //             .collect::<String>()).as_str());
-    if start_index != 0 && start_index + 1 < x {
-        start_index = start_index + 1;
-    }
-    return (start_index, end_index - 1);
+    // log(format!("start_index = {}\nend_index = {}\ns = {}", start_index, end_index, s.chars()
+    //     .skip(start_index)
+    //     .take(end_index - start_index)
+    //     .collect::<String>()).as_str());
+    return (start_index, end_index);
 }
 
 pub fn format_indent_increase(textarea: &HtmlTextAreaElement) {
