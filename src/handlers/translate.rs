@@ -5,7 +5,6 @@ use hyper::{body::HttpBody as _, Body, Client, Request, Uri};
 use hyper_tls::HttpsConnector;
 use serde_json::Value;
 use hyper_proxy::{Intercept, Proxy, ProxyConnector};
-
 async fn get_json(q: &str, to: &str) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let request = hyper::Request::builder()
         .uri(format!("http://translate.google.com/translate_a/single?client=gtx&sl=auto&tl={}&dt=t&dt=bd&ie=UTF-8&oe=UTF-8&dj=1&source=icon&q={}", to, q))
@@ -27,7 +26,6 @@ async fn get_json(q: &str, to: &str) -> Result<Vec<u8>, Box<dyn std::error::Erro
     }
     Ok(body)
 }
-
 #[get("/api/trans?<q>&<to>")]
 pub async fn trans(q: String, to: String) -> Result<Vec<u8>, Status> {
     match get_json(encode(q.as_str()).to_string().as_str(), to.as_str()).await {

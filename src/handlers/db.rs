@@ -5,6 +5,7 @@ use rocket::serde::json::serde_json;
 use rocket::serde::{Serialize, Deserialize};
 use diesel::{self, result::QueryResult, prelude::*};
 use std::time::{SystemTime, UNIX_EPOCH};
+
 mod schema {
     diesel::table! {
         notes(_id) {
@@ -26,15 +27,28 @@ mod schema {
             update_at ->  Integer,
         }
     }
+    diesel::table! {
+        statistics(id) {
+            id ->  Nullable<Integer>,
+            action_id ->  Integer,
+            count ->  Integer,
+            create_at ->  Nullable<BigInt>,
+            update_at ->  Nullable<BigInt>,
+        }
+    }
 }
+
 use self::schema::notes;
 use self::schema::notes::dsl::{notes as all_notes};
 use self::schema::snippet;
 use self::schema::snippet::dsl::{snippet as all_snippets};
+use self::schema::statistics;
+use self::schema::statistics::dsl::{statistics as all_statistics};
 use diesel::prelude::*;
 use rocket::data::FromData;
 use rocket::form::Form;
 use crate::seek_stream::SeekStream;
+
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "notes"]
@@ -47,12 +61,27 @@ pub struct Notes {
     #[serde(skip_deserializing, skip_serializing)]
     pub update_at: i64,
 }
+
 #[derive(Serialize, Queryable)]
 pub struct Note {
     pub _id: Option<i32>,
     pub title: String,
     pub update_at: i64,
 }
+
+#[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
+#[serde(crate = "rocket::serde")]
+#[table_name = "statistics"]
+pub struct Statistics {
+    pub id: Option<i32>,
+    pub action_id: i32,
+    pub count: i32,
+    #[serde(skip_deserializing, skip_serializing)]
+    pub create_at: Option<i64>,
+    #[serde(skip_deserializing, skip_serializing)]
+    pub update_at: Option<i64>,
+}
+
 #[derive(Serialize, Deserialize, Queryable, Insertable, Debug, Clone)]
 #[serde(crate = "rocket::serde")]
 #[table_name = "snippet"]
@@ -68,6 +97,7 @@ pub struct Snippet {
     #[serde(skip_deserializing, skip_serializing)]
     pub update_at: i32,
 }
+
 impl Notes {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Note>> {
         conn.run(|c| {
@@ -130,12 +160,34 @@ impl Notes {
         }).await
     }
 }
+
+impl Statistics {
+    pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Statistics>> {
+        conn.run(|c| {
+            statistics::table.load::<Statistics>(c)
+        }).await
+    }
+    pub async fn update(v: i32, conn: &NotesConnection) -> QueryResult<usize> {
+        conn.run(move |c| {
+            let s = statistics::table.filter(statistics::action_id.eq(&v)).get_result::<Statistics>(c).unwrap();
+
+            let size = (get_epoch_ms() / 1000) as i64;
+            let updated_statistics = diesel::update(statistics::table.filter(statistics::action_id.eq(&v)));
+            updated_statistics.set((
+                statistics::count.eq(&(s.count + 1)),
+                statistics::update_at.eq(&size))
+            ).execute(c)
+        }).await
+    }
+}
+
 fn get_epoch_ms() -> u128 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis()
 }
+
 impl Snippet {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<String>> {
         conn.run(|c| {
@@ -193,6 +245,7 @@ impl Snippet {
         }).await
     }
 }
+
 #[get("/api/note?<id..>")]
 pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -218,6 +271,7 @@ pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String,
         }
     }
 }
+
 #[get("/api/note/search?<q>")]
 pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
     match Notes::search(q, &conn).await {
@@ -229,6 +283,7 @@ pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, St
         }
     }
 }
+
 #[get("/api/note/like?<q>")]
 pub async fn like_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
     match Notes::like(q, &conn).await {
@@ -240,6 +295,7 @@ pub async fn like_notes(q: String, conn: NotesConnection) -> Result<String, Stat
         }
     }
 }
+
 #[post("/api/note/insert?<id..>", data = "<note_form>")]
 pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -272,6 +328,7 @@ pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnecti
     }
     Ok("Success".to_string())
 }
+
 #[get("/api/snippet?<prefix..>")]
 pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Result<String, Status> {
     match prefix {
@@ -297,6 +354,7 @@ pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Resul
         }
     }
 }
+
 #[post("/api/snippet/insert?<id..>", data = "<snippet_form>")]
 pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -318,6 +376,7 @@ pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesCo
     }
     Ok("Success".to_string())
 }
+
 #[get("/api/snippet/delete?<prefix>")]
 pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<String, Status> {
     if let Err(e) = Snippet::delete_with_prefix(prefix, &conn).await {
@@ -326,8 +385,35 @@ pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<Str
     }
     Ok("Success".to_string())
 }
+
 #[get("/notes/notes")]
 pub fn get_notes_page<'a>() -> std::io::Result<SeekStream<'a>> {
     let p = Path::new("assets/notes/notes.html");
     SeekStream::from_path(p)
+}
+
+#[get("/api/statistics?<id..>")]
+pub async fn get_statistics(id:Option<i32>,conn: NotesConnection) -> Result<String, Status> {
+    match id {
+        None => {
+            match Statistics::all(&conn).await {
+                Ok(v) => {
+                    Ok(serde_json::to_string(&v).unwrap())
+                }
+                Err(e) => {
+                    Err(Status::InternalServerError)
+                }
+            }
+        }
+        Some(v) => {
+            match Statistics::update(v,&conn).await {
+                Ok(v) => {
+                    Ok(serde_json::to_string(&v).unwrap())
+                }
+                Err(e) => {
+                    Err(Status::InternalServerError)
+                }
+            }
+        }
+    }
 }
