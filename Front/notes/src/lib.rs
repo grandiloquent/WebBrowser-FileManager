@@ -91,6 +91,13 @@ pub fn start(path_separator: &str) {
             format_list(&textarea);
         }
     });
+    onclick!(("#preview",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            render_markdown(&textarea);
+        }
+    });
+
     onclick!(("#format-save",&document)->{
         let textarea=textarea.clone();
         let toast=toast.clone();
@@ -98,6 +105,7 @@ pub fn start(path_separator: &str) {
             save_data(&textarea,&toast);
         }
     });
+
 
     onclick!(("#format-code",&document)->{
         let textarea=textarea.clone();
@@ -151,7 +159,10 @@ pub fn start(path_separator: &str) {
                         e.prevent_default();
                         format_indent_increase(&textarea);
                          }
-
+                    "p"=>{
+                        e.prevent_default();
+                        render_markdown(&textarea);
+                    }
                     _=>{
 
                     }

@@ -14,6 +14,7 @@ use web_sys::{Request, RequestInit, Response};
 use web_sys::Element;
 use serde::Serialize;
 use serde_json::Value;
+use markdown::{to_html_with_options, CompileOptions, Options};
 
 #[wasm_bindgen]
 extern "C" {
@@ -532,4 +533,24 @@ fn save_server(textarea: &HtmlTextAreaElement) {
             post_data(url.as_str(), &m).await;
         })
     }
+}
+
+pub fn render_markdown(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let window = web_sys::window().unwrap();
+    let document = window.document().unwrap();
+    let body = document.body().unwrap();
+    let div = document.create_element("div").unwrap();
+    div.set_class_name("markdown-container");
+    let mut html: String = markdown::to_html_with_options(&s, &markdown::Options::gfm()).unwrap();
+    html = format!(r#"<div style="display: flex;justify-content: flex-end;">
+            <svg style="width: 24px;height:24px;" viewBox="0 0 24 24">
+                <path
+                    d="M18.984 6.422l-5.578 5.578 5.578 5.578-1.406 1.406-5.578-5.578-5.578 5.578-1.406-1.406 5.578-5.578-5.578-5.578 1.406-1.406 5.578 5.578 5.578-5.578z">
+                </path>
+            </svg>
+        </div>
+        {}"#, html);
+    div.set_inner_html(&html);
+    body.append_child(&div);
 }
