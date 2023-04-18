@@ -96,7 +96,7 @@ fn collect_article(textarea: &HtmlTextAreaElement) -> Result<String, serde_json:
 pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
-    let re = Regex::new(r#"([~$\\/a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’-])"#).unwrap();
+    let re = Regex::new(r#"([~$\\/a-zA-Z0-9 "\t_<>;:.+%'#*=()!?|^&\[\]{},`’–-])"#).unwrap();
     let mut start_index = start as usize;
     while start_index > 1
         && re.is_match(
