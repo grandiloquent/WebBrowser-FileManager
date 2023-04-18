@@ -16,3 +16,4 @@ pub mod video;
 pub mod rust;
 pub mod db;
 pub mod translate;
+pub mod notes;

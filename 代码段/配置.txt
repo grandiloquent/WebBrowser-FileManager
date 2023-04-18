@@ -1,9 +1,9 @@
-[file] = C:\Users\Administrator\Desktop\Resources\Manager\assets\notes\notes.html
+[file] = C:\Users\Administrator\Desktop\Resources\Manager\Front\notes\src\utils\mod.rs
 [dir] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers
 [rs] = C:\Users\Administrator\Desktop\Resources\Manager\src\main.rs
 [extension] = .js
 [WorkingDirectory] = C:\Users\Administrator\Desktop\Resources\Manager\Front\notes
 [out-dir] = C:\Users\Administrator\Desktop\Resources\Manager\assets\notes
 [fmt] = C:\Users\Administrator\Desktop\Resources\Manager\src\handlers\db.rs
-[source] = C:\Users\Administrator\Desktop\Resources\Manager
-[destination] = C:\Users\Administrator\Desktop\Killer\app\src\main\assets\notes\notes.html
+[source] = C:\Users\Administrator\Desktop\Resources\Manager\assets\notes
+[destination] = C:\Users\Administrator\Desktop\Killer\app\src\main\assets\notes

@@ -10,12 +10,10 @@ use web_sys::KeyboardEvent;
 use crate::utils::format::format_comment;
 use crate::utils::translate::*;
 use crate::utils::utils::*;
-use crate::utils::timer::Timer;
 
 mod utils;
 
-use futures_signals::signal::Signal;
-use crate::utils::mutable::Mutable;
+use crate::utils::element::insert_settings_menu_item;
 
 
 #[wasm_bindgen]
@@ -127,6 +125,8 @@ pub fn start(path_separator: &str) {
             format_delete_current_line(&textarea);
         }
     });
+
+
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Element.html#method.insert_adjacent_element
     handler!(( set_onkeydown,document)->{
 
