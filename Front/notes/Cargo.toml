@@ -43,4 +43,4 @@ version = "0.3.61"
 default-features = false
 version = "1.7.3"
 # regex currently requires the standard library, you must re-enable it.
-features = ["std"]
+features = ["std","unicode-perl"]
