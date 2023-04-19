@@ -93,7 +93,6 @@ pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnecti
 #[post("/api/note/append?<id>", data = "<v>")]
 pub async fn append_note(id: i32, v: String, conn: NotesConnection) -> Result<String, Status> {
     if let Err(e) = Notes::append_content(id, v, &conn).await {
-        println!("{}", e);
         return Err(Status::InternalServerError);
     }
     Ok("Success".to_string())
