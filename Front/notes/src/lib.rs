@@ -54,6 +54,12 @@ pub fn start(path_separator: &str) {
             format_comment(&textarea,"//");
         }
     });
+    onclick!(("#delete-block",&document)->{
+        let textarea=Arc::clone(&t);
+        move||{
+           delete_code_block(&textarea);
+        }
+    });
     onclick!(("#translate-chinese",&document)->{
         let textarea=Arc::clone(&t);
         let patterns=patterns.clone();

@@ -161,10 +161,6 @@ pub fn format_code_block(textarea: &HtmlTextAreaElement) {
     let s = textarea.value();
     let start_index = textarea.selection_start().unwrap().unwrap() as usize;
     let chars = s.chars().collect::<Vec<char>>();
-    let mut count = 0;
-    for c in s.chars() {
-        count = count + 1;
-    }
     let mut start = start_index;
     while start > 0 {
         if chars[start - 1] == '\n' {
@@ -215,6 +211,59 @@ pub fn format_code_block(textarea: &HtmlTextAreaElement) {
             s
         )
             .as_str(),
+        start as u32,
+        end as u32,
+    );
+}
+
+pub fn delete_code_block(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start_index = textarea.selection_start().unwrap().unwrap() as usize;
+    let chars = s.chars().collect::<Vec<char>>();
+    let mut start = start_index;
+    while start > 0 {
+        if chars[start - 1] == '\n' {
+            let mut ss = start - 1;
+            while ss > 0 && chars[ss - 1].is_whitespace() {
+                ss = ss - 1;
+            }
+            let j = chars[ss..start].iter().filter(|c| *c == &'\n').count();
+            if j > 2 {
+                break;
+            } else {
+                start = ss;
+                continue;
+            }
+        }
+        start = start - 1;
+    }
+
+    let mut end = start_index;
+    let x = s.chars().count() - 1;
+
+    while end + 1 <= x {
+        if chars[end] == '\n' {
+            let mut ss = end;
+            while ss + 1 <= x && chars[ss].is_whitespace() {
+                ss = ss + 1;
+            }
+            let j = chars[end..ss].iter().filter(|c| *c == &'\n').count();
+            if j > 2 {
+                break;
+            } else {
+                end = ss;
+                continue;
+            }
+        }
+        end = end + 1;
+    }
+
+    if end == x {
+        end = end + 1;
+    }
+
+    let _ = textarea.set_range_text_with_start_and_end(
+        "",
         start as u32,
         end as u32,
     );
