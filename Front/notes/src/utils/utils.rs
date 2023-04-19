@@ -238,7 +238,6 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let x = s.chars().count() - 1;
 
     while end + 1 <= x && chars[end] != '\n' {
-
         end = end + 1;
     }
 
@@ -248,16 +247,19 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let mut s = chars[start..end].iter().collect::<String>();
     if s.chars().all(|c| c.is_whitespace()) {
         while start > 0 && chars[start - 1].is_whitespace() {
-
-
             start = start - 1;
         }
         while end + 1 <= x && chars[end].is_whitespace() {
-
             end = end + 1;
         }
         s = chars[start..end].iter().collect::<String>();
     } else {
+        if start - 1 >= 0 && chars[start - 1] == '\n' {
+            start = start - 1;
+        }
+        if chars[end] == '\n' {
+            end = end + 1;
+        }
     }
 
 
