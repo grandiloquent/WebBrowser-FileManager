@@ -199,6 +199,8 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let s = textarea.value();
     let start = textarea.selection_start().unwrap().unwrap();
     let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+    // log(format!("{}={}", start_index,s.chars()
+    //     .nth(start_index).unwrap() as u8).as_str());
     while start_index > 0
         && s.chars()
         .nth(start_index - 1)
@@ -207,12 +209,28 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     {
         start_index = start_index - 1;
     }
+    // log(format!("{}={}", end_index, s.chars()
+    //     .nth(end_index).unwrap() as u8).as_str());
     let x = s.chars().count();
     while end_index + 1 < x && s.chars().nth(end_index).unwrap_or(' ').is_whitespace() {
         end_index = end_index + 1;
     }
-    let _ =
-        textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
+    while end_index > 0
+        && s.chars()
+        .nth(end_index - 1)
+        .unwrap_or(' ') != '\n'
+    {
+        end_index = end_index - 1;
+    }
+    // log(format!("{}={}", end_index, s.chars()
+    //     .nth(end_index).unwrap() as u8).as_str());
+    if start_index == 0 {
+        let _ =
+            textarea.set_range_text_with_start_and_end("", start_index as u32, end_index as u32);
+    } else {
+        let _ =
+            textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
+    }
 }
 
 pub fn format_head(textarea: &HtmlTextAreaElement) {
@@ -553,4 +571,26 @@ pub fn render_markdown(textarea: &HtmlTextAreaElement) {
         {}"#, html);
     div.set_inner_html(&html);
     body.append_child(&div);
+}
+
+pub fn eval(textarea: &HtmlTextAreaElement) {
+    let s = textarea.value();
+    let start = textarea.selection_start().unwrap().unwrap();
+    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
+    log(format!("start_index = {}", start_index).as_str());
+    log(format!("end_index = {}", end_index).as_str());
+    if let Ok(v) = js_sys::eval(
+        &s[start_index..end_index]
+    ) {
+
+        match v.as_f64(){
+            None => {
+            }
+            Some(v) => {
+                textarea.set_range_text_with_start_and_end(
+                    format!("{} = {}",&s[start_index..end_index],v).as_str()
+                    , start_index as u32, end_index as u32);
+            }
+        }
+    }
 }

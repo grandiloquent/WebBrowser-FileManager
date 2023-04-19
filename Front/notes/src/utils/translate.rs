@@ -103,8 +103,8 @@ pub fn format_translate_chinese(textarea: &HtmlTextAreaElement, patterns:&Vec<Ve
         }
 
         let _ = textarea.set_range_text_with_start_and_end(
-            format!("{}", res).as_str(),
-            start_index as u32,
+            format!("\n\n{}", res).as_str(),
+            end_index as u32,
             end_index as u32,
         );
     });

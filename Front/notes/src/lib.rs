@@ -125,6 +125,12 @@ pub fn start(path_separator: &str) {
             format_delete_current_line(&textarea);
         }
     });
+    onclick!(("#format-paste-end",&document)->{
+        let textarea=textarea.clone();
+        move||{
+            eval(&textarea);
+        }
+    });
 
 
     // https://rustwasm.github.io/wasm-bindgen/api/web_sys/struct.Element.html#method.insert_adjacent_element
