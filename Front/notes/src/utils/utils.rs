@@ -158,35 +158,65 @@ pub fn format_code(textarea: &HtmlTextAreaElement, around: &str) {
 }
 
 pub fn format_code_block(textarea: &HtmlTextAreaElement) {
-    let (start_index, mut end_index) = find_block(textarea);
     let s = textarea.value();
-    let x = s.chars().count();
-    let regex = Regex::new(r"(\s*\n){3,}").unwrap();
-    let mut end = end_index;
-    while end + 1 < x {
-        let s = s.chars()
-            .skip(end_index)
-            .take(end - end_index)
-            .collect::<String>();
-        if let Some(v) = regex.find(&s) {
-            end_index = end;
-            break;
+    let start_index = textarea.selection_start().unwrap().unwrap() as usize;
+    let chars = s.chars().collect::<Vec<char>>();
+    let mut count = 0;
+    for c in s.chars() {
+        count = count + 1;
+    }
+    let mut start = start_index;
+    while start > 0 {
+        if chars[start - 1] == '\n' {
+            let mut ss = start - 1;
+            while ss > 0 && chars[ss - 1].is_whitespace() {
+                ss = ss - 1;
+            }
+            let j = chars[ss..start].iter().filter(|c| *c == &'\n').count();
+            if j > 2 {
+                break;
+            } else {
+                start = ss;
+                continue;
+            }
+        }
+        start = start - 1;
+    }
+
+    let mut end = start_index;
+    let x = s.chars().count() - 1;
+
+    while end + 1 <= x {
+        if chars[end] == '\n' {
+            let mut ss = end;
+            while ss + 1 <= x && chars[ss].is_whitespace() {
+                ss = ss + 1;
+            }
+            let j = chars[end..ss].iter().filter(|c| *c == &'\n').count();
+            if j > 2 {
+                break;
+            } else {
+                end = ss;
+                continue;
+            }
         }
         end = end + 1;
     }
+
+    if end == x {
+        end = end + 1;
+    }
+    let mut s = chars[start..end].iter().collect::<String>();
 
 
     let _ = textarea.set_range_text_with_start_and_end(
         format!(
             "```rust\n{}\n```\n\n",
-            s.chars()
-                .skip(start_index)
-                .take(end_index - start_index)
-                .collect::<String>().trim()
+            s
         )
             .as_str(),
-        start_index as u32,
-        end_index as u32,
+        start as u32,
+        end as u32,
     );
 }
 
