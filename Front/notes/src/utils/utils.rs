@@ -262,7 +262,7 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
 
 
     let _ =
-        textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
+        textarea.set_range_text_with_start_and_end("", start as u32, end as u32);
 }
 
 pub fn format_head(textarea: &HtmlTextAreaElement) {
