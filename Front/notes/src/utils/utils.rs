@@ -225,48 +225,44 @@ fn get_char_point(s: &str, index: usize) -> u8 {
 
 pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     let s = textarea.value();
-    let start = textarea.selection_start().unwrap().unwrap();
-    let (mut start_index, mut end_index) = find_current_line(s.as_str(), start as usize);
-    // log(format!("start_index = {}\nend_index = {} = {}", start_index, end_index,
-    //             s.chars().skip(start_index)
-    //                 .take(end_index - start_index)
-    //                 .collect::<String>()
-    // ).as_str());
-    while start_index > 0
-        && get_char(&s, start_index - 1)
-        .is_whitespace()
-    {
-        start_index = start_index - 1;
+    let start_index = textarea.selection_start().unwrap().unwrap() as usize;
+
+    let chars = s.chars().collect::<Vec<char>>();
+
+    let mut start = start_index;
+    while start > 0 && chars[start - 1] != '\n' {
+        start = start - 1;
     }
-    // log(format!("{}={}", end_index, s.chars()
-    //     .nth(end_index).unwrap() as u8).as_str());
-    let x = s.chars().count();
-    while end_index + 1 < x && get_char(&s, end_index).is_whitespace() {
-        end_index = end_index + 1;
-    }
-    let mut f = false;
-    let mut end = end_index;
-    while end + 1 < x && get_char(&s, end) != '\n' {
+
+    let mut end = start_index;
+    let x = s.chars().count() - 1;
+
+    while end + 1 <= x && chars[end] != '\n' {
+
         end = end + 1;
     }
-    let r = Regex::new(r"[\u4e00-\u9fa5]+").unwrap();
-    if let Some(v) = r.find(s.chars().skip(end_index)
-        .take(end - end_index)
-        .collect::<String>().as_str()) {
-        f = true;
+
+    if end == x {
+        end = end + 1;
     }
+    let mut s = chars[start..end].iter().collect::<String>();
+    if s.chars().all(|c| c.is_whitespace()) {
+        while start > 0 && chars[start - 1].is_whitespace() {
 
-    // log(format!("{}={}", end_index, s.chars()
-    //     .nth(end_index).unwrap() as u8).as_str());
 
-    if f
-    {
-        let _ =
-            textarea.set_range_text_with_start_and_end("", start_index as u32, end_index as u32);
+            start = start - 1;
+        }
+        while end + 1 <= x && chars[end].is_whitespace() {
+
+            end = end + 1;
+        }
+        s = chars[start..end].iter().collect::<String>();
     } else {
-        let _ =
-            textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
     }
+
+
+    let _ =
+        textarea.set_range_text_with_start_and_end("\n\n", start_index as u32, end_index as u32);
 }
 
 pub fn format_head(textarea: &HtmlTextAreaElement) {
