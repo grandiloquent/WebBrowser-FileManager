@@ -202,13 +202,23 @@ pub fn format_code_block(textarea: &HtmlTextAreaElement) {
     if end == x {
         end = end + 1;
     }
+    if start > 0 &&
+        chars[start - 1] == '\n'
+    {
+        start = start - 1;
+    }
+    if end + 1 <= x &&
+        chars[end + 1] == '\n'
+    {
+        end = end + 1;
+    }
     let mut s = chars[start..end].iter().collect::<String>();
 
 
     let _ = textarea.set_range_text_with_start_and_end(
         format!(
-            "```rust\n{}\n```\n\n",
-            s
+            "```rust\n{}\n```",
+            s.trim(),
         )
             .as_str(),
         start as u32,
@@ -319,11 +329,11 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
     while end + 1 <= x && chars[end] != '\n' {
         end = end + 1;
     }
-
     if end == x {
         end = end + 1;
     }
     let mut s = chars[start..end].iter().collect::<String>();
+
     if s.chars().all(|c| c.is_whitespace()) {
         while start > 0 && chars[start - 1].is_whitespace() {
             start = start - 1;
@@ -333,10 +343,10 @@ pub fn format_delete_current_line(textarea: &HtmlTextAreaElement) {
         }
         s = chars[start..end].iter().collect::<String>();
     } else {
-        if start - 1 >= 0 && chars[start - 1] == '\n' {
+        if start > 0 && chars[start - 1] == '\n' {
             start = start - 1;
         }
-        if chars[end] == '\n' {
+        if end < x && chars[end] == '\n' {
             end = end + 1;
         }
     }

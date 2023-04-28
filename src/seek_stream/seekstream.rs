@@ -11,6 +11,7 @@ use std::path::Path;
 use std::pin::Pin;
 use tree_magic;
 use std::ffi::{CStr, OsStr};
+use diesel::serialize::IsNull::No;
 use urlencoding::encode;
 use crate::seek_stream::mimetypes::extension_to_mime;
 use crate::seek_stream::multipart::MultipartReader;
@@ -36,20 +37,23 @@ pub struct SeekStream<'a> {
     stream: RefCell<Pin<Box<dyn ReadSeek>>>,
     length: Option<u64>,
     content_type: Option<&'a str>,
+    content_disposition: Option<String>,
 }
 
 impl<'a> SeekStream<'a> {
     pub fn new<T>(s: T) -> SeekStream<'a>
         where
+
             T: AsyncRead + AsyncSeek + Send + 'static,
     {
-        Self::with_opts(s, None, None)
+        Self::with_opts(s, None, None,None)
     }
 
     pub fn with_opts<T>(
         stream: T,
         stream_len: impl Into<Option<u64>>,
         content_type: impl Into<Option<&'a str>>,
+        content_disposition: impl Into<Option<String>>
     ) -> SeekStream<'a>
         where
             T: AsyncRead + AsyncSeek + Send + 'static,
@@ -58,6 +62,7 @@ impl<'a> SeekStream<'a> {
             stream: RefCell::new(Box::pin(stream)),
             length: stream_len.into(),
             content_type: content_type.into(),
+            content_disposition:content_disposition.into(),
         }
     }
 
@@ -74,7 +79,9 @@ impl<'a> SeekStream<'a> {
             Err(e) => return Err(e),
         };
         let len = block_on(file.metadata()).unwrap().len();
-        Ok(Self::with_opts(file, len, Some(content_type)))
+        Ok(Self::with_opts(file, len, Some(content_type),
+        Some(format!("form-data; name=\"fieldName\"; filename=\"{}\"",p.as_ref().file_name().unwrap_or(OsStr::new("")).to_str().unwrap_or("")))
+        ))
     }
 }
 
@@ -165,6 +172,7 @@ impl<'r> Responder<'r, 'static> for SeekStream<'r> {
         let mut resp = Response::new();
         resp.set_raw_header("Accept-Ranges", "bytes");
         resp.set_raw_header("Content-Type", mime_type.clone());
+        //resp.set_raw_header("Content-Disposition", self.content_disposition.unwrap_or(String::from("attachment")).clone());
 
         // If the range header exists, set the response status code to
         // 206 partial content and seek the stream to the requested position

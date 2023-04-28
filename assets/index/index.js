@@ -50,8 +50,10 @@ function submit(evt) {
             // }
             else if (decodeURIComponent(evt.detail.path).indexOf("\\Books\\") !== -1 && (/\.(?:html|xhtml|htm)$/.test(evt.detail.path))) {
                 window.location = `/api/file?path=${encodedPath}`
+            } else if (decodeURIComponent(evt.detail.path).indexOf("\\.cargo\\") !== -1 && (/\.(?:rs|md)$/.test(evt.detail.path))) {
+                window.location = `/markdown/markdown.html?path=${encodedPath}`
             } else if (/\.(?:bat|c|cc|cmd|conf|cpp|cs|css|gitignore|gradle|h|html|java|js|json|jsx|md|properties|rs|service|sql|srt|toml|txt|vtt|xml|au3)$/.test(evt.detail.path)) {
-                window.open(`/editor?path=${encodedPath}`)
+                window.open(`/notes/notes?path=${encodedPath}`)
             } else {
                 if ((/\.(?:pdf|epub|apk)$/.test(encodedPath)) && (typeof NativeAndroid !== 'undefined')) {
                     NativeAndroid.openFile(encodedPath);

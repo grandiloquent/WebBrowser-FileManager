@@ -1,20 +1,8 @@
 use std::path::Path;
-use crate::seek_stream::SeekStream;
 use rocket::http::Status;
 use regex::Regex;
 use std::fs::File;
-use std::io::{Write, BufReader, BufRead};
-use rocket::fs;
-#[get("/video/videos")]
-pub fn videos<'a>() -> std::io::Result<SeekStream<'a>> {
-    let p = Path::new("assets/video/videos.html");
-    SeekStream::from_path(p)
-}
-#[get("/video/video")]
-pub fn video<'a>() -> std::io::Result<SeekStream<'a>> {
-    let p = Path::new("assets/video/video.html");
-    SeekStream::from_path(p)
-}
+use std::io::{BufReader, BufRead};
 fn is_timecode(line: &str) -> bool {
     line.contains("-->")
 }
@@ -110,12 +98,12 @@ fn build_time_string(seconds: f64) -> String {
         String::from("(DELETED)\n")
     }
 }
-// #[get("/subtitle?<path>")]
-// pub fn subtitle<'a>(path: String) -> Result<String, Status> {
-//     let p = Path::new(path.as_str());
-//     if !p.is_file() {
-//         return Err(Status::NotFound);
-//     }
-//     Ok(transform(p))
-//     // converts file to WEBVTT
-// }
+#[get("/subtitle?<path>")]
+pub fn subtitle<'a>(path: String) -> Result<String, Status> {
+    let p = Path::new(path.as_str());
+    if !p.is_file() {
+        return Err(Status::NotFound);
+    }
+    Ok(transform(p))
+    // converts file to WEBVTT
+}

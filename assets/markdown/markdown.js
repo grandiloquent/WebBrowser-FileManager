@@ -1,301 +1,362 @@
-document.querySelectorAll('[bind]').forEach(element => {
-    if (element.getAttribute('bind')) {
-        window[element.getAttribute('bind')] = element;
+let wasm;
+
+const heap = new Array(128).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+function getObject(idx) { return heap[idx]; }
+
+let heap_next = heap.length;
+
+function dropObject(idx) {
+    if (idx < 132) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
+}
+
+function addHeapObject(obj) {
+    if (heap_next === heap.length) heap.push(heap.length + 1);
+    const idx = heap_next;
+    heap_next = heap[idx];
+
+    heap[idx] = obj;
+    return idx;
+}
+
+function debugString(val) {
+    // primitive types
+    const type = typeof val;
+    if (type == 'number' || type == 'boolean' || val == null) {
+        return  `${val}`;
     }
-    [...element.attributes].filter(attr => attr.nodeName.startsWith('@')).forEach(attr => {
-        if (!attr.value) return;
-        element.addEventListener(attr.nodeName.slice(1), evt => {
-            window[attr.value](evt);
-        });
-    });
+    if (type == 'string') {
+        return `"${val}"`;
+    }
+    if (type == 'symbol') {
+        const description = val.description;
+        if (description == null) {
+            return 'Symbol';
+        } else {
+            return `Symbol(${description})`;
+        }
+    }
+    if (type == 'function') {
+        const name = val.name;
+        if (typeof name == 'string' && name.length > 0) {
+            return `Function(${name})`;
+        } else {
+            return 'Function';
+        }
+    }
+    // objects
+    if (Array.isArray(val)) {
+        const length = val.length;
+        let debug = '[';
+        if (length > 0) {
+            debug += debugString(val[0]);
+        }
+        for(let i = 1; i < length; i++) {
+            debug += ', ' + debugString(val[i]);
+        }
+        debug += ']';
+        return debug;
+    }
+    // Test for built-in
+    const builtInMatches = /\[object ([^\]]+)\]/.exec(toString.call(val));
+    let className;
+    if (builtInMatches.length > 1) {
+        className = builtInMatches[1];
+    } else {
+        // Failed to match the standard '[object ClassName]'
+        return toString.call(val);
+    }
+    if (className == 'Object') {
+        // we're a user defined class or Object
+        // JSON.stringify avoids problems with cycles, and is generally much
+        // easier than looping through ownProperties of `val`.
+        try {
+            return 'Object(' + JSON.stringify(val) + ')';
+        } catch (_) {
+            return 'Object';
+        }
+    }
+    // errors
+    if (val instanceof Error) {
+        return `${val.name}: ${val.message}\n${val.stack}`;
+    }
+    // TODO we could test for more things here, like `Set`s and `Map`s.
+    return className;
+}
+
+let WASM_VECTOR_LEN = 0;
+
+let cachedUint8Memory0 = null;
+
+function getUint8Memory0() {
+    if (cachedUint8Memory0 === null || cachedUint8Memory0.byteLength === 0) {
+        cachedUint8Memory0 = new Uint8Array(wasm.memory.buffer);
+    }
+    return cachedUint8Memory0;
+}
+
+const cachedTextEncoder = new TextEncoder('utf-8');
+
+const encodeString = (typeof cachedTextEncoder.encodeInto === 'function'
+    ? function (arg, view) {
+    return cachedTextEncoder.encodeInto(arg, view);
+}
+    : function (arg, view) {
+    const buf = cachedTextEncoder.encode(arg);
+    view.set(buf);
+    return {
+        read: arg.length,
+        written: buf.length
+    };
 });
-const slugify = function (s) {
-  return encodeURIComponent(String(s).trim().toLowerCase().replace(/\s+/g, '-'));
-};
-const defaults = {
-  includeLevel: [1, 2],
-  containerClass: 'table-of-contents',
-  slugify: slugify,
-  markerPattern: /^\[\[toc\]\]/im,
-  listType: 'ul',
-  format: function (content, md) {
-    return md.renderInline(content);
-  },
-  forceFullToc: false,
-  containerHeaderHtml: undefined,
-  containerFooterHtml: undefined,
-  transformLink: undefined,
-};
 
-function findHeadlineElements(levels, tokens, options) {
-  const headings = [];
-  let currentHeading = null;
+function passStringToWasm0(arg, malloc, realloc) {
 
-  tokens.forEach(token => {
-    if (token.type === 'heading_open') {
-      const id = findExistingIdAttr(token);
-      const level = parseInt(token.tag.toLowerCase().replace('h', ''), 10);
-      if (levels.indexOf(level) >= 0) {
-        currentHeading = {
-          level: level,
-          text: null,
-          anchor: id || null
-        };
-      }
+    if (realloc === undefined) {
+        const buf = cachedTextEncoder.encode(arg);
+        const ptr = malloc(buf.length);
+        getUint8Memory0().subarray(ptr, ptr + buf.length).set(buf);
+        WASM_VECTOR_LEN = buf.length;
+        return ptr;
     }
-    else if (currentHeading && token.type === 'inline') {
-      const textContent = token.children
-        .filter((childToken) => childToken.type === 'text' || childToken.type === 'code_inline')
-        .reduce((acc, t) => acc + t.content, '');
-      currentHeading.text = textContent;
-      if (! currentHeading.anchor) {
-        currentHeading.anchor = options.slugify(textContent, token.content);
-      }
-    }
-    else if (token.type === 'heading_close') {
-      if (currentHeading) {
-        headings.push(currentHeading);
-      }
-      currentHeading = null;
-    }
-  });
 
-  return headings;
+    let len = arg.length;
+    let ptr = malloc(len);
+
+    const mem = getUint8Memory0();
+
+    let offset = 0;
+
+    for (; offset < len; offset++) {
+        const code = arg.charCodeAt(offset);
+        if (code > 0x7F) break;
+        mem[ptr + offset] = code;
+    }
+
+    if (offset !== len) {
+        if (offset !== 0) {
+            arg = arg.slice(offset);
+        }
+        ptr = realloc(ptr, len, len = offset + arg.length * 3);
+        const view = getUint8Memory0().subarray(ptr + offset, ptr + len);
+        const ret = encodeString(arg, view);
+
+        offset += ret.written;
+    }
+
+    WASM_VECTOR_LEN = offset;
+    return ptr;
 }
 
+let cachedInt32Memory0 = null;
 
-function findExistingIdAttr(token) {
-  if (token && token.attrs && token.attrs.length > 0) {
-    const idAttr = token.attrs.find( (attr) => {
-      if (Array.isArray(attr) && attr.length >= 2) {
-        return attr[0] === 'id';
-      }
-      return false;
-    });
-    if (idAttr && Array.isArray(idAttr) && idAttr.length >= 2) {
-      const [key, val] = idAttr;
-      return val;
+function getInt32Memory0() {
+    if (cachedInt32Memory0 === null || cachedInt32Memory0.byteLength === 0) {
+        cachedInt32Memory0 = new Int32Array(wasm.memory.buffer);
     }
-  }
-  return null;
-}
-function getMinLevel(headlineItems) {
-  return Math.min(...headlineItems.map(item => item.level));
-}
-function addListItem(level, text, anchor, rootNode) {
-  const listItem = { level, text, anchor, children: [], parent: rootNode };
-  rootNode.children.push(listItem);
-  return listItem;
-}
-function flatHeadlineItemsToNestedTree(headlineItems) {
-  // create a root node with no text that holds the entire TOC. this won't be rendered, but only its children
-  const toc = { level: getMinLevel(headlineItems) - 1, anchor: null, text: null, children: [], parent: null };
-  // pointer that tracks the last root item of the current list
-  let currentRootNode = toc;
-  // pointer that tracks the last item (to turn it into a new root node if necessary)
-  let prevListItem = currentRootNode;
-
-  headlineItems.forEach(headlineItem => {
-    // if level is bigger, take the previous node, add a child list, set current list to this new child list
-    if (headlineItem.level > prevListItem.level) {
-      // eslint-disable-next-line no-unused-vars
-      Array.from({ length: headlineItem.level - prevListItem.level }).forEach(_ => {
-        currentRootNode = prevListItem;
-        prevListItem = addListItem(headlineItem.level, null, null, currentRootNode);
-      });
-      prevListItem.text = headlineItem.text;
-      prevListItem.anchor = headlineItem.anchor;
-    }
-    // if level is same, add to the current list
-    else if (headlineItem.level === prevListItem.level) {
-      prevListItem = addListItem(headlineItem.level, headlineItem.text, headlineItem.anchor, currentRootNode);
-    }
-    // if level is smaller, set current list to currentlist.parent
-    else if (headlineItem.level < prevListItem.level) {
-      for (let i = 0; i < prevListItem.level - headlineItem.level; i++) {
-        currentRootNode = currentRootNode.parent;
-      }
-      prevListItem = addListItem(headlineItem.level, headlineItem.text, headlineItem.anchor, currentRootNode);
-    }
-  });
-
-  return toc;
+    return cachedInt32Memory0;
 }
 
+const cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+
+cachedTextDecoder.decode();
+
+function getStringFromWasm0(ptr, len) {
+    return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
+}
 /**
-* Recursively turns a nested tree of tocItems to HTML.
-* @param {TocItem} tocItem
-* @returns {string}
+* @param {string} contents
+* @param {string} language
 */
-function tocItemToHtml(tocItem, options, md) {
-  return '<' + options.listType + '>' + tocItem.children.map(childItem => {
-    let li = '<li>';
-    let anchor = childItem.anchor;
-    if (options && options.transformLink) {
-      anchor = options.transformLink(anchor);
-    }
-
-    let text = childItem.text ? options.format(childItem.text, md, anchor) : null;
-
-    li += anchor ? `<a href="#${anchor}">${text}</a>` : (text || '');
-
-    return li + (childItem.children.length > 0 ? tocItemToHtml(childItem, options, md) : '') + '</li>';
-  }).join('') + '</' + options.listType + '>';
+export function start(contents, language) {
+    const ptr0 = passStringToWasm0(contents, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(language, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    wasm.start(ptr0, len0, ptr1, len1);
 }
 
+function isLikeNone(x) {
+    return x === undefined || x === null;
+}
 
-function toc(md, o) {
-  const options = Object.assign({}, defaults, o);
-  const tocRegexp = options.markerPattern;
-  let gstate;
-
-  function toc(state, silent) {
-    let token;
-    let match;
-
-    // Reject if the token does not start with [
-    if (state.src.charCodeAt(state.pos) !== 0x5B /* [ */) {
-      return false;
+function handleError(f, args) {
+    try {
+        return f.apply(this, args);
+    } catch (e) {
+        wasm.__wbindgen_exn_store(addHeapObject(e));
     }
-    // Don't run any pairs in validation mode
-    if (silent) {
-      return false;
-    }
+}
 
-    // Detect TOC markdown
-    match = tocRegexp.exec(state.src.substr(state.pos));
-    match = !match ? [] : match.filter(function (m) { return m; });
-    if (match.length < 1) {
-      return false;
-    }
+async function load(module, imports) {
+    if (typeof Response === 'function' && module instanceof Response) {
+        if (typeof WebAssembly.instantiateStreaming === 'function') {
+            try {
+                return await WebAssembly.instantiateStreaming(module, imports);
 
-    // Build content
-    token = state.push('toc_open', 'toc', 1);
-    token.markup = '[[toc]]';
-    token = state.push('toc_body', '', 0);
-    token = state.push('toc_close', 'toc', -1);
+            } catch (e) {
+                if (module.headers.get('Content-Type') != 'application/wasm') {
+                    console.warn("`WebAssembly.instantiateStreaming` failed because your server does not serve wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\n", e);
 
-    // Update pos so the parser can continue
-    var newline = state.src.indexOf('\n', state.pos);
-    if (newline !== -1) {
-      state.pos = newline;
-    } else {
-      state.pos = state.pos + state.posMax + 1;
-    }
-
-    return true;
-  }
-
-  md.renderer.rules.toc_open = function (tokens, index) {
-    var tocOpenHtml = '<div class="' + options.containerClass + '">';
-
-    if (options.containerHeaderHtml) {
-      tocOpenHtml += options.containerHeaderHtml;
-    }
-
-    return tocOpenHtml;
-  };
-
-  md.renderer.rules.toc_close = function (tokens, index) {
-    var tocFooterHtml = '';
-
-    if (options.containerFooterHtml) {
-      tocFooterHtml = options.containerFooterHtml;
-    }
-
-    return tocFooterHtml + '</div>';
-  };
-
-  md.renderer.rules.toc_body = function (tokens, index) {
-    if (options.forceFullToc) {
-      throw ("forceFullToc was removed in version 0.5.0. For more information, see https://github.com/Oktavilla/markdown-it-table-of-contents/pull/41");
-    } else {
-      const headlineItems = findHeadlineElements(options.includeLevel, gstate.tokens, options);
-      const toc = flatHeadlineItemsToNestedTree(headlineItems);
-      const html = tocItemToHtml(toc, options, md);
-      return html;
-    }
-  };
-
-  // Catch all the tokens for iteration later
-  md.core.ruler.push('grab_state', function (state) {
-    gstate = state;
-  });
-
-  // Insert TOC
-  md.inline.ruler.after('emphasis', 'toc', toc);
-};
-!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):(e||self).markdownItAnchor=n()}(this,function(){var e=!1,n={false:"push",true:"unshift",after:"push",before:"unshift"},t={isPermalinkSymbol:!0};function r(r,i,a,l){var o;if(!e){var c="Using deprecated markdown-it-anchor permalink option, see https://github.com/valeriangalliat/markdown-it-anchor#permalinks";"object"==typeof process&&process&&process.emitWarning?process.emitWarning(c):console.warn(c),e=!0}var s=[Object.assign(new a.Token("link_open","a",1),{attrs:[].concat(i.permalinkClass?[["class",i.permalinkClass]]:[],[["href",i.permalinkHref(r,a)]],Object.entries(i.permalinkAttrs(r,a)))}),Object.assign(new a.Token("html_block","",0),{content:i.permalinkSymbol,meta:t}),new a.Token("link_close","a",-1)];i.permalinkSpace&&a.tokens[l+1].children[n[i.permalinkBefore]](Object.assign(new a.Token("text","",0),{content:" "})),(o=a.tokens[l+1].children)[n[i.permalinkBefore]].apply(o,s)}function i(e){return"#"+e}function a(e){return{}}var l={class:"header-anchor",symbol:"#",renderHref:i,renderAttrs:a};function o(e){function n(t){return t=Object.assign({},n.defaults,t),function(n,r,i,a){return e(n,t,r,i,a)}}return n.defaults=Object.assign({},l),n.renderPermalinkImpl=e,n}var c=o(function(e,r,i,a,l){var o,c=[Object.assign(new a.Token("link_open","a",1),{attrs:[].concat(r.class?[["class",r.class]]:[],[["href",r.renderHref(e,a)]],r.ariaHidden?[["aria-hidden","true"]]:[],Object.entries(r.renderAttrs(e,a)))}),Object.assign(new a.Token("html_inline","",0),{content:r.symbol,meta:t}),new a.Token("link_close","a",-1)];if(r.space){var s="string"==typeof r.space?r.space:" ";a.tokens[l+1].children[n[r.placement]](Object.assign(new a.Token("string"==typeof r.space?"html_inline":"text","",0),{content:s}))}(o=a.tokens[l+1].children)[n[r.placement]].apply(o,c)});Object.assign(c.defaults,{space:!0,placement:"after",ariaHidden:!1});var s=o(c.renderPermalinkImpl);s.defaults=Object.assign({},c.defaults,{ariaHidden:!0});var f=o(function(e,n,t,r,i){var a=[Object.assign(new r.Token("link_open","a",1),{attrs:[].concat(n.class?[["class",n.class]]:[],[["href",n.renderHref(e,r)]],Object.entries(n.renderAttrs(e,r)))})].concat(n.safariReaderFix?[new r.Token("span_open","span",1)]:[],r.tokens[i+1].children,n.safariReaderFix?[new r.Token("span_close","span",-1)]:[],[new r.Token("link_close","a",-1)]);r.tokens[i+1]=Object.assign(new r.Token("inline","",0),{children:a})});Object.assign(f.defaults,{safariReaderFix:!1});var u=o(function(e,r,i,a,l){var o;if(!["visually-hidden","aria-label","aria-describedby","aria-labelledby"].includes(r.style))throw new Error("`permalink.linkAfterHeader` called with unknown style option `"+r.style+"`");if(!["aria-describedby","aria-labelledby"].includes(r.style)&&!r.assistiveText)throw new Error("`permalink.linkAfterHeader` called without the `assistiveText` option in `"+r.style+"` style");if("visually-hidden"===r.style&&!r.visuallyHiddenClass)throw new Error("`permalink.linkAfterHeader` called without the `visuallyHiddenClass` option in `visually-hidden` style");var c=a.tokens[l+1].children.filter(function(e){return"text"===e.type||"code_inline"===e.type}).reduce(function(e,n){return e+n.content},""),s=[],f=[];if(r.class&&f.push(["class",r.class]),f.push(["href",r.renderHref(e,a)]),f.push.apply(f,Object.entries(r.renderAttrs(e,a))),"visually-hidden"===r.style){if(s.push(Object.assign(new a.Token("span_open","span",1),{attrs:[["class",r.visuallyHiddenClass]]}),Object.assign(new a.Token("text","",0),{content:r.assistiveText(c)}),new a.Token("span_close","span",-1)),r.space){var u="string"==typeof r.space?r.space:" ";s[n[r.placement]](Object.assign(new a.Token("string"==typeof r.space?"html_inline":"text","",0),{content:u}))}s[n[r.placement]](Object.assign(new a.Token("span_open","span",1),{attrs:[["aria-hidden","true"]]}),Object.assign(new a.Token("html_inline","",0),{content:r.symbol,meta:t}),new a.Token("span_close","span",-1))}else s.push(Object.assign(new a.Token("html_inline","",0),{content:r.symbol,meta:t}));"aria-label"===r.style?f.push(["aria-label",r.assistiveText(c)]):["aria-describedby","aria-labelledby"].includes(r.style)&&f.push([r.style,e]);var d=[Object.assign(new a.Token("link_open","a",1),{attrs:f})].concat(s,[new a.Token("link_close","a",-1)]);(o=a.tokens).splice.apply(o,[l+3,0].concat(d)),r.wrapper&&(a.tokens.splice(l,0,Object.assign(new a.Token("html_block","",0),{content:r.wrapper[0]+"\n"})),a.tokens.splice(l+3+d.length+1,0,Object.assign(new a.Token("html_block","",0),{content:r.wrapper[1]+"\n"})))});function d(e,n,t,r){var i=e,a=r;if(t&&Object.prototype.hasOwnProperty.call(n,i))throw new Error("User defined `id` attribute `"+e+"` is not unique. Please fix it in your Markdown to continue.");for(;Object.prototype.hasOwnProperty.call(n,i);)i=e+"-"+a,a+=1;return n[i]=!0,i}function p(e,n){n=Object.assign({},p.defaults,n),e.core.ruler.push("anchor",function(e){for(var t,i={},a=e.tokens,l=Array.isArray(n.level)?(t=n.level,function(e){return t.includes(e)}):function(e){return function(n){return n>=e}}(n.level),o=0;o<a.length;o++){var c=a[o];if("heading_open"===c.type&&l(Number(c.tag.substr(1)))){var s=n.getTokensText(a[o+1].children),f=c.attrGet("id");f=null==f?d(n.slugify(s),i,!1,n.uniqueSlugStartIndex):d(f,i,!0,n.uniqueSlugStartIndex),c.attrSet("id",f),!1!==n.tabIndex&&c.attrSet("tabindex",""+n.tabIndex),"function"==typeof n.permalink?n.permalink(f,n,e,o):(n.permalink||n.renderPermalink&&n.renderPermalink!==r)&&n.renderPermalink(f,n,e,o),o=a.indexOf(c),n.callback&&n.callback(c,{slug:f,title:s})}}})}return Object.assign(u.defaults,{style:"visually-hidden",space:!0,placement:"after",wrapper:null}),p.permalink={__proto__:null,legacy:r,renderHref:i,renderAttrs:a,makePermalink:o,linkInsideHeader:c,ariaHidden:s,headerLink:f,linkAfterHeader:u},p.defaults={level:1,slugify:function(e){return encodeURIComponent(String(e).trim().toLowerCase().replace(/\s+/g,"-"))},uniqueSlugStartIndex:1,tabIndex:"-1",getTokensText:function(e){return e.filter(function(e){return["text","code_inline"].includes(e.type)}).map(function(e){return e.content}).join("")},permalink:!1,renderPermalink:r,permalinkClass:s.defaults.class,permalinkSpace:s.defaults.space,permalinkSymbol:"¶",permalinkBefore:"before"===s.defaults.placement,permalinkHref:s.defaults.renderHref,permalinkAttrs:s.defaults.renderAttrs},p.default=p,p});
-//# sourceMappingURL=markdownItAnchor.umd.js.map
-
-
-
-
-const id = new URL(window.location).searchParams.get("id");
-let baseUri = window.location.host === '127.0.0.1:5500' ? 'http://192.168.8.55:10808' : '';
-render();
-
-async function render() {
-    //     textarea.value = localStorage.getItem("content");
-
-    //     if (id) {
-    //         try {
-    //             const obj = await loadData();
-    //             document.title = obj.title;
-    //             textarea.value = `# ${obj.title}|${obj.tag}
-
-    // ${obj.content.trim()}
-    //         `
-    //         } catch (error) {
-    //             console.log(error)
-    //         }
-    //     }
-    const obj = await loadData();
-    const md = new markdownit({
-        linkify: true,
-        highlight: function (str, lang) {
-            if (lang && hljs.getLanguage(lang)) {
-                try {
-                    return hljs.highlight(str, {language: lang}).value;
-                } catch (__) {
+                } else {
+                    throw e;
                 }
             }
-
-            return ''; // use external default escaping
         }
-    });
-// https://github.com/cmaas/markdown-it-table-of-contents
-toc(md, {
-  "includeLevel": [2,3,4]
-});
-md.use(markdownItAnchor)
-    wrapper.innerHTML = md.render(obj.content || obj);
-}
 
-function substringBetweenLast(string, start, end) {
-    const startIndex = string.lastIndexOf(start);
-    if (startIndex === -1) {
-        return string;
-    }
-    const endIndex = string.indexOf(end, startIndex + start.length);
+        const bytes = await module.arrayBuffer();
+        return await WebAssembly.instantiate(bytes, imports);
 
-    return string.substring(startIndex + start.length, endIndex);
-
-}
-
-async function loadData() {
-    const searchParams = new URL(window.location).searchParams;
-    if (searchParams.has("path")) {
-        const path = searchParams.get("path");
-        document.title = substringBetweenLast(path, "\\", ".");
-        const res = await fetch(`/api/file?path=${encodeURIComponent(path)}`, {cache: "no-cache"});
-        return res.text();
     } else {
-        const id = searchParams.get("id");
-        const res = await fetch(`/api/article?id=${id}`, {cache: "no-cache"});
-        const obj = await res.json();
-        document.title = obj.title;
-        return obj;
+        const instance = await WebAssembly.instantiate(module, imports);
+
+        if (instance instanceof WebAssembly.Instance) {
+            return { instance, module };
+
+        } else {
+            return instance;
+        }
     }
 }
 
+function getImports() {
+    const imports = {};
+    imports.wbg = {};
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
+    };
+    imports.wbg.__wbg_setclassName_50d82f2b933c434c = function(arg0, arg1, arg2) {
+        getObject(arg0).className = getStringFromWasm0(arg1, arg2);
+    };
+    imports.wbg.__wbg_setinnerHTML_76167cda24d9b96b = function(arg0, arg1, arg2) {
+        getObject(arg0).innerHTML = getStringFromWasm0(arg1, arg2);
+    };
+    imports.wbg.__wbg_instanceof_Window_e266f02eee43b570 = function(arg0) {
+        let result;
+        try {
+            result = getObject(arg0) instanceof Window;
+        } catch {
+            result = false;
+        }
+        const ret = result;
+        return ret;
+    };
+    imports.wbg.__wbg_document_950215a728589a2d = function(arg0) {
+        const ret = getObject(arg0).document;
+        return isLikeNone(ret) ? 0 : addHeapObject(ret);
+    };
+    imports.wbg.__wbg_appendChild_b8199dc1655c852d = function() { return handleError(function (arg0, arg1) {
+        const ret = getObject(arg0).appendChild(getObject(arg1));
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_body_be46234bb33edd63 = function(arg0) {
+        const ret = getObject(arg0).body;
+        return isLikeNone(ret) ? 0 : addHeapObject(ret);
+    };
+    imports.wbg.__wbg_createElement_e2a0e21263eb5416 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = getObject(arg0).createElement(getStringFromWasm0(arg1, arg2));
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_newnoargs_2b8b6bd7753c76ba = function(arg0, arg1) {
+        const ret = new Function(getStringFromWasm0(arg0, arg1));
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_call_95d1ea488d03e4e8 = function() { return handleError(function (arg0, arg1) {
+        const ret = getObject(arg0).call(getObject(arg1));
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
+        const ret = getObject(arg0);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_self_e7c1f827057f6584 = function() { return handleError(function () {
+        const ret = self.self;
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_window_a09ec664e14b1b81 = function() { return handleError(function () {
+        const ret = window.window;
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_globalThis_87cbb8506fecf3a9 = function() { return handleError(function () {
+        const ret = globalThis.globalThis;
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_global_c85a9259e621f3db = function() { return handleError(function () {
+        const ret = global.global;
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbindgen_is_undefined = function(arg0) {
+        const ret = getObject(arg0) === undefined;
+        return ret;
+    };
+    imports.wbg.__wbindgen_debug_string = function(arg0, arg1) {
+        const ret = debugString(getObject(arg1));
+        const ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        getInt32Memory0()[arg0 / 4 + 1] = len0;
+        getInt32Memory0()[arg0 / 4 + 0] = ptr0;
+    };
+    imports.wbg.__wbindgen_throw = function(arg0, arg1) {
+        throw new Error(getStringFromWasm0(arg0, arg1));
+    };
+
+    return imports;
+}
+
+function initMemory(imports, maybe_memory) {
+
+}
+
+function finalizeInit(instance, module) {
+    wasm = instance.exports;
+    init.__wbindgen_wasm_module = module;
+    cachedInt32Memory0 = null;
+    cachedUint8Memory0 = null;
+
+
+    return wasm;
+}
+
+function initSync(module) {
+    const imports = getImports();
+
+    initMemory(imports);
+
+    if (!(module instanceof WebAssembly.Module)) {
+        module = new WebAssembly.Module(module);
+    }
+
+    const instance = new WebAssembly.Instance(module, imports);
+
+    return finalizeInit(instance, module);
+}
+
+async function init(input) {
+    if (typeof input === 'undefined') {
+        input = new URL('markdown_bg.wasm', import.meta.url);
+    }
+    const imports = getImports();
+
+    if (typeof input === 'string' || (typeof Request === 'function' && input instanceof Request) || (typeof URL === 'function' && input instanceof URL)) {
+        input = fetch(input);
+    }
+
+    initMemory(imports);
+
+    const { instance, module } = await load(await input, imports);
+
+    return finalizeInit(instance, module);
+}
+
+export { initSync }
+export default init;

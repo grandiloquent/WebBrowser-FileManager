@@ -5,26 +5,320 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文档</title>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/go.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/powershell.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/vbscript.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/shell.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/css.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/autoit.min.js"></script>
-    <link rel="stylesheet" href="markdown/markdown.css">
-    <link rel="stylesheet" href="markdown/github-markdown-light.css">
-    <link rel="stylesheet" href="markdown/github.min.css">
-    <script src="markdown/markdown-it.js"></script>
+    <title>Document</title>
+    <style>
+        html {
+            color: #0f0f0f;
+            background-color: #fff;
+            font-size: 10px;
+            font-family: Roboto, Arial, sans-serif
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            font-size: 1.2rem;
+            overflow-x: hidden
+        }
+
+        input,
+        textarea {
+            background-color: transparent;
+            padding-bottom: 4px;
+            outline: none;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 0;
+            margin-bottom: 1px;
+            font: inherit;
+            color: #0f0f0f
+        }
+
+        input::-webkit-input-placeholder,
+        textarea::-webkit-input-placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #606060;
+            opacity: 1
+        }
+
+        textarea {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 8.4rem;
+            width: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 8px
+        }
+
+        input {
+            border-bottom: 1px solid #737373;
+            text-overflow: ellipsis
+        }
+
+        input:focus {
+            margin-bottom: 0;
+            border-bottom-width: 2px;
+            border-bottom-color: #0f0f0f
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        textarea {
+            flex-grow: 1;
+            resize: none;
+            font-size: 18px;
+        }
+
+        textarea:focus {
+            outline: none;
+        }
+
+        .markdown-container {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background-color: #fff;
+            padding: 16px;
+            font-size: 16px;
+            line-height: 24px;
+            overflow-y: auto;
+        }
+
+        .markdown-container h2 {
+            box-sizing: inherit;
+            font: 600 24px/32px Android Euclid, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            letter-spacing: normal;
+            margin: 56px 0 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-bottom: 0;
+            padding: 0;
+        }
+
+        .markdown-container p {
+            margin: 16px 0;
+            padding: 0;
+        }
+
+        .markdown-container h1 {
+            box-sizing: inherit;
+            color: #000;
+            font: 600 40px/48px Android Euclid, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            letter-spacing: -0.5px;
+            margin: 40px 0 20px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline;
+            margin-top: 0;
+            vertical-align: middle;
+            margin-inline-end: 83px;
+        }
+
+        .markdown-container a {
+
+            box-sizing: inherit;
+            color: #1769e0;
+            outline: 0;
+            text-decoration: none;
+            word-break: break-word;
+        }
+
+        .markdown-container a:focus {
+            text-decoration: underline;
+        }
+
+        .markdown-container code {
+
+
+            box-sizing: inherit;
+            background: #f8f9fa;
+            color: #37474f;
+            direction: ltr !important;
+            padding: 1px 4px;
+            text-align: left !important;
+            border: 1px solid #e8eaed;
+            border-radius: 4px;
+            font: 500 90%/1 Roboto Mono, Consolas, monospace;
+            word-break: break-word;
+        }
+
+        .markdown-container code a {
+            color: #185abc;
+        }
+
+        .markdown-container pre {
+
+            box-sizing: inherit;
+            background: #f8f9fa;
+            color: #37474f;
+            direction: ltr !important;
+            text-align: left !important;
+            font: 14px/20px Roboto Mono, Consolas, monospace;
+            overflow-x: auto;
+            padding: 24px;
+            position: relative;
+            margin: 0;
+        }
+
+        .markdown-container pre code {
+
+            box-sizing: inherit;
+            direction: ltr !important;
+            text-align: left !important;
+            border-radius: 4px;
+            font: 500 90%/1 Roboto Mono, Consolas, monospace;
+            font-weight: 400;
+            word-break: normal;
+            background: 0;
+            border: 0;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .markdown-container h {
+            box-sizing: inherit;
+            margin: 0;
+            padding-left: 40px;
+            list-style: disc outside;
+        }
+
+        .markdown-container li,
+        .markdown-container li p {
+            margin: 12px 0;
+            padding: 0;
+        }
+
+        .markdown-container img {
+
+            border: 0;
+            height: auto;
+            max-width: 100%;
+        }
+
+        .markdown-container .table-wrapper {
+            box-sizing: inherit;
+            padding: 0;
+            margin: 32px 0;
+            overflow: auto;
+        }
+
+        .markdown-container table {
+
+            box-sizing: inherit;
+            border: 0;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font: 14px/20px Roboto, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            width: 100%;
+            margin: 0;
+        }
+
+        .markdown-container tr {
+            border-collapse: collapse;
+            border-spacing: 0;
+            font: 14px/20px Roboto, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            box-sizing: inherit;
+            border: 0;
+        }
+
+        .markdown-container tr:first-child {
+            border-top: 1px solid rgb(218, 220, 224);
+        }
+
+        .markdown-container td {
+
+            border: 0;
+            margin: 0;
+            text-align: left;
+            padding: 15px 16px 16px;
+            background: hsla(0, 0%, 100%, .95);
+            vertical-align: top;
+        }
+
+        .markdown-container h3 {
+
+            box-sizing: inherit;
+            font: 500 20px/28px Android Euclid, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            letter-spacing: -0.25px;
+            margin: 32px 0 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .markdown-container h4 {
+
+            box-sizing: inherit;
+            margin: 32px 0 16px;
+            font: 500 18px/28px Android Euclid, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .markdown-container h5 {
+
+            box-sizing: inherit;
+            margin: 32px 0 16px;
+            font: 700 16px/24px Roboto, Noto Sans, Noto Sans JP, Noto Sans KR, Noto Naskh Arabic, Noto Sans Thai, Noto Sans Hebrew, Noto Sans Bengali, sans-serif;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .markdown-container ol {
+
+            box-sizing: inherit;
+            margin: 0;
+            padding-left: 40px;
+            list-style: decimal outside;
+        }
+    </style>
 </head>
 
 <body>
-<div class="wrapper">
-    <div bind="wrapper" class="markdown-body"></div>
-</div>
-<script src="markdown/markdown.js"></script>
+<script type="module">
+    import init, {start} from "./markdown.js";
+
+    async function loadData(path) {
+        const res = await fetch(`/api/file?path=${path}`);
+        return res.text();
+    }
+
+    async function initialize() {
+        const path = new URL(window.location).searchParams.get("path");
+        if (!path)
+            return;
+        const contents = await loadData(path);
+        init().then(() => {
+            let extension;
+            let index = path.lastIndexOf(".");
+            if (index === -1) {
+                extension = "";
+            } else {
+                extension = path.substring(index + 1);
+            }
+            start(contents, extension)
+        });
+    }
+
+    initialize();
+</script>
 </body>
 
 </html>

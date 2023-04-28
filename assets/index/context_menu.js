@@ -38,6 +38,8 @@ function showContextMenu(detail) {
             savePath(detail.path);
         } else if (evt.detail === "删除") {
             showDeleteDialog(detail.path)
+        }else if (evt.detail === "压缩") {
+          window.open(`/compress_dir?path=${detail.path}`,'_blank');
         }
     })
 }

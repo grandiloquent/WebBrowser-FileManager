@@ -17,3 +17,4 @@ pub mod rust;
 pub mod db;
 pub mod translate;
 pub mod notes;
+pub mod subtitle;
