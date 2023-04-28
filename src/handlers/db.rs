@@ -12,7 +12,6 @@ use crate::data::notes::{Note, NoteContent, Notes};
 use crate::data::snippet::Snippet;
 use crate::data::statistics::Statistics;
 use crate::seek_stream::SeekStream;
-
 #[get("/api/note?<id..>")]
 pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -38,7 +37,6 @@ pub async fn get_notes(id: Option<i32>, conn: NotesConnection) -> Result<String,
         }
     }
 }
-
 #[get("/api/note/search?<q>")]
 pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
     match Notes::search(q, &conn).await {
@@ -50,7 +48,6 @@ pub async fn search_notes(q: String, conn: NotesConnection) -> Result<String, St
         }
     }
 }
-
 #[get("/api/note/like?<q>")]
 pub async fn like_notes(q: String, conn: NotesConnection) -> Result<String, Status> {
     match Notes::like(&conn).await {
@@ -75,7 +72,6 @@ pub async fn like_notes(q: String, conn: NotesConnection) -> Result<String, Stat
         }
     }
 }
-
 #[post("/api/note/insert?<id..>", data = "<note_form>")]
 pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -108,7 +104,6 @@ pub async fn insert_note(id: Option<i32>, note_form: String, conn: NotesConnecti
     }
     Ok("Success".to_string())
 }
-
 #[post("/api/note/append?<id>", data = "<v>")]
 pub async fn append_note(id: i32, v: String, conn: NotesConnection) -> Result<String, Status> {
     if let Err(e) = Notes::append_content(id, v, &conn).await {
@@ -116,7 +111,6 @@ pub async fn append_note(id: i32, v: String, conn: NotesConnection) -> Result<St
     }
     Ok("Success".to_string())
 }
-
 #[get("/api/snippet?<prefix..>")]
 pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Result<String, Status> {
     match prefix {
@@ -142,7 +136,6 @@ pub async fn get_snippet(prefix: Option<String>, conn: NotesConnection) -> Resul
         }
     }
 }
-
 #[post("/api/snippet/insert?<id..>", data = "<snippet_form>")]
 pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -164,7 +157,6 @@ pub async fn insert_snippet(id: Option<i32>, snippet_form: String, conn: NotesCo
     }
     Ok("Success".to_string())
 }
-
 #[get("/api/snippet/delete?<prefix>")]
 pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<String, Status> {
     if let Err(e) = Snippet::delete_with_prefix(prefix, &conn).await {
@@ -173,7 +165,6 @@ pub async fn delete_snippet(prefix: String, conn: NotesConnection) -> Result<Str
     }
     Ok("Success".to_string())
 }
-
 #[get("/api/statistics?<id..>")]
 pub async fn get_statistics(id: Option<i32>, conn: NotesConnection) -> Result<String, Status> {
     match id {
@@ -199,7 +190,6 @@ pub async fn get_statistics(id: Option<i32>, conn: NotesConnection) -> Result<St
         }
     }
 }
-
 #[get("/api/statistics/insert?<id>")]
 pub async fn insert_statistics(id: i32, conn: NotesConnection) -> Result<String, Status> {
     match Statistics::insert(id, &conn).await {

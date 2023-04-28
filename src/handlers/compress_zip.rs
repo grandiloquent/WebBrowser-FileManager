@@ -17,7 +17,6 @@ use rocket::response::Responder;
 use walkdir::WalkDir;
 use rocket::response::stream::ReaderStream;
 use crate::utils::strings::StringExt;
-
 fn zip_dir<T>(
     it: &mut dyn Iterator<Item=walkdir::DirEntry>,
     prefix: &str,
@@ -56,9 +55,7 @@ fn zip_dir<T>(
     zip.finish()?;
     Result::Ok(())
 }
-
 const METHOD_STORED: Option<zip::CompressionMethod> = Some(zip::CompressionMethod::Stored);
-
 // http://192.168.8.189:3000/compress_dir?path=D:\Books9
 #[get("/compress_dir?<path>")]
 pub async fn compress_zip(path: String) -> FileResponse {
@@ -83,7 +80,6 @@ pub async fn compress_zip(path: String) -> FileResponse {
 //     Ok(())
     FileResponse::new(path)
 }
-
 fn list_files(path: &str) -> Result<Vec<PathBuf>, std::io::Error> {
     let mut list = Vec::new();
     let read_dir = fs::read_dir(path)?;
@@ -93,7 +89,6 @@ fn list_files(path: &str) -> Result<Vec<PathBuf>, std::io::Error> {
     }
     return Ok(list);
 }
-
 // https://github.com/zip-rs/zip/blob/master/examples/write_dir.rs
 fn doit(
     src_dir: &str,
@@ -110,12 +105,9 @@ fn doit(
     zip_dir(&mut it.filter_map(|e| e.ok()), src_dir, file, method)?;
     Ok(())
 }
-
-
 pub struct FileResponse {
     dir: String,
 }
-
 impl FileResponse {
     pub fn new(dir: String) -> FileResponse {
         FileResponse {
@@ -123,7 +115,6 @@ impl FileResponse {
         }
     }
 }
-
 #[rocket::async_trait]
 impl<'r> Responder<'r, 'static> for FileResponse {
     fn respond_to(self, req: &'r rocket::Request<'_>) -> response::Result<'static> {
@@ -172,4 +163,3 @@ impl<'r> Responder<'r, 'static> for FileResponse {
             .sized_body(bytes_written as usize, buf).ok()
     }
 }
-
