@@ -8,6 +8,7 @@ pub mod api_asset_file;
 pub mod favicon;
 pub mod api_file_new_file;
 pub mod api_file_new_dir;
+pub mod api_file_rename;
 pub mod extract_zip;
 pub mod editor;
 pub mod compress_zip;
