@@ -36,6 +36,14 @@ pub struct Note {
     pub update_at: i64,
 }
 
+#[derive(Serialize, Queryable)]
+pub struct NoteContent {
+    pub _id: Option<i32>,
+    pub title: String,
+    pub content: String,
+    pub update_at: i64,
+}
+
 impl Notes {
     pub async fn all(conn: &NotesConnection) -> QueryResult<Vec<Note>> {
         conn.run(|c| {
@@ -79,12 +87,11 @@ impl Notes {
                 .order(notes::update_at.desc()).load::<Note>(c)
         }).await
     }
-    pub async fn like(needle: String, conn: &NotesConnection) -> QueryResult<Vec<Note>> {
+    pub async fn like(conn: &NotesConnection) -> QueryResult<Vec<NoteContent>> {
         conn.run(|c| {
             notes::table
-                .select((notes::_id, notes::title, notes::update_at))
-                .filter(notes::content.like(needle))
-                .order(notes::update_at.desc()).load::<Note>(c)
+                .select((notes::_id, notes::title, notes::content, notes::update_at))
+                .order(notes::update_at.desc()).load::<NoteContent>(c)
         }).await
     }
     pub async fn query_content(id: i32, conn: &NotesConnection) -> QueryResult<String> {

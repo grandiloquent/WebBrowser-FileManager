@@ -16,6 +16,7 @@ use std::fs::File;
 use rocket::response::Responder;
 use walkdir::WalkDir;
 use rocket::response::stream::ReaderStream;
+use crate::utils::strings::StringExt;
 
 fn zip_dir<T>(
     it: &mut dyn Iterator<Item=walkdir::DirEntry>,
@@ -166,7 +167,7 @@ impl<'r> Responder<'r, 'static> for FileResponse {
             .raw_header(
                 "Content-Disposition",
                 // TODO: escape?
-                format!("attachment; filename=\"{}\"", "1.zip"),
+                format!("attachment; filename=\"{}.zip\"",self.dir.substring_after_last("\\")),
             )
             .sized_body(bytes_written as usize, buf).ok()
     }

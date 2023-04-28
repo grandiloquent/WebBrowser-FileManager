@@ -18,22 +18,9 @@
   <component name="ChangeListManager">
     <list default="true" id="f6544880-35b3-474c-b6d1-f59fd71440e2" name="变更" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/format.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/format.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" beforeDir="false" afterPath="$PROJECT_DIR$/Front/notes/src/utils/utils.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/context_menu.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/context_menu.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/index/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/index/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/github-markdown-light.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/github.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/markdown-it.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/markdown.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/markdown.html" beforeDir="false" afterPath="$PROJECT_DIR$/assets/markdown/markdown.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/markdown/markdown.js" beforeDir="false" afterPath="$PROJECT_DIR$/assets/markdown/markdown.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/data/notes.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/notes.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/handlers/compress_zip.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/compress_zip.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/handlers/video.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/video.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/seek_stream/seekstream.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/seek_stream/seekstream.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/handlers/db.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/handlers/db.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +120,7 @@
       <workItem from="1681231774166" duration="70678000" />
       <workItem from="1681718030066" duration="42624000" />
       <workItem from="1681905422384" duration="32573000" />
-      <workItem from="1682535578185" duration="16816000" />
+      <workItem from="1682535578185" duration="18116000" />
     </task>
     <servers />
   </component>
