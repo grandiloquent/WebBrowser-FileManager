@@ -1,4 +1,3 @@
-use std::io::Read;
 use std::sync::Arc;
 #[cfg(feature = "static_ref")]
 use static_ref_macro::static_ref;
@@ -14,7 +13,6 @@ use crate::utils::utils::*;
 
 mod utils;
 
-use crate::utils::element::insert_settings_menu_item;
 
 
 #[wasm_bindgen]
@@ -212,4 +210,4 @@ pub fn start(path_separator: &str) {
 
 // &env:RUSTFLAGS="--cfg=web_sys_unstable_apis";wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Resources\Manager\assets\notes
 // &env:RUSTFLAGS="--cfg=web_sys_unstable_apis";
-// wasm-pack build --target web --out-dir C:\Users\Administrator\Desktop\Killer\app\src\main\assets\notes
+// wasm-pack build --target web --out-dir C:\Users\psycho\Desktop\file\Manager\assets\notes\pkg
